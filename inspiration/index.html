@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GenAI Study Grid</title>
+  <meta name="description" content="Interactive study website for Generative AI notes, flashcards, and lecture page summaries.">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="study-data.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="bg-orbit bg-orbit-a" aria-hidden="true"></div>
+  <div class="bg-orbit bg-orbit-b" aria-hidden="true"></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block panel">
+        <p class="eyebrow">GEN AI STUDY GRID</p>
+        <h1>Study Smart, Not Flat</h1>
+        <p class="brand-copy">
+          Local static website built from your combined notes and lecture page map.
+        </p>
+      </div>
+
+      <section class="progress-card panel">
+        <div class="progress-ring" id="progressRing" aria-label="Section completion progress">
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-copy">
+          <h2>Progress</h2>
+          <p id="progressText">0 of 0 sections finished</p>
+        </div>
+      </section>
+
+      <section class="panel search-panel">
+        <label class="search-label" for="globalSearch">Search the whole study set</label>
+        <input id="globalSearch" class="search-input" type="search" placeholder="Search concepts, models, risks, formulas...">
+        <p id="searchStatus" class="search-status">Index loading...</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>View Mode</h2>
+        </div>
+        <div class="view-switches">
+          <button type="button" class="view-button active" data-view-target="dashboard">Dashboard</button>
+          <button type="button" class="view-button" data-view-target="notes">Notes</button>
+          <button type="button" class="view-button" data-view-target="flashcards">Flashcards</button>
+          <button type="button" class="view-button" data-view-target="sources">Lecture Pages</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Focus Filter</h2>
+        </div>
+        <div id="categoryChips" class="chip-grid"></div>
+      </section>
+
+      <section class="panel nav-panel">
+        <div class="panel-head">
+          <h2>Section Map</h2>
+        </div>
+        <nav id="sectionNav" class="section-nav" aria-label="Notes sections"></nav>
+      </section>
+    </aside>
+
+    <main class="main-pane">
+      <header class="hero panel">
+        <div class="hero-copy">
+          <p class="hero-kicker">Generative AI exam stack</p>
+          <h2 id="heroTitle">Generative AI Combined Notes</h2>
+          <p id="heroSubtitle" class="hero-subtitle">
+            One smart local study site for theory, comparisons, revision, and lecture page snapshots.
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="hero-button hero-button-primary" id="jumpRevision">Open Revision Sheet</button>
+            <button type="button" class="hero-button" id="jumpFlashcards">Start Recall Mode</button>
+            <button type="button" class="hero-button" id="jumpSources">Browse Lecture Pages</button>
+          </div>
+        </div>
+
+        <div class="hero-meta">
+          <div id="statStrip" class="stat-strip"></div>
+          <div class="meta-panels">
+            <article class="meta-card">
+              <p class="mini-eyebrow">Source PDFs</p>
+              <ul id="sourceList" class="mini-list"></ul>
+            </article>
+            <article class="meta-card">
+              <p class="mini-eyebrow">Blind Spots</p>
+              <ul id="gapList" class="mini-list"></ul>
+            </article>
+          </div>
+        </div>
+      </header>
+
+      <section id="dashboardView" class="view-panel">
+        <div class="dashboard-grid">
+          <article class="panel route-panel">
+            <div class="panel-head">
+              <h3>Study Route</h3>
+              <p>Three passes instead of one messy grind.</p>
+            </div>
+            <div id="routeGrid" class="route-grid"></div>
+          </article>
+
+          <article class="panel bottleneck-panel">
+            <div class="panel-head">
+              <h3>Watch This</h3>
+              <p>The mistake most likely to waste your study time.</p>
+            </div>
+            <div id="bottleneckCopy" class="callout-copy"></div>
+          </article>
+
+          <article class="panel revision-panel" id="revisionPanel">
+            <div class="panel-head">
+              <h3>One-Screen Revision</h3>
+              <p>High-speed recap for the night before exam mode.</p>
+            </div>
+            <div id="revisionGrid" class="revision-grid"></div>
+          </article>
+
+          <article class="panel recall-panel">
+            <div class="panel-head">
+              <h3>Active Recall Prompts</h3>
+              <p>Use these as viva or long-answer triggers.</p>
+            </div>
+            <ol id="examPromptList" class="prompt-list"></ol>
+          </article>
+
+          <article class="panel compare-panel">
+            <div class="panel-head">
+              <h3>Comparison Boards</h3>
+              <p>The high-yield tables extracted from the notes.</p>
+            </div>
+            <div id="comparisonGrid" class="comparison-grid"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="notesView" class="view-panel" hidden>
+        <div class="view-title">
+          <div>
+            <p class="mini-eyebrow">Full Notes</p>
+            <h3>Topic Map</h3>
+          </div>
+          <p id="notesResultCount" class="view-status"></p>
+        </div>
+        <div id="notesSections" class="section-stack"></div>
+      </section>
+
+      <section id="flashcardsView" class="view-panel" hidden>
+        <div class="flashcards-top panel">
+          <div>
+            <p class="mini-eyebrow">Recall Mode</p>
+            <h3>Flashcards</h3>
+            <p id="flashcardMeta" class="view-status"></p>
+          </div>
+          <div class="flashcard-filters">
+            <label class="flashcard-select-wrap">
+              <span class="sr-only">Filter flashcards by section</span>
+              <select id="flashcardSectionSelect"></select>
+            </label>
+            <button type="button" class="hero-button" id="shuffleCards">Shuffle</button>
+          </div>
+        </div>
+
+        <div class="flashcard-stage">
+          <button type="button" class="nav-arrow" id="prevCard" aria-label="Previous flashcard">←</button>
+          <article class="flashcard-shell" id="flashcardShell">
+            <div class="flashcard-face flashcard-front">
+              <p id="flashcardSectionTag" class="flashcard-tag"></p>
+              <h3 id="flashcardPrompt" class="flashcard-prompt"></h3>
+              <p class="flashcard-hint">Answer in your head first, then flip.</p>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <div class="flashcard-back-head">
+                <p id="flashcardSectionBackTag" class="flashcard-tag"></p>
+                <p class="flashcard-hint">Back side</p>
+              </div>
+              <div id="flashcardAnswer" class="flashcard-answer"></div>
+            </div>
+          </article>
+          <button type="button" class="nav-arrow" id="nextCard" aria-label="Next flashcard">→</button>
+        </div>
+
+        <div class="flashcard-controls">
+          <button type="button" class="hero-button hero-button-primary" id="revealCard">Reveal</button>
+          <button type="button" class="hero-button" id="markCardDone">Mark Card Done</button>
+        </div>
+      </section>
+
+      <section id="sourcesView" class="view-panel" hidden>
+        <div class="view-title">
+          <div>
+            <p class="mini-eyebrow">Lecture Snapshot Mode</p>
+            <h3>Page Explorer</h3>
+          </div>
+          <p id="deckStatus" class="view-status"></p>
+        </div>
+
+        <div class="sources-layout">
+          <aside class="panel deck-panel">
+            <div class="panel-head">
+              <h3>Lecture Decks</h3>
+              <p>Switch decks and inspect page-by-page bullet snapshots.</p>
+            </div>
+            <div id="deckButtons" class="deck-buttons"></div>
+          </aside>
+
+          <div class="source-content">
+            <article class="panel source-summary">
+              <p class="mini-eyebrow">Current Deck</p>
+              <h3 id="deckTitle"></h3>
+              <p id="deckDescription" class="view-status"></p>
+            </article>
+            <div id="pageCards" class="page-grid"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

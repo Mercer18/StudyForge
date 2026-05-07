@@ -1,0 +1,575 @@
+
+
+===== PAGE 1 =====
+Lecture 5: Generative AI Landscape and Ecosystem
+DSE3261: Generative AI and Large Language Models
+Course Instructor
+February 1, 2026
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 1 / 33
+
+===== PAGE 2 =====
+Lecture Outline
+1 GenAI Workflow
+2 GenAI Ecosystem
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 2 / 33
+
+===== PAGE 3 =====
+End-to-End GenAI Workflow
+Data Collection & Preparation
+Pre-training
+Fine-tuning
+Evaluation
+Deployment
+Monitoring & Iteration
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 3 / 33
+
+===== PAGE 4 =====
+End-to-End Generative AI Workflow
+Data Collection
+Web, books, code, images
+Pre-training
+Learn language & world patterns
+RLHF (Human Feedback)
+Align model with human values
+Fine-tuning
+Teach task-specific behavior
+Evaluation
+Accuracy, safety, bias tests
+Deployment
+API, Chatbots, Applications
+Monitoring
+User feedback & errors
+Training Phase Above — Inference Phase Below
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 4 / 33
+
+===== PAGE 5 =====
+Stage 1: Data Collection and Preparation
+Data Sources:
+Public Web:Common Crawl, Wikipedia, Reddit
+Books:Project Gutenberg, Books3
+Code:GitHub, Stack Overflow
+Academic:ArXiv, PubMed
+Proprietary:Domain-specific datasets
+Data Processing Pipeline:
+1 Collection:Web scraping, API access, licensing
+2 Filtering:Quality, language, toxicity filters
+3 Deduplication:Remove redundant content
+4 Tokenization:Convert text to tokens
+5 Formatting:Structure for training
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 5 / 33
+
+===== PAGE 6 =====
+Data Quality and Curation
+Quality Dimensions:
+Aspect Considerations
+Accuracy Factual correctness, citations
+Relevance Domain alignment, task fit
+Diversity Coverage of topics, perspectives
+Freshness Temporal relevance, updates
+Safety Toxicity, bias, harmful content
+Legality Copyright, privacy, licensing
+Data Challenge
+”Garbage in, garbage out” - Data quality directly impacts model
+capabilities and biases
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 6 / 33
+
+===== PAGE 7 =====
+Stage 2: Pre-training
+Self-Supervised Learning Objectives:
+Causal Language Modeling (CLM):
+Predict next token given previous tokens
+Used in: GPT, LLaMA, PaLM
+Objective: max P
+t logP(x t |x<t)
+Masked Language Modeling (MLM):
+Predict masked tokens from context
+Used in: BERT, RoBERTa
+Bidirectional context
+Span Corruption:
+Predict corrupted text spans
+Used in: T5, UL2
+Flexible masking strategies
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 7 / 33
+
+===== PAGE 8 =====
+Pre-training Infrastructure
+Computational Requirements:
+Hardware:TPUs, GPUs (A100, H100)
+Scale:Thousands of accelerators
+Duration:Weeks to months
+Cost:Millions to tens of millions of dollars
+Optimization Techniques:
+Mixed precision training (FP16, BF16)
+Gradient accumulation
+Pipeline parallelism
+Tensor parallelism
+Data parallelism
+Activation checkpointing
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 8 / 33
+
+===== PAGE 9 =====
+Stage 3: Fine-tuning Approaches
+Fine-tuning Spectrum:
+1 Full Fine-tuning:
+Update all model parameters
+Maximum adaptation
+Resource intensive
+2 Parameter-Efficient Fine-Tuning (PEFT):
+LoRA (Low-Rank Adaptation)
+Prefix tuning
+Adapter layers
+Update small fraction of parameters
+3 Prompt Engineering:
+No parameter updates
+In-context learning
+Few-shot examples
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 9 / 33
+
+===== PAGE 10 =====
+Instruction Fine-tuning
+Process:
+Goal
+Teach model to follow natural language instructions
+Dataset Format:
+Instruction-response pairs
+Multiple task types (summarization, QA, classification, etc.)
+High-quality human-written or curated examples
+Example Datasets:
+FLAN (Fine-tuned LAnguage Net): 1800+ tasks
+Alpaca: 52K instruction-following demonstrations
+Dolly: 15K human-generated prompts
+OpenAssistant: Conversational data
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 10 / 33
+
+===== PAGE 11 =====
+Alignment: RLHF
+Reinforcement Learning from Human Feedback
+1 Supervised Fine-tuning (SFT):
+Train on high-quality demonstrations
+2 Reward Model Training:
+Collect human preference comparisons
+Train model to predict preferences
+Reward function: helpful, harmless, honest
+3 RL Optimization:
+Use PPO (Proximal Policy Optimization)
+Maximize reward while staying close to SFT model
+KL divergence penalty
+Used in: ChatGPT, Claude, GPT-4
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 11 / 33
+
+===== PAGE 12 =====
+Stage 4: Evaluation
+Evaluation Dimensions:Automatic Metrics:
+Perplexity
+BLEU, ROUGE
+BERTScore
+Task accuracy
+Benchmark suites
+Human Evaluation:
+Quality ratings
+Preference comparisons
+Expert assessment
+A/B testing
+User studies
+Popular Benchmarks:
+MMLU (Massive Multitask Language Understanding)
+HellaSwag, ARC, TruthfulQA
+HumanEval (code generation)
+BigBench
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 12 / 33
+
+===== PAGE 13 =====
+Stage 5: Deployment Strategies
+Deployment Options:
+1 Cloud API:
+OpenAI API, Anthropic API, Google Cloud
+Pay-per-token pricing
+No infrastructure management
+2 Self-Hosted Cloud:
+AWS SageMaker, Azure ML, GCP Vertex AI
+More control, data privacy
+Infrastructure responsibility
+3 On-Premise:
+Full control and privacy
+Significant infrastructure investment
+Compliance requirements
+4 Edge Deployment:
+Quantized models
+Mobile/IoT devices
+Low latency, privacy
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 13 / 33
+
+===== PAGE 14 =====
+Model Optimization for Deployment
+Efficiency Techniques:
+Quantization:
+INT8, INT4, binary weights
+Reduces memory and compute
+Trade-off: slight accuracy loss
+Pruning:
+Remove less important weights
+Structured or unstructured
+Maintain performance with fewer parameters
+Distillation:
+Train smaller student model
+Mimic larger teacher model
+Example: DistilBERT (66% size, 97% performance)
+Caching & Batching:
+KV cache for attention
+Dynamic batching for throughput
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 14 / 33
+
+===== PAGE 15 =====
+Stage 6: Monitoring and Iteration
+Production Monitoring:
+Performance Metrics:
+Latency, throughput, uptime
+Token usage and costs
+Error rates
+Quality Monitoring:
+Output quality checks
+Hallucination detection
+Safety violations
+User feedback
+Usage Analytics:
+Popular use cases
+Failure modes
+Edge cases
+Continuous Improvement:
+Collect production data for retraining
+A/B testing of model versions
+Iterative fine-tuning
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 15 / 33
+
+===== PAGE 16 =====
+Stage 6: Monitoring and Iteration
+Production Monitoring:
+Performance Metrics:
+Latency, throughput, uptime
+Token usage and costs
+Error rates
+Quality Monitoring:
+Output quality checks
+Hallucination detection
+Safety violations
+User feedback
+Usage Analytics:
+Popular use cases
+Failure modes
+Edge cases
+Continuous Improvement:
+Collect production data for retraining
+A/B testing of model versions
+Iterative fine-tuning
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 16 / 33
+
+===== PAGE 17 =====
+The GenAI Ecosystem Layers
+Applications Layer
+Development Tools & Frameworks
+Model APIs & Services
+Foundation Models
+Infrastructure & Compute
+Each layer builds upon the previous, creating a complete ecosystem
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 17 / 33
+
+===== PAGE 18 =====
+Layer 1: Infrastructure and Compute
+Hardware Providers:
+NVIDIA:GPU dominance (A100, H100, GH200)
+Google:TPU (Tensor Processing Units)
+AMD:MI300 series
+Custom Silicon:AWS Trainium/Inferentia, Meta MTIA
+Cloud Providers:
+A WS:EC2 P5 instances, SageMaker
+Google Cloud:TPU VMs, Vertex AI
+Azure:ND-series VMs, Azure OpenAI
+CoreWeave:GPU-specialized cloud
+Lambda Labs:Cost-effective GPU rental
+Trend
+Shift towards specialized AI accelerators and disaggregated architectures
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 18 / 33
+
+===== PAGE 19 =====
+Layer 2: Foundation Models
+Model Providers:
+Provider Models Access Focus
+OpenAI GPT-4, GPT-3.5 API General purpose
+Anthropic Claude 3 family API Safety, analysis
+Google Gemini, PaLM 2 API Multimodal
+Meta LLaMA 3 Open weights Research, dev
+Mistral AI Mixtral, Mistral Open & API Efficiency
+Cohere Command, Embed API Enterprise
+AI21 Labs Jurassic-2 API Multilingual
+Stability AI Stable Diffusion Open Image gen
+Model Hubs:
+Hugging Face Hub: 500K+ models
+Ollama: Local model management
+Replicate: Cloud inference
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 19 / 33
+
+===== PAGE 20 =====
+Layer 3: Model APIs and Services
+API Platforms:
+Direct Provider APIs:
+OpenAI API, Anthropic API, Google AI
+Native features, latest models
+Unified API Platforms:
+Hugging Face Inference API
+Replicate
+Together AI
+Single interface, multiple models
+Enterprise Platforms:
+Azure OpenAI Service
+AWS Bedrock
+Google Cloud Vertex AI
+Compliance, security, integration
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 20 / 33
+
+===== PAGE 21 =====
+Specialized Services
+Embedding Services:
+OpenAI Embeddings, Cohere Embed
+Sentence Transformers
+Vector representation for semantic search
+Fine-tuning Platforms:
+OpenAI Fine-tuning API
+Hugging Face AutoTrain
+Anyscale Endpoints
+Simplify custom model training
+Evaluation Services:
+Weights & Biases
+MLflow
+Experiment tracking and comparison
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 21 / 33
+
+===== PAGE 22 =====
+Layer 4: Development Tools and Frameworks
+Application Frameworks:
+LangChain:
+Orchestration framework
+Chains, agents, memory
+Python & JavaScript
+LlamaIndex (GPT Index):
+Data ingestion and indexing
+RAG (Retrieval Augmented Generation)
+Document Q&A
+Haystack:
+NLP pipeline framework
+Search and QA systems
+Production-ready
+Semantic Kernel:
+Microsoft’s SDK
+Plugin architecture
+Enterprise integration
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 22 / 33
+
+===== PAGE 23 =====
+Vector Databases
+Purpose:Store and retrieve embeddings efficiently
+Database Type Key Feature
+Pinecone Managed Fully managed, scalable
+Weaviate Open-source GraphQL, hybrid search
+Milvus Open-source Distributed, high perf
+Chroma Embedded Lightweight, local
+Qdrant Open-source Filtering, payloads
+FAISS Library Meta’s similarity search
+Use Cases:
+Semantic search
+RAG systems
+Recommendation engines
+Similarity matching
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 23 / 33
+
+===== PAGE 24 =====
+MLOps and LLMOps Tools
+Training & Experimentation:
+Hugging Face Transformers, Accelerate
+DeepSpeed, Megatron-LM (Microsoft/NVIDIA)
+PyTorch, JAX, TensorFlow
+Deployment & Serving:
+vLLM: High-throughput inference
+TensorRT-LLM: NVIDIA optimization
+Text Generation Inference (TGI): Hugging Face
+Ray Serve: Scalable serving
+Monitoring & Observability:
+LangSmith: LangChain debugging
+Weights & Biases: Experiment tracking
+Arize AI: ML observability
+PromptLayer: Prompt tracking
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 24 / 33
+
+===== PAGE 25 =====
+Prompt Engineering Tools
+Prompt Management:
+PromptBase:Marketplace for prompts
+PromptPerfect:Optimization tool
+AI Dungeon:Interactive prompt testing
+ChatGPT Prompt Generator:Template library
+Development Environments:
+OpenAI Playground:Interactive testing
+Anthropic Console:Claude testing
+Google AI Studio:Gemini experimentation
+Humanloop:Prompt versioning & testing
+Best Practice
+Version control prompts like code - they’re critical application logic
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 25 / 33
+
+===== PAGE 26 =====
+Layer 5: Applications
+Categories:
+Productivity:
+ChatGPT, Claude
+Notion AI
+Microsoft Copilot
+Jasper (copywriting)
+Creative:
+Midjourney
+DALL-E, Stable Diffusion
+Runway ML (video)
+ElevenLabs (voice)
+Developer Tools:
+GitHub Copilot
+Cursor, Replit AI
+Tabnine
+Amazon CodeWhisperer
+Specialized:
+Perplexity AI (search)
+Character.AI (chat)
+Synthesia (video)
+DoNotPay (legal)
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 26 / 33
+
+===== PAGE 27 =====
+Enterprise Applications
+Business Functions:
+Customer Service:
+Intelligent chatbots
+Automated ticket routing
+Sentiment analysis
+Sales & Marketing:
+Content generation
+Personalization
+Lead qualification
+Operations:
+Document analysis
+Process automation
+Knowledge management
+HR & Recruitment:
+Resume screening
+Interview assistance
+Training materials
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 27 / 33
+
+===== PAGE 28 =====
+Key Ecosystem Players
+Major Technology Companies:
+OpenAI:Leading model provider, ChatGPT
+Google/DeepMind:Research powerhouse, Gemini
+Microsoft:Azure OpenAI, Copilot integration
+Meta:Open-source models (LLaMA)
+Amazon:AWS Bedrock, infrastructure
+NVIDIA:Hardware, optimization software
+Specialized Startups:
+Anthropic:Safety-focused AI (Claude)
+Cohere:Enterprise NLP
+Stability AI:Open-source image generation
+Hugging Face:Open-source hub, democratization
+Mistral AI:Efficient open models
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 28 / 33
+
+===== PAGE 29 =====
+Ecosystem Trends
+Current Trends:
+1 Democratization:
+More open-source models
+Easier deployment tools
+Lower barriers to entry
+2 Specialization:
+Domain-specific models (legal, medical, code)
+Task-optimized architectures
+Industry-tailored solutions
+3 Multimodality:
+Text + Image + Audio + Video
+Unified architectures
+Cross-modal understanding
+4 Edge Deployment:
+Smaller, efficient models
+Privacy-preserving AI
+Local-first applications
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 29 / 33
+
+===== PAGE 30 =====
+Business Models in GenAI
+Revenue Streams:
+API Access:
+Pay-per-token pricing
+Subscription tiers
+Example: OpenAI, Anthropic
+SaaS Applications:
+Monthly/annual subscriptions
+Freemium models
+Example: ChatGPT Plus, Jasper
+Infrastructure:
+Cloud compute rental
+Managed services
+Example: AWS, GCP, Azure
+Open-Source + Services:
+Free models, paid support/hosting
+Example: Hugging Face, Stability AI
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 30 / 33
+
+===== PAGE 31 =====
+Challenges in the Ecosystem
+Technical Challenges:
+Compute costs and accessibility
+Model evaluation and benchmarking
+Interoperability standards
+Latency and throughput requirements
+Business Challenges:
+Unclear ROI for enterprises
+Vendor lock-in concerns
+Pricing volatility
+Integration complexity
+Governance Challenges:
+Regulatory uncertainty
+Copyright and IP issues
+Data privacy and security
+Ethical use and alignment
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 31 / 33
+
+===== PAGE 32 =====
+The Future Ecosystem
+Emerging Patterns:
+1 Commoditization of Base Models:
+More open-source alternatives
+Price pressure on API providers
+Value shift to applications and data
+2 Agentic AI:
+Multi-step reasoning
+Tool use and API calls
+Autonomous task completion
+3 Hybrid Architectures:
+Combining multiple models
+Retrieval + Generation
+Symbolic + Neural approaches
+4 Vertical Integration:
+End-to-end solutions
+Industry-specific stacks
+Embedded AI in existing products
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 32 / 33
+
+===== PAGE 33 =====
+Summary
+Key Takeaways:
+1 GenAI workflow spans data collection to deployment monitoring
+2 The ecosystem is layered: Infrastructure→Models→APIs→Tools
+→Applications
+3 Rapid innovation across all layers
+4 Mix of open-source and commercial offerings
+5 Moving towards democratization and specialization
+Strategic Insight
+Success in GenAI requires understanding the entire ecosystem, not just
+models. Choose the right layer and niche for your use case.
+Next Lecture:Deep dive into Language Models - from Small to Large
+Course Instructor Lecture 5: Generative AI Landscape and Ecosystem February 1, 2026 33 / 33

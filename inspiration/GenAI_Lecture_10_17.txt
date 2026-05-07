@@ -1,0 +1,982 @@
+
+
+===== PAGE 1 =====
+Advanced Generative AI: GANs, Autoencoders, and Transformers
+Topics 10-17: A Comprehensive Guide
+DSE
+Manipal University Jaipur
+February 12, 2026
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 1 / 45
+
+===== PAGE 2 =====
+Course Overview
+1 Generative Adversarial Networks (GANs)
+GAN Architecture
+GAN Training Process
+Variants of GANs
+2 Autoencoders
+Variants of Autoencoders
+Training Autoencoders
+3 Transformers
+Attention Mechanism
+4 Summary and Comparison
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 2 / 45
+
+===== PAGE 3 =====
+What is Generative AI?
+Generative AIcreates new content that
+resembles training data
+Types:
+Text generation
+Image synthesis
+Audio generation
+Video creation
+Key Difference:
+Discriminative:P(y|x) - classify
+Generative:P(x) - create
+Applications:
+Art creation
+Data augmentation
+Drug discovery
+Content generation
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 3 / 45
+
+===== PAGE 4 =====
+Introduction to GANs
+What are GANs?
+Generative Adversarial Networks(GANs) are a class of machine learning frameworks
+designed by Ian Goodfellow in 2014.
+Core Concept:
+Two neural networks compete
+Learn through adversarial process
+Generate realistic synthetic data
+Key Innovation:
+No explicit density function needed
+Learn complex distributions
+Game-theoretic approach
+”The coolest idea in deep learning in the last 20 years”- Yann LeCun
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 4 / 45
+
+===== PAGE 5 =====
+GAN Architecture: The Big Picture
+Generator
+G(z)
+Random Noisez
+Fake Samples
+Discriminator
+D(x)
+Real Samples
+Real/Fake?
+Probability
+Adversarial Training
+Two Player Game:
+Generator tries to fool the Discriminator
+Discriminator tries to distinguish real from fake
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 5 / 45
+
+===== PAGE 6 =====
+The Generator Network
+Purpose:Create fake samples that look real
+Input:Random noise vectorz∼p z(z)
+Usually Gaussian or Uniform distribution
+Low-dimensional (e.g., 100-dimensional)
+Architecture:
+Fully connected or convolutional layers
+Upsampling operations
+Activation: ReLU, LeakyReLU
+Output: Tanh (for images)
+Mathematical Representation
+G:Z → X
+xfake =G(z;θ g )
+Goal:
+min
+G
+Ez∼p z [log(1−D(G(z)))]
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 6 / 45
+
+===== PAGE 7 =====
+The Discriminator Network
+Purpose:Distinguish real from fake samples
+Input:Either real dataxor generated dataG(z)
+Architecture:
+Convolutional layers (for images)
+Downsampling operations
+Activation: LeakyReLU
+Output: Sigmoid (probability)
+Output:Probability that input is real
+D(x)≈1 for real samples
+D(G(z))≈0 for fake samples
+Mathematical Representation
+D:X →[0,1]
+preal =D(x;θ d)
+Goal:
+max
+D
+Ex∼p data[logD(x)]
++Ez∼p z [log(1−D(G(z)))]
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 7 / 45
+
+===== PAGE 8 =====
+How Does GAN Work? - Step by Step
+1 Initialization:
+Initialize GeneratorGand DiscriminatorDwith random weights
+2 Generate Fake Samples:
+Sample random noise:z∼p z(z)
+Generate fake data:x fake =G(z)
+3 Train Discriminator:
+Feed real samples: maximize logD(x real)
+Feed fake samples: maximize log(1−D(x fake))
+4 Train Generator:
+Generate new fakes
+Minimize log(1−D(G(z))) or maximize logD(G(z))
+5 Iterate:
+Repeat steps 2-4 until convergence
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 8 / 45
+
+===== PAGE 9 =====
+The GAN Training Process
+Algorithm 1GAN Training Algorithm
+1:fornumber of training iterationsdo
+2:fork stepsdo
+3:Sample minibatch ofmnoise samples{z (1), ...,z (m)}fromp z(z)
+4:Sample minibatch ofmexamples{x (1), ...,x (m)}fromp data(x)
+5:Update discriminator by ascending its stochastic gradient:
+∇θd
+1
+m
+mX
+i=1
+[logD(x (i)) + log(1−D(G(z (i))))]
+6:end for
+7:Sample minibatch ofmnoise samples{z (1), ...,z (m)}fromp z(z)
+8:Update generator by descending its stochastic gradient:
+∇θg
+1
+m
+mX
+i=1
+log(1−D(G(z (i))))
+9:end for
+Note:Typicallyk= 1, but can vary
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 9 / 45
+
+===== PAGE 10 =====
+GAN Objective Function
+Minimax Game
+The complete objective function for GANs:
+min
+G
+max
+D
+V(D,G) =E x∼p data(x)[logD(x)] +E z∼p z (z)[log(1−D(G(z)))]
+Breaking it down:
+Ex∼p data[logD(x)]: Reward for correctly identifying real samples
+Ez∼p z [log(1−D(G(z)))]: Reward for correctly identifying fake samples
+Nash Equilibrium:
+Optimal discriminator:D ∗(x) = pdata(x)
+pdata(x)+p g (x)
+Whenp g =p data, thenD ∗(x) = 0.5 everywhere
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 10 / 45
+
+===== PAGE 11 =====
+Training Challenges
+1. Mode Collapse
+Generator produces limited variety
+All outputs look similar
+Fails to capture full data distribution
+2. Vanishing Gradients
+Perfect discriminator stops learning
+Generator receives no gradient signal
+Use modified loss: max G logD(G(z))
+3. Training Instability
+Oscillating losses
+Requires careful balancing
+Sensitive to hyperparameters
+4. Convergence Issues
+No clear stopping criterion
+May never reach equilibrium
+Difficult to evaluate quality
+Solution
+Use techniques like: Wasserstein loss, Spectral normalization, Progressive growing, Feature
+matching
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 11 / 45
+
+===== PAGE 12 =====
+Variants of GANs: Overview
+Variant Key Innovation
+DCGAN Deep Convolutional architecture, stable
+training
+CGAN Conditional generation with class labels
+WGAN Wasserstein distance, improved stability
+StyleGAN Style-based generator, high-quality images
+CycleGAN Unpaired image-to-image translation
+Pix2Pix Paired image-to-image translation
+ProGAN Progressive growing for high resolution
+BigGAN Large-scale training, class-conditional
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 12 / 45
+
+===== PAGE 13 =====
+DCGAN - Deep Convolutional GAN
+Key Contributions (2015):
+Replace pooling with strided convolutions
+Use batch normalization
+Remove fully connected hidden layers
+Use ReLU in generator (Tanh for output)
+Use LeakyReLU in discriminator
+Impact:
+More stable training
+Higher quality images
+Architecture guidelines for GANs
+Generator Architecture:
+1 Project and reshape noise
+2 Fractional-strided convolutions
+3 Batch normalization
+4 ReLU activation
+5 Tanh output layer
+Discriminator Architecture:
+1 Strided convolutions
+2 Batch normalization
+3 LeakyReLU activation
+4 Sigmoid output
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 13 / 45
+
+===== PAGE 14 =====
+CGAN - Conditional GAN
+Idea:Guide generation with additional
+information
+Conditioning Variablesy:
+Class labels (digit 0-9)
+Text descriptions
+Image attributes
+Any side information
+Applications:
+Text-to-image synthesis
+Image completion
+Super-resolution
+Style transfer
+Modified Objective
+min
+G
+max
+D
+V(D,G) =
+Ex∼p data[logD(x|y)]
++Ez∼p z [log(1−D(G(z|y)))]
+Architecture Changes:
+Concatenateywith noisezin G
+Concatenateywith inputxin D
+Both networks conditioned ony
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 14 / 45
+
+===== PAGE 15 =====
+WGAN - Wasserstein GAN
+Problem with Original GAN:
+JS divergence can saturate
+Vanishing gradients
+Mode collapse
+Training instability
+WGAN Solution:
+Use Wasserstein distance (Earth Mover’s)
+1-Lipschitz constraint
+Weight clipping
+No sigmoid in discriminator
+Wasserstein Loss
+min
+G
+max
+D∈D
+Ex∼p data[D(x)]
+−Ez∼p z [D(G(z))]
+Benefits:
+More stable training
+Meaningful loss metric
+Correlates with sample quality
+Reduced mode collapse
+WGAN-GP:Uses gradient penalty instead of
+weight clipping
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 15 / 45
+
+===== PAGE 16 =====
+StyleGAN
+Innovation:Style-based generator architecture
+Key Features:
+Mapping networkf:Z → W
+Adaptive instance normalization (AdaIN)
+Style mixing
+Noise injection
+Progressive growing
+Control Levels:
+Coarse: pose, shape
+Middle: facial features
+Fine: color scheme, micro-structure
+Architecture Highlights:
+1 Mapz→w(disentangled)
+2 Injectwat each layer via AdaIN
+3 Add per-pixel noise
+4 Control style at different scales
+Results:
+Photorealistic faces (1024×1024)
+Fine-grained control
+State-of-the-art quality
+Disentangled representations
+StyleGAN2/3:Further improvements in
+quality and training
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 16 / 45
+
+===== PAGE 17 =====
+CycleGAN and Pix2Pix
+Pix2Pix (Paired):
+Requires paired training data
+Input-output correspondence
+U-Net generator architecture
+PatchGAN discriminator
+L1 loss + adversarial loss
+Applications:
+Edges→Photos
+Day→Night
+Sketch→Image
+CycleGAN (Unpaired):
+No paired training data needed
+Cycle consistency loss
+Two generators:G:X→Y,F:Y→X
+Two discriminators
+Cycle Consistency
+Lcyc =E[||F(G(x))−x|| 1]
++E[||G(F(y))−y|| 1]
+Applications:
+Style transfer
+Object transfiguration
+Season transferDSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 17 / 45
+
+===== PAGE 18 =====
+Introduction to Autoencoders
+What is an Autoencoder?
+AnAutoencoderis an unsupervised neural network that learns efficient data representations
+(encodings) by training the network to reconstruct its input.
+Core Idea:
+Compress input into latent representation
+Reconstruct original input from latent
+code
+Learn meaningful features automatically
+Dimensionality reduction
+Key Components:
+1 Encoder:f:X → Z
+2 Latent Space:z=f(x)
+3 Decoder:g:Z → X
+4 Reconstruction: ˆx=g(f(x))
+Objective:Minimize reconstruction error
+L(x,ˆx) =||x−ˆx|| 2
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 18 / 45
+
+===== PAGE 19 =====
+Autoencoder Architecture
+Input
+x∈R n
+Encoder
+fθ(x)
+Latent
+Space
+z∈R d
+d≪n
+Decoder
+gϕ(z)
+Output
+ˆx∈R n
+Reconstruction Loss:L(x,ˆx)
+Information Flow:
+x encode− − − − →zdecode− − − − →ˆx≈x
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 19 / 45
+
+===== PAGE 20 =====
+Applications of Autoencoders
+1. Dimensionality Reduction
+Compress high-dimensional data
+Non-linear alternative to PCA
+Feature extraction
+Data visualization
+2. Denoising
+Remove noise from images
+Audio enhancement
+Data cleaning
+3. Anomaly Detection
+High reconstruction error = anomaly
+Fraud detection
+Manufacturing defects
+4. Image Processing
+Super-resolution
+Image inpainting
+Colorization
+Compression
+5. Generative Modeling
+Sample from latent space
+Generate new data
+Interpolation
+6. Pre-training
+Initialize networks
+Transfer learning
+Semi-supervised learningDSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 20 / 45
+
+===== PAGE 21 =====
+Variants of Autoencoders
+Type Key Characteristics
+Vanilla AE Basic encoder-decoder, reconstruction loss
+Sparse AE Sparsity constraint on hidden activations
+Denoising AE Trained to reconstruct from corrupted input
+Contractive AE Robust to small perturbations in input
+Variational AE Probabilistic encoder, generates new sam-
+ples
+Adversarial AE Uses adversarial training for latent space
+Convolutional AE CNN architecture for image data
+Each variant addresses specific limitations or use cases of vanilla autoencoders.
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 21 / 45
+
+===== PAGE 22 =====
+Sparse Autoencoder
+Motivation:
+Prevent learning identity function
+Encourage sparse representations
+Learn more meaningful features
+Sparsity Constraint:
+L1 regularization on activations
+KL divergence penalty
+Only few neurons active
+Loss Function
+L=||x−ˆx|| 2 +λ
+X
+j
+|ˆρj −ρ|
+Where:
+ˆρj: average activation of neuronj
+ρ: target sparsity (e.g., 0.05)
+λ: sparsity weight
+Benefits:
+Better feature learning
+Interpretable representations
+Prevents overfitting
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 22 / 45
+
+===== PAGE 23 =====
+Denoising Autoencoder (DAE)
+Key Idea:
+Add noise to input: ˜x=x+ϵ
+Train to reconstruct cleanxfrom ˜x
+Learn robust features
+Noise Types:
+Gaussian noise
+Salt-and-pepper noise
+Masking noise (dropout)
+Applications:
+Image denoising
+Missing data imputation
+Robust feature extraction
+Training Process
+˜x∼q(˜x|x)
+L=||x−g(f(˜x))|| 2
+x
+noise
+˜x AE ˆx
+Advantage:Forces learning of robust,
+generalized features
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 23 / 45
+
+===== PAGE 24 =====
+Variational Autoencoder (VAE)
+Key Difference from AE:
+Probabilistic framework
+Encoder outputs distribution parameters
+Can generate new samples
+Smooth latent space
+Architecture:
+Encoder:q ϕ(z|x) =N(µ, σ 2)
+Reparameterization:z=µ+σ⊙ϵ
+Decoder:p θ(x|z)
+VAE Objective (ELBO)
+L=E qϕ(z|x) [logp θ(x|z)]
+−DKL(qϕ(z|x)||p(z))
+Two Terms:
+1 Reconstruction: data fit
+2 KL Divergence: regularization
+Prior:p(z) =N(0,I)
+Advantage:Generative model with continuous
+latent space
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 24 / 45
+
+===== PAGE 25 =====
+Convolutional Autoencoder
+For Image Data:
+Exploit spatial structure
+Translation invariance
+Parameter sharing
+Better for images than FC layers
+Encoder:
+Convolutional layers
+Max pooling / Strided convolutions
+Downsample spatial dimensions
+Decoder:
+Transposed convolutions (deconv)
+Upsampling layers
+Reconstruct spatial dimensions
+Architecture Example:
+1 Input: 28×28×1
+2 Conv + Pool: 14×14×32
+3 Conv + Pool: 7×7×64
+4 Latent: 7×7×64
+5 Deconv: 14×14×32
+6 Deconv: 28×28×1
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 25 / 45
+
+===== PAGE 26 =====
+Training Process for Autoencoders
+Step-by-Step Training:
+1 Initialize:
+Random weights for encoder and decoder
+Choose architecture (FC, Conv, etc.)
+2 Forward Pass:
+Encode:z=f θ(x)
+Decode: ˆx=g ϕ(z)
+3 Compute Loss:
+Reconstruction error:L recon =||x−ˆx|| 2 or Binary Cross-Entropy
+Add regularization if needed (sparsity, KL divergence)
+4 Backward Pass:
+Compute gradients:∇ θ,ϕL
+Update parameters using optimizer (Adam, SGD)
+5 Iterate:Repeat until convergence
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 26 / 45
+
+===== PAGE 27 =====
+Loss Functions for Autoencoders
+1. Mean Squared Error (MSE):
+LMSE = 1
+n
+nX
+i=1
+(xi −ˆxi)2
+Use:Continuous data, images
+2. Binary Cross-Entropy:
+LBCE =−
+nX
+i=1
+[xi log ˆxi
++(1−x i) log(1−ˆxi)]
+Use:Binary data, normalized images
+3. Combined Loss (VAE):
+LVAE =L recon +β·D KL
+Use:Variational autoencoders
+4. Perceptual Loss:
+Lperceptual =||ϕ(x)−ϕ(ˆx)|| 2
+Whereϕis a pre-trained network (VGG)
+Use:High-quality image reconstruction
+Choosing Loss:Depends on data type and application
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 27 / 45
+
+===== PAGE 28 =====
+Training Tips and Best Practices
+Hyperparameters:
+Learning rate: 0.001 - 0.0001
+Batch size: 32 - 256
+Latent dimension: depends on data
+Epochs: monitor validation loss
+Regularization:
+Dropout in encoder
+Weight decay (L2)
+Batch normalization
+Early stopping
+Architecture Tips:
+Symmetric encoder-decoder
+Gradual dimensionality reduction
+Skip connections (U-Net style)
+Use appropriate activations
+Monitoring:
+Plot reconstruction loss
+Visualize reconstructions
+Check latent space structure
+Monitor gradient flow
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 28 / 45
+
+===== PAGE 29 =====
+Introduction to Transformers
+What are Transformers?
+Transformersare a neural network architecture introduced in ”Attention is All You Need”
+(Vaswani et al., 2017) that relies entirely on attention mechanisms, dispensing with recurrence
+and convolutions.
+Revolutionary Impact:
+Replaced RNNs/LSTMs for sequences
+Parallel processing (no sequential
+dependency)
+Better long-range dependencies
+Foundation for modern LLMs
+Key Applications:
+Natural Language Processing (BERT,
+GPT)
+Machine Translation
+Computer Vision (ViT)
+Protein folding (AlphaFold)
+Speech recognition
+Core Innovation:Self-attention mechanism allows modeling relationships between all
+positions in a sequence simultaneously.
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 29 / 45
+
+===== PAGE 30 =====
+Transformer Architecture Overview
+Input
+Embedding
+Encoder
+Multi-Head Attention
+Feed Forward
+×Nlayers
+Decoder
+Masked Multi-Head Attn
+Cross Attention
+Feed Forward
+×Nlayers
+Linear + Softmax
+Output
+Key Components:Encoder processes input, Decoder generates output
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 30 / 45
+
+===== PAGE 31 =====
+Detailed Transformer Architecture
+Input Processing:
+1 Token Embedding:Convert tokens to vectors (d model dimension)
+2 Positional Encoding:Add position information (since no recurrence)
+Encoder Block (repeated N times):
+1 Multi-Head Self-Attention
+2 Add & Normalize (Residual connection)
+3 Feed-Forward Network (2 linear layers with ReLU)
+4 Add & Normalize
+Decoder Block (repeated N times):
+1 Masked Multi-Head Self-Attention (prevents looking ahead)
+2 Add & Normalize
+3 Multi-Head Cross-Attention (attends to encoder output)
+4 Add & Normalize
+5 Feed-Forward Network
+6 Add & Normalize
+Output:Linear layer + Softmax for prediction
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 31 / 45
+
+===== PAGE 32 =====
+Positional Encoding
+Problem:
+Transformers have no recurrence
+No inherent sequence order
+Need to inject position info
+Solution:
+Add positional encodings to embeddings
+Use sinusoidal functions
+Allow model to learn relative positions
+Sinusoidal Encoding
+PE(pos,2i) = sin
+ pos
+100002i/d model
+
+PE(pos,2i+1) = cos
+ pos
+100002i/d model
+
+Where:
+pos: position in sequence
+i: dimension index
+dmodel : embedding dimension
+Properties:
+Deterministic
+Extrapolates to longer sequences
+Linear relationships between positionsDSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 32 / 45
+
+===== PAGE 33 =====
+What is Attention?
+Core Idea
+Attentionallows the model to focus on different parts of the input when producing each part
+of the output, weighting their importance dynamically.
+Intuition:
+Human reading: focus on relevant words
+Not all input tokens equally important
+Context-dependent weighting
+Learn what to pay attention to
+Advantages:
+Capture long-range dependencies
+Parallel computation
+Interpretable (attention weights)
+Types of Attention:
+1 Self-Attention: Relate positions within
+single sequence
+2 Cross-Attention: Relate encoder and
+decoder
+3 Multi-Head: Multiple attention
+mechanisms in parallel
+Example:
+”The animal didn’t cross the street
+because it was too tired”
+”it” attends strongly to ”animal”
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 33 / 45
+
+===== PAGE 34 =====
+Scaled Dot-Product Attention
+Attention Formula
+Attention(Q,K,V) = softmax
+ QK T
+√dk
+
+V
+Components:
+Q: Query matrix
+K: Key matrix
+V: Value matrix
+dk: dimension of keys
+Scaling Factor √dk:
+Prevents dot products from growing large
+Keeps softmax gradients stable
+Essential for deep networks
+Step-by-Step:
+1 ComputeQK T (similarity scores)
+2 Scale by √dk
+3 Apply softmax (attention weights)
+4 Multiply byV(weighted sum)
+Matrix Dimensions:
+Q∈R n×dk
+K∈R m×dk
+V∈R m×dv
+Output∈R n×dv
+Wheren= query length,m= key/value length
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 34 / 45
+
+===== PAGE 35 =====
+Multi-Head Attention
+Motivation:
+Single attention focuses on one aspect
+Multiple heads capture different
+relationships
+Different representation subspaces
+Richer representations
+Process:
+1 Project Q, K, V intohdifferent spaces
+2 Apply attention in each head
+3 Concatenate results
+4 Final linear projection
+Multi-Head Formula
+MultiHead(Q,K,V) =
+Concat(head1, ...,head h)W O
+where
+headi = Attention(QW Q
+i ,KW K
+i ,VW V
+i )
+Parameters:
+W Q
+i ∈R dmodel ×dk
+W K
+i ∈R dmodel ×dk
+W V
+i ∈R dmodel ×dv
+W O ∈R hdv ×dmodel
+Typically:h= 8,d k =d v =d model /h
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 35 / 45
+
+===== PAGE 36 =====
+Self-Attention vs Cross-Attention
+Self-Attention:
+Q, K, V from same sequence
+Relate positions within sequence
+Used in both encoder and decoder
+Example (Encoder):
+Input: ”The cat sat on the mat”
+Each word attends to all words
+Captures sentence structure
+Masked Self-Attention:
+Decoder only
+Prevent looking at future tokens
+Ensures autoregressive property
+Cross-Attention:
+Q from decoder, K,V from encoder
+Decoder attends to encoder output
+Links source and target sequences
+Example (Decoder):
+Encoder: ”The cat”
+Decoder generating: ”Le chat”
+”chat” attends to ”cat”
+Matrix Mask:
+Maskij =
+(
+0 ifi≥j
+−∞ifi<j
+Applied before softmax
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 36 / 45
+
+===== PAGE 37 =====
+Attention Visualization
+How Attention Works - Example
+Input Sentence:”The cat sat on the mat”
+Query Keys (Attention Weights)
+The cat sat on the mat
+The 0.3 0.1 0.1 0.1 0.2 0.2
+cat 0.2 0.4 0.2 0.1 0.05 0.05
+sat 0.1 0.3 0.4 0.1 0.05 0.05
+on 0.1 0.1 0.2 0.4 0.1 0.1
+the 0.15 0.05 0.05 0.15 0.3 0.3
+mat 0.1 0.05 0.05 0.15 0.2 0.45Observations:
+Each word attends to itself (diagonal)
+”cat” and ”sat” have strong connection
+”the” and ”mat” are related
+Learned relationships capture syntax and semantics
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 37 / 45
+
+===== PAGE 38 =====
+GANs vs Autoencoders vs Transformers
+Aspect GANs Autoencoders Transformers
+Purpose Generate realistic
+data
+Compress and recon-
+struct
+Sequence modeling
+Training Adversarial (2 net-
+works)
+Reconstruction loss Supervised/Self-
+supervised
+Architecture Generator + Dis-
+criminator
+Encoder + Decoder Attention layers
+Output New synthetic sam-
+ples
+Reconstructed input Sequence predic-
+tions
+Key Mechanism Minimax game Bottleneck latent
+space
+Self-attention
+Applications Image synthesis,
+style transfer
+Denoising, compres-
+sion
+NLP, translation, vi-
+sion
+Challenges Mode collapse, in-
+stability
+Limited generation Quadratic complex-
+ity
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 38 / 45
+
+===== PAGE 39 =====
+Key Takeaways - GANs
+1 Architecture:
+Generator creates fake data from noise
+Discriminator distinguishes real from fake
+Adversarial training process
+2 Training:
+Minimax objective function
+Alternating optimization
+Nash equilibrium as goal
+3 Variants:
+DCGAN: Stable convolutional architecture
+CGAN: Conditional generation
+WGAN: Wasserstein distance
+StyleGAN: High-quality controllable generation
+CycleGAN: Unpaired translation
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 39 / 45
+
+===== PAGE 40 =====
+Key Takeaways - Autoencoders
+1 Core Concept:
+Unsupervised learning of compressed representations
+Encoder maps to latent space
+Decoder reconstructs from latent code
+2 Applications:
+Dimensionality reduction
+Denoising and reconstruction
+Anomaly detection
+Feature learning
+3 Variants:
+Sparse AE: Sparsity constraints
+Denoising AE: Robust features
+VAE: Probabilistic generative model
+Convolutional AE: For image data
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 40 / 45
+
+===== PAGE 41 =====
+Key Takeaways - Transformers
+1 Innovation:
+Attention is all you need
+No recurrence or convolution
+Parallel processing of sequences
+Foundation of modern LLMs
+2 Architecture:
+Encoder-Decoder structure
+Multi-head self-attention
+Positional encoding
+Feed-forward networks
+Residual connections and layer normalization
+3 Attention Mechanism:
+Scaled dot-product attention
+Query-Key-Value formulation
+Multiple heads for different relationships
+Self-attention and cross-attention
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 41 / 45
+
+===== PAGE 42 =====
+Modern Applications and Future
+GANs:
+Deepfakes and synthetic media
+Medical image synthesis
+Drug discovery
+Fashion and design
+Data augmentation
+Autoencoders:
+Image compression (JPEG replacement)
+Anomaly detection in IoT
+Drug molecule generation (VAE)
+Recommendation systems
+Transformers:
+ChatGPT, Claude, GPT-4 (LLMs)
+BERT, T5 (NLP tasks)
+Vision Transformers (ViT)
+Protein structure prediction
+Code generation (Codex, Copilot)
+Multimodal models (CLIP, DALL-E)
+Future:
+Hybrid architectures
+More efficient attention
+Better training stability
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 42 / 45
+
+===== PAGE 43 =====
+Practice Questions
+GANs:
+1 What is the main difference between Generator and Discriminator?
+2 Explain the minimax objective function in GANs
+3 How does WGAN improve upon vanilla GAN?
+Autoencoders:
+1 How does VAE differ from vanilla autoencoder?
+2 What is the purpose of the bottleneck in autoencoders?
+3 Explain the denoising autoencoder training process
+Transformers:
+1 Why do we need positional encoding in Transformers?
+2 Explain the attention mechanism with Q, K, V
+3 What is the difference between self-attention and cross-attention?
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 43 / 45
+
+===== PAGE 44 =====
+Resources and Further Reading
+Key Papers:
+GANs: Goodfellow et al., 2014
+DCGAN: Radford et al., 2015
+VAE: Kingma & Welling, 2013
+Transformers: Vaswani et al., 2017
+BERT: Devlin et al., 2018
+GPT-3: Brown et al., 2020
+Online Resources:
+Stanford CS231n (CNN for Visual
+Recognition)
+Stanford CS224n (NLP with Deep
+Learning)
+DeepLearning.AI courses
+Papers with Code
+Distill.pub (Visual explanations)
+Hugging Face (Transformer
+implementations)
+Frameworks:
+PyTorch, TensorFlow (Implementation)
+Hugging Face Transformers (Pre-trained models)
+OpenAI Gym (Reinforcement learning)
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 44 / 45
+
+===== PAGE 45 =====
+Thank You!
+QUESTIONS?
+DSE (Manipal University Jaipur) Generative AI Deep Dive February 12, 2026 45 / 45

@@ -1,0 +1,434 @@
+
+
+===== PAGE 1 =====
+Lecture 8: Popular LLM Architectures
+DSE3261: Generative AI and Large Language Models
+Course Instructor
+February 10, 2026
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 1 / 24
+
+===== PAGE 2 =====
+Lecture Outline
+1 Overview of LLM Architectures
+2 Decoder-Only Architectures
+3 Encoder-Only Architectures
+4 Encoder-Decoder Architectures
+5 Multimodal LLM Architectures
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 2 / 24
+
+===== PAGE 3 =====
+Taxonomy of LLM Architectures
+Three Main Architectural Families:
+1 Encoder-Only (BERT-style):
+Bidirectional attention
+Understanding-focused
+Masked language modeling
+2 Decoder-Only (GPT-style):
+Unidirectional (causal) attention
+Generation-focused
+Autoregressive modeling
+3 Encoder-Decoder (T5-style):
+Separate encoding and decoding
+Sequence-to-sequence tasks
+Flexible architecture
+Note:Most modern LLMs use decoder-only architecture for generative
+tasks
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 3 / 24
+
+===== PAGE 4 =====
+Architecture Comparison
+Encoder-Only
+Encoder
+Bidirectional
+Decoder-Only
+Decoder
+Unidirectional
+Encoder-Decoder
+Enc Dec
+Bi + Uni
+Type Best For Examples Attention
+Encoder-Only Understanding BERT, RoBERTa Bidirectional
+Decoder-Only Generation GPT, LLaMA Causal
+Enc-Dec Translation T5, BART Both
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 4 / 24
+
+===== PAGE 5 =====
+GPT Family - Overview
+Generative Pre-trained Transformer (OpenAI)
+Core Principles:
+Decoder-only transformer architecture
+Autoregressive language modeling
+Unidirectional (left-to-right) attention
+Pre-training on massive text corpora
+Few-shot learning capabilities
+Training Objective:
+L=−
+TX
+t=1
+logP(x t|x1,x 2, ...,x t−1)
+Key Innovation:Demonstrated that scale + unsupervised pre-training =
+powerful general-purpose models
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 5 / 24
+
+===== PAGE 6 =====
+GPT Evolution Timeline
+Model Progression:
+Model Year Params Layers Context
+GPT-1 2018 117M 12 512
+GPT-2 2019 1.5B 48 1024
+GPT-3 2020 175B 96 2048
+GPT-3.5 2022 175B 96 4096
+GPT-4 2023 1.7T* 120* 32K/128K
+*Estimated/rumored values
+Key Milestones:
+GPT-1: Proof of concept for transfer learning
+GPT-2: ”Too dangerous to release” (initially)
+GPT-3: Few-shot learning breakthrough
+GPT-3.5: Foundation for ChatGPT
+GPT-4: Multimodal capabilities
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 6 / 24
+
+===== PAGE 7 =====
+GPT Architecture Details
+Architecture Components:
+1 Token + Position Embeddings:
+Vocabulary: 50,257 tokens (GPT-3)
+Learned positional embeddings
+Embedding dimension: 12,288 (GPT-3)
+2 Transformer Decoder Blocks:
+Masked multi-head self-attention
+Feed-forward network (4x hidden size)
+Layer normalization (pre-norm)
+Residual connections
+3 Output Layer:
+Linear projection to vocabulary
+Tied weights with input embeddings
+Softmax for token probabilities
+Attention Mechanism:Causal masking ensures tokentonly sees tokens
+<t
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 7 / 24
+
+===== PAGE 8 =====
+LLaMA Family - Overview
+Large Language Model Meta AI
+Design Philosophy:
+Open-source foundation models
+Efficient training on publicly available data
+Multiple model sizes for different use cases
+Strong performance at smaller scales
+Model Variants:
+Version Sizes Context License
+LLaMA 1 7B, 13B, 33B, 65B 2048 Research only
+LLaMA 2 7B, 13B, 70B 4096 Commercial
+LLaMA 3 8B, 70B, 405B 8192 Commercial
+Impact:Democratized access to powerful LLMs, sparked open-source
+ecosystem
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 8 / 24
+
+===== PAGE 9 =====
+LLaMA Architecture Innovations
+Key Technical Improvements:
+1 Pre-normalization (RMSNorm):
+Normalize inputs to each transformer sub-layer
+Improves training stability
+More efficient than LayerNorm
+2 SwiGLU Activation:
+SwiGLU(x) = Swish(xW)⊗(xV)
+Replaces ReLU in feed-forward
+Better performance than GELU
+3 Rotary Position Embeddings (RoPE):
+Relative position encoding
+Better extrapolation to longer sequences
+Encodes position through rotation
+4 Grouped-Query Attention (LLaMA 2):
+Multiple query heads share key/value heads
+Reduces memory and compute
+Maintains performance
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 9 / 24
+
+===== PAGE 10 =====
+PaLM - Pathways Language Model
+Google’s Efficient Large-Scale Model
+Key Specifications:
+Parameters:540 billion
+Architecture:Decoder-only transformer
+Training:780B tokens, 6144 TPU v4 chips
+Context:2048 tokens
+Pathways System:
+Novel distributed training infrastructure
+Efficient scaling across thousands of accelerators
+Single controller, asynchronous dispatch
+Enables training at unprecedented scale
+Notable Achievements:
+State-of-the-art on 28 of 29 English NLP benchmarks
+Strong multilingual capabilities
+Breakthrough reasoning performance
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 10 / 24
+
+===== PAGE 11 =====
+PaLM 2 - Improvements
+Second Generation (2023)
+Key Enhancements:
+1 Improved Training:
+Compute-optimal scaling
+Better data mixture
+Multilingual training (100+ languages)
+2 Model Efficiency:
+Smaller models, better performance
+Faster inference
+Lower serving costs
+3 Enhanced Capabilities:
+Stronger reasoning and coding
+Better multilingual understanding
+Improved factuality
+4 Model Variants:
+Gecko, Otter, Bison, Unicorn
+Different sizes for different needs
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 11 / 24
+
+===== PAGE 12 =====
+Claude - Constitutional AI
+Anthropic’s Safety-Focused LLM
+Constitutional AI Approach:
+1 Supervised Learning Phase:
+Initial training on helpful responses
+Human feedback on quality
+2 AI Feedback Phase:
+Model critiques its own outputs
+Revises based on constitutional principles
+Self-supervised alignment
+3 Reinforcement Learning:
+Train reward model on AI feedback
+RL to optimize for constitution
+Design Principles (HHH):
+Helpful:Assist users effectively
+Harmless:Avoid harmful outputs
+Honest:Be truthful and transparent
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 12 / 24
+
+===== PAGE 13 =====
+Claude Model Family
+Claude 3 Variants (2024):
+Model Size Class Context Use Case
+Claude 3 Haiku Small 200K Fast, efficient
+Claude 3 Sonnet Medium 200K Balanced
+Claude 3 Opus Large 200K Maximum capability
+Key Features:
+Extended Context:200K tokens (500 pages)
+Multimodal:Vision capabilities
+Reduced Refusals:More helpful while staying safe
+Improved Accuracy:Lower hallucination rates
+Strong Coding:Code generation and analysis
+Unique Strength:Best-in-class analytical and reasoning capabilities with
+safety focus
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 13 / 24
+
+===== PAGE 14 =====
+Mistral AI Models
+Efficient Open-Source LLMs
+Mistral 7B:
+7.3B parameters
+Outperforms LLaMA 2 13B
+Sliding window attention (4096 tokens)
+Grouped-query attention
+Apache 2.0 license
+Mixtral 8x7B:
+Mixture of Experts (MoE) architecture
+8 expert networks, 2 active per token
+46.7B total parameters, 12.9B active
+Matches/exceeds GPT-3.5 performance
+32K context window
+Innovation:Sparse MoE for efficiency without sacrificing performance
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 14 / 24
+
+===== PAGE 15 =====
+Mixture of Experts (MoE)
+Architecture Concept:
+Multiple ”expert” sub-networks
+Router network selects which experts to use
+Only subset of experts active per token
+Sparse activation for efficiency
+Advantages:
+1 Efficiency:Fewer active parameters per forward pass
+2 Capacity:More total parameters without proportional compute
+3 Specialization:Different experts for different patterns
+4 Scalability:Easier to scale to massive sizes
+Mathematical Formulation:
+y=
+nX
+i=1
+G(x) i ·E i(x)
+WhereG(x) is the gating function,E i(x) are expert networks
+Used in:GPT-4 (rumored), Mixtral, Switch TransformerCourse Instructor Lecture 8: Popular LLM Architectures February 10, 2026 15 / 24
+
+===== PAGE 16 =====
+Encoder-Only: BERT
+Bidirectional Encoder Representations from Transformers
+Key Innovations:
+Bidirectional Context:Sees both left and right context
+Masked Language Modeling (MLM):Predict masked tokens
+Next Sentence Prediction (NSP):Understand sentence
+relationships
+Training Objective:
+L=L MLM +L NSP
+Architecture:
+BERT-Base: 110M parameters, 12 layers, 768 hidden
+BERT-Large: 340M parameters, 24 layers, 1024 hidden
+Encoder-only transformer
+Maximum sequence length: 512 tokens
+Best For:Classification, NER, question answering, embeddings
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 16 / 24
+
+===== PAGE 17 =====
+BERT Variants
+Improved Versions:
+1 RoBERTa (Robustly Optimized BERT):
+Remove NSP objective
+Dynamic masking
+Larger batches, more data
+Better performance than BERT
+2 ALBERT (A Lite BERT):
+Parameter sharing across layers
+Factorized embeddings
+12M-235M parameters
+Memory efficient
+3 DeBERTa (Decoding-enhanced BERT):
+Disentangled attention mechanism
+Enhanced mask decoder
+Superior performance on SuperGLUE
+4 ELECTRA:
+Replaced token detection instead of MLM
+More efficient pre-training
+Better sample efficiency
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 17 / 24
+
+===== PAGE 18 =====
+Encoder-Decoder: T5
+Text-to-Text Transfer Transformer
+Unified Framework:
+Core Idea
+Convert all NLP tasks to text-to-text format
+Examples:
+Translation: ”translate English to German: Hello”→”Hallo”
+Classification: ”sentiment: This is great!”→”positive”
+Summarization: ”summarize: [long text]”→”[summary]”
+Question Answering: ”question: [context] [question]”→”[answer]”
+Architecture:
+Standard encoder-decoder transformer
+Span corruption pre-training objective
+Relative position embeddings
+Variants: T5-Small (60M) to T5-11B (11B)
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 18 / 24
+
+===== PAGE 19 =====
+T5 and FLAN-T5
+T5 Variants:
+Model Parameters Use Case
+T5-Small 60M Experimentation
+T5-Base 220M General tasks
+T5-Large 770M Better performance
+T5-3B 3B High performance
+T5-11B 11B Best performance
+FLAN-T5 (Instruction Tuned):
+Fine-tuned on 1,800+ language tasks
+Instruction following capabilities
+Better zero-shot and few-shot performance
+Improved generalization
+Same sizes as T5
+Advantage:Strong performance on diverse tasks with unified interface
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 19 / 24
+
+===== PAGE 20 =====
+Gemini - Multimodal Architecture
+Google’s Natively Multimodal LLM
+Model Family:
+Gemini Nano:1.8B - 3.25B parameters, on-device
+Gemini Pro:Medium size, API access
+Gemini Ultra:Largest, most capable
+Multimodal Capabilities:
+Native understanding of text, images, audio, video, code
+Trained from ground up on multimodal data
+Not separate models stitched together
+Cross-modal reasoning
+Key Features:
+32K context window (Ultra: up to 1M)
+State-of-the-art on MMLU benchmark
+Strong coding capabilities
+Efficient inference
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 20 / 24
+
+===== PAGE 21 =====
+Architecture Comparison Summary
+Model Architecture Size Key Innovation Best For
+GPT-4 Decoder-only 1.7T MoE, Multimodal General purpose
+LLaMA 3 Decoder-only 8B-405B RoPE, GQA Open source
+Claude 3 Decoder-only Multiple Constitutional AI Safety, analysis
+PaLM 2 Decoder-only Undisclosed Pathways, multilingual Reasoning
+Mistral Decoder-only 7B Sliding window Efficiency
+Mixtral MoE 8x7B Sparse MoE Efficient scale
+BERT Encoder-only 110-340M Bidirectional Understanding
+T5/FLAN-T5 Enc-Dec 60M-11B Text-to-text Versatility
+Gemini Multimodal Multiple Native multimodal Cross-modal
+Trend:Decoder-only models dominate for generation; multimodality is
+the future
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 21 / 24
+
+===== PAGE 22 =====
+Attention Mechanism Variants
+Evolution of Attention:
+1 Multi-Head Attention (Original):
+Separate Q, K, V for each head
+Memory:O(n·h·d)
+2 Multi-Query Attention (MQA):
+Share single K, V across all heads
+Memory:O(n·d)
+Faster inference, slight performance drop
+3 Grouped-Query Attention (GQA):
+Groups of query heads share K, V
+Middle ground between MHA and MQA
+Used in LLaMA 2, Mistral
+4 Sliding Window Attention:
+Attend to local window only
+Reduces computation for long sequences
+Used in Mistral
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 22 / 24
+
+===== PAGE 23 =====
+Position Encoding Methods
+Encoding Positional Information:
+1 Absolute Sinusoidal (Original Transformer):
+Fixed sine/cosine functions
+PE(pos,2i) = sin(pos/10000 2i/d )
+No learned parameters
+2 Learned Absolute (GPT, BERT):
+Learnable position embeddings
+Limited to training sequence length
+3 Relative Position (T5):
+Encode relative distances
+Better length generalization
+4 Rotary Position Embeddings (RoPE):
+Encode via rotation matrices
+Excellent extrapolation
+Used in LLaMA, PaLM
+5 ALiBi (Attention with Linear Biases):
+Add linear bias to attention scores
+Simple, effective extrapolation
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 23 / 24
+
+===== PAGE 24 =====
+Summary
+Key Takeaways:
+1 Three main architectures: Encoder-only, Decoder-only,
+Encoder-Decoder
+2 Decoder-only dominates modern LLMs (GPT, LLaMA, PaLM,
+Claude)
+3 Key innovations: MoE, GQA, RoPE, Constitutional AI
+4 Trade-offs between size, capability, efficiency, safety
+5 Multimodal LLMs emerging as next frontier
+6 Open-source models (LLaMA, Mistral) democratizing access
+7 Architectural optimizations critical for scaling
+Future Direction
+Expect continued innovation in efficiency (MoE, sparse activation),
+multimodality, and longer context windows.
+Next Lecture:Introduction to Generative Adversarial Networks (GANs)
+Course Instructor Lecture 8: Popular LLM Architectures February 10, 2026 24 / 24

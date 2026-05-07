@@ -1,0 +1,355 @@
+
+
+===== PAGE 1 =====
+Lecture 4: Foundation Models and Popular Generative
+AI Models
+DSE3261: Generative AI
+Course Instructor
+January 28, 2026
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 1 / 23
+
+===== PAGE 2 =====
+Lecture Outline
+1 Introduction to Foundation Models
+2 Popular Generative AI Models
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 2 / 23
+
+===== PAGE 3 =====
+What are Foundation Models?
+Definition
+Foundation models are large-scale AI models trained on broad data at
+scale, designed to be adapted to a wide range of downstream tasks.
+Key Characteristics:
+Scale:Trained on massive datasets (billions to trillions of tokens)
+Transfer Learning:Pre-trained once, fine-tuned for many tasks
+Emergence:Exhibit capabilities not explicitly programmed
+Homogenization:Single model serves multiple domains
+Term coined by Stanford researchers in 2021
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 3 / 23
+
+===== PAGE 4 =====
+Evolution: From Task-Specific to Foundation Models
+Task 1
+Model 1
+Task 2
+Model 2
+Task 3
+Model 3
+Traditional ML
+Foundation Model
+Task 1 Task 2 Task 3
+Foundation Models
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 4 / 23
+
+===== PAGE 5 =====
+Foundation Models: Training Paradigm
+Training Pipeline:
+1 Pre-training Phase
+Unsupervised/self-supervised learning
+Massive corpus (web text, books, code, etc.)
+Learn general patterns and representations
+2 Fine-tuning Phase
+Task-specific adaptation
+Smaller labeled datasets
+Optimize for specific objectives
+3 Alignment Phase(Optional)
+RLHF (Reinforcement Learning from Human Feedback)
+Constitutional AI
+Safety and ethical alignment
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 5 / 23
+
+===== PAGE 6 =====
+Foundation Models: Capabilities
+Emergent Abilities:
+Few-shot learning
+Zero-shot generalization
+Chain-of-thought reasoning
+Instruction following
+Context learning
+Application Domains:
+Natural Language Processing
+Computer Vision
+Multimodal Understanding
+Code Generation
+Scientific Discovery
+Key Insight
+Larger models exhibit qualitatively different behaviors - abilities emerge at
+scale that don’t exist in smaller models.
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 6 / 23
+
+===== PAGE 7 =====
+Foundation Models: Architecture Components
+Core Components:
+Embedding Layer:Converts input tokens to dense vectors
+Transformer Blocks:Self-attention and feed-forward layers
+Positional Encoding:Captures sequence order information
+Output Head:Task-specific prediction layers
+Scaling Dimensions:
+Dimension Description Impact
+Model Size Number of parameters Capability, memory
+Data Scale Training tokens Knowledge breadth
+Compute FLOPs Training cost, time
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 7 / 23
+
+===== PAGE 8 =====
+Foundation Models vs Traditional ML
+Aspect Traditional ML Foundation Models
+Training Data Task-specific, labeled Broad, mostly unlabeled
+Model Scope Single task Multi-task capable
+Adaptation Train from scratch Fine-tune or prompt
+Sample Efficiency Requires many exam-
+ples
+Few-shot capable
+Development Cost Lower per task High upfront, low per
+task
+Interpretability Higher Lower
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 8 / 23
+
+===== PAGE 9 =====
+Taxonomy of Generative AI Models
+Generative AI
+Text
+GPT BERT
+Image
+GANs Diffusion
+Multimodal
+CLIP Gemini
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 9 / 23
+
+===== PAGE 10 =====
+GPT Family (OpenAI)
+Generative Pre-trained Transformer
+GPT-1 (2018):117M parameters, proof of concept
+GPT-2 (2019):1.5B parameters, text generation breakthrough
+GPT-3 (2020):175B parameters, few-shot learning
+GPT-3.5 (2022):ChatGPT foundation, RLHF integration
+GPT-4 (2023):Multimodal, enhanced reasoning
+Key Innovation:Autoregressive language modeling with decoder-only
+transformer architecture
+Architecture
+Unidirectional (left-to-right) transformer optimized for text generation
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 10 / 23
+
+===== PAGE 11 =====
+BERT Family (Google)
+Bidirectional Encoder Representations from Transformers
+BERT-Base:110M parameters, 12 layers
+BERT-Large:340M parameters, 24 layers
+RoBERTa:Robustly optimized BERT
+ALBERT:Parameter-efficient variant
+DistilBERT:Smaller, faster version
+Key Innovation:Masked Language Modeling (MLM) with bidirectional
+context
+Architecture
+Encoder-only transformer optimized for understanding and classification
+Primary Use:Text classification, NER, question answering, embeddings
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 11 / 23
+
+===== PAGE 12 =====
+T5 and FLAN-T5 (Google)
+Text-to-Text Transfer Transformer
+Unified Framework
+All NLP tasks reformulated as text-to-text: input text→output text
+Variants:
+T5-Small:60M parameters
+T5-Base:220M parameters
+T5-Large:770M parameters
+T5-11B:11B parameters
+FLAN-T5 Enhancement:
+Instruction fine-tuning on 1,800+ tasks
+Better zero-shot and few-shot performance
+Improved instruction following
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 12 / 23
+
+===== PAGE 13 =====
+LLaMA Family (Meta)
+Large Language Model Meta AI
+LLaMA (2023):7B, 13B, 33B, 65B variants
+LLaMA 2 (2023):7B, 13B, 70B with commercial license
+LLaMA 3 (2024):Enhanced multilingual, 8B and 70B
+Key Features:
+Open-source foundation models
+Efficient training with public datasets
+State-of-the-art performance for size
+Community-driven fine-tuning ecosystem
+Impact
+Democratized access to powerful language models for research and
+development
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 13 / 23
+
+===== PAGE 14 =====
+Claude Family (Anthropic)
+Constitutional AI Approach
+Claude 1:Initial release with safety focus
+Claude 2:Extended context (100K tokens)
+Claude 3:Family - Haiku, Sonnet, Opus variants
+Key Innovations:
+Constitutional AI for alignment
+Extended context windows
+Reduced hallucinations
+Strong analytical capabilities
+Design Philosophy:
+Helpful, Harmless, Honest (HHH)
+Self-supervised alignment
+Transparency in limitations
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 14 / 23
+
+===== PAGE 15 =====
+PaLM and Gemini (Google)
+PaLM (Pathways Language Model):
+540B parameters
+Pathways architecture for efficient scaling
+State-of-the-art reasoning capabilities
+PaLM 2: Multilingual, improved efficiency
+Gemini (2023):
+Gemini Nano:On-device applications
+Gemini Pro:General-purpose tasks
+Gemini Ultra:Most capable model
+Multimodal Native
+Built from ground up to understand text, images, audio, video, and code
+simultaneously
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 15 / 23
+
+===== PAGE 16 =====
+Image Generation Models
+Diffusion Models:Stable Diffusion
+Open-source
+Latent diffusion
+Text-to-image
+Community-driven
+DALL-E (OpenAI)
+DALL-E 2, DALL-E 3
+High-quality images
+Precise prompting
+Commercial use
+Midjourney:
+Discord-based interface
+Artistic, aesthetic focus
+Iterative refinement
+V6+ versions with photorealism
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 16 / 23
+
+===== PAGE 17 =====
+Multimodal Models
+CLIP (OpenAI):
+Contrastive Language-Image Pre-training
+Learns visual concepts from text
+Zero-shot image classification
+Foundation for many vision-language tasks
+GPT-4V (Vision):
+Visual understanding integrated
+Image + text input
+Chart analysis, OCR, scene understanding
+Flamingo (DeepMind):
+Few-shot vision-language learning
+Interleaved image-text understanding
+Visual question answering
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 17 / 23
+
+===== PAGE 18 =====
+Code Generation Models
+GitHub Copilot (OpenAI Codex):
+Based on GPT architecture
+Trained on public code repositories
+IDE integration (VS Code, etc.)
+Context-aware code completion
+Code Llama (Meta):
+Specialized LLaMA variant
+7B, 13B, 34B, 70B variants
+Multi-language support
+Open-source
+StarCoder:
+BigCode project
+15B parameters
+Trained on The Stack dataset
+Permissive licensing
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 18 / 23
+
+===== PAGE 19 =====
+Audio and Speech Models
+Whisper (OpenAI):
+Automatic speech recognition (ASR)
+Multilingual (99 languages)
+Robust to accents and noise
+Multiple size variants (tiny to large)
+AudioLM and MusicLM (Google):
+Audio generation from text/audio
+Music generation from descriptions
+High-fidelity synthesis
+Bark:
+Text-to-speech with emotion
+Multilingual
+Non-verbal sounds (laughter, sighs)
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 19 / 23
+
+===== PAGE 20 =====
+Model Comparison Matrix
+Model Org Modality Access Strength
+GPT-4 OpenAI Text, Vision API Reasoning
+Claude 3 Anthropic Text API Safety, Analysis
+Gemini Ultra Google Multimodal API Integration
+LLaMA 3 Meta Text Open Efficiency
+Stable Diffusion Stability AI Image Open Customization
+DALL-E 3 OpenAI Image API Quality
+Whisper OpenAI Audio Open Accuracy
+Selection Criteria:
+Task requirements (generation, understanding, reasoning)
+Modality needs (text, image, multimodal)
+Deployment constraints (API vs local, cost)
+Licensing and commercial use
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 20 / 23
+
+===== PAGE 21 =====
+Open Source vs Closed Source
+Open Source:
++ Transparency
++ Customization
++ No API costs
++ Privacy control
+- Infrastructure needs
+- Maintenance burden
+Closed Source (API):
++ Easy integration
++ No infrastructure
++ Regular updates
++ Support
+- Ongoing costs
+- Data privacy
+- Limited control
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 21 / 23
+
+===== PAGE 22 =====
+Emerging Trends in Foundation Models
+Recent Developments:
+1 Mixture of Experts (MoE):
+Sparse activation for efficiency
+Examples: GPT-4, Mixtral
+2 Extended Context Windows:
+From 2K to 200K+ tokens
+Better long-document understanding
+3 Multimodal Integration:
+Native understanding across modalities
+Any-to-any generation
+4 Edge Deployment:
+Quantization and pruning
+On-device AI (Gemini Nano, Phi-3)
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 22 / 23
+
+===== PAGE 23 =====
+Challenges in Foundation Models
+Technical Challenges:
+Computational cost and energy consumption
+Hallucination and factual accuracy
+Bias and fairness issues
+Interpretability and explainability
+Practical Challenges:
+Data quality and curation
+Evaluation benchmarks
+Deployment and scaling
+Cost of inference
+Societal Challenges:
+Ethical use and alignment
+Copyright and intellectual property
+Job displacement concerns
+Misinformation and misuse
+Course Instructor Lecture 4: Foundation Models and Popular Generative AI ModelsJanuary 28, 2026 23 / 23

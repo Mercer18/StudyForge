@@ -1,0 +1,438 @@
+
+
+===== PAGE 1 =====
+Lecture 9: Introduction to Generative Adversarial
+Networks (GANs)
+DSE3261: Generative AI and Large Language Models
+Course Instructor
+February 10, 2026
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 1 / 24
+
+===== PAGE 2 =====
+Lecture Outline
+1 Introduction to GANs
+2 GAN Variants
+3 GAN Applications
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 2 / 24
+
+===== PAGE 3 =====
+What are Generative Adversarial Networks?
+Definition
+Generative Adversarial Networks (GANs) are a class of generative models
+consisting of two neural networks—a generator and a discriminator—that
+compete against each other in a zero-sum game framework.
+Core Concept:
+Generator (G):Creates fake data from random noise
+Discriminator (D):Distinguishes real from fake data
+Adversarial Training:G tries to fool D, D tries to detect fakes
+Nash Equilibrium:Both networks improve until equilibrium
+Invented by:Ian Goodfellow et al., 2014
+”The coolest idea in machine learning in the last 20 years”- Yann LeCun
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 3 / 24
+
+===== PAGE 4 =====
+GAN Architecture
+z
+Random Noise
+GeneratorG
+Fake Real
+Real Data
+DiscriminatorD
+Real/Fake?
+Learn to generate
+Learn to discriminate
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 4 / 24
+
+===== PAGE 5 =====
+GAN Training Process
+Adversarial Game:
+1 Train Discriminator:
+Show real data, label as ”real” (1)
+Generate fake data from G, label as ”fake” (0)
+Update D to maximize classification accuracy
+2 Train Generator:
+Generate fake data
+Pass through D (but don’t update D)
+Update G to maximize D’s error (fool D)
+3 Iterate:
+Alternate between training D and G
+D gets better at detecting fakes
+G gets better at creating realistic data
+Continue until convergence
+Goal:Generator produces data indistinguishable from real data
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 5 / 24
+
+===== PAGE 6 =====
+GAN Objective Function
+Minimax Game:
+min
+G
+max
+D
+V(D,G) =E x∼p data[logD(x)] +E z∼p z [log(1−D(G(z)))]
+Components:
+x: Real data samples
+z: Random noise vector (latent code)
+G(z): Generated (fake) data
+D(x): Discriminator’s probability thatxis real
+pdata: Real data distribution
+pz: Noise distribution (usually Gaussian)
+Interpretation:
+Discriminator:MaximizeV(correctly classify real/fake)
+Generator:MinimizeV(fool discriminator)
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 6 / 24
+
+===== PAGE 7 =====
+Training Dynamics
+Convergence to Equilibrium:
+Training Iterations
+Quality
+Generator
+Discriminator
+Equilibrium
+Ideal Outcome:
+Generator produces realistic data
+Discriminator can’t distinguish real from fake (50% accuracy)
+Both networks reach Nash equilibrium
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 7 / 24
+
+===== PAGE 8 =====
+GAN Training Challenges
+Common Training Issues:
+1 Mode Collapse:
+Generator produces limited variety
+Fails to capture full data distribution
+Outputs same/similar samples repeatedly
+2 Training Instability:
+Oscillating losses
+Failure to converge
+Sensitive to hyperparameters
+3 Vanishing Gradients:
+When D becomes too strong
+G receives no useful gradient signal
+Learning stops
+4 Evaluation Difficulty:
+No clear convergence metric
+Hard to assess quality objectively
+Loss values not reliable indicators
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 8 / 24
+
+===== PAGE 9 =====
+Addressing Training Challenges
+Solutions and Techniques:
+1 Architecture Improvements:
+Deep Convolutional GANs (DCGAN)
+Batch normalization
+LeakyReLU activations
+Careful architecture design
+2 Training Techniques:
+Feature matching
+Minibatch discrimination
+Historical averaging
+Two time-scale update rule (TTUR)
+3 Loss Functions:
+Wasserstein GAN (WGAN)
+Least Squares GAN (LSGAN)
+Hinge loss
+4 Regularization:
+Spectral normalization
+Gradient penalty
+Dropout, weight decay
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 9 / 24
+
+===== PAGE 10 =====
+DCGAN - Deep Convolutional GAN
+Architecture Guidelines (Radford et al., 2015):
+1 Replace pooling layers:
+Use strided convolutions (discriminator)
+Use fractional-strided convolutions (generator)
+2 Use batch normalization:
+In both G and D
+Stabilizes training
+Helps with gradient flow
+3 Remove fully connected layers:
+Use global average pooling
+Fully convolutional architecture
+4 Activation functions:
+ReLU in generator (except output: tanh)
+LeakyReLU in discriminator
+Impact:Set the standard for stable GAN training
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 10 / 24
+
+===== PAGE 11 =====
+Conditional GAN (cGAN)
+Controlled Generation:
+Concept
+Condition both generator and discriminator on additional information
+(labels, attributes, etc.)
+Modified Objective:
+min
+G
+max
+D
+V(D,G) =E x[logD(x|y)] +E z[log(1−D(G(z|y)))]
+Whereyis the conditioning information
+Applications:
+Class-conditional image generation
+Text-to-image synthesis
+Image-to-image translation
+Attribute-guided generation
+Example:”Generate an image of a brown dog” (label conditioning)
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 11 / 24
+
+===== PAGE 12 =====
+Wasserstein GAN (WGAN)
+Improved Training Stability
+Key Innovation:Use Wasserstein distance (Earth Mover’s Distance)
+instead of JS divergence
+Objective:
+min
+G
+max
+D∈D
+Ex∼p data[D(x)]−E z∼p z [D(G(z))]
+Advantages:
+More stable training
+Meaningful loss metric (correlates with quality)
+No mode collapse
+Works with various architectures
+Key Requirement:
+Discriminator must be 1-Lipschitz continuous
+Original: weight clipping
+WGAN-GP: gradient penalty
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 12 / 24
+
+===== PAGE 13 =====
+Progressive GAN
+High-Resolution Image Generation
+Training Strategy:
+1 Start with low resolution (4×4)
+2 Train until stable
+3 Gradually add layers to increase resolution
+4 4×4→8×8→16×16→...→1024×1024
+5 Smooth transitions between resolutions
+Advantages:
+More stable training at high resolutions
+Faster convergence
+Better quality images
+Achieved 1024×1024 photorealistic faces
+Impact (NVIDIA, 2017):First GAN to reliably generate high-resolution,
+photorealistic images
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 13 / 24
+
+===== PAGE 14 =====
+StyleGAN
+Style-Based Generator Architecture
+Key Innovations:
+1 Mapping Network:
+Maps latent codezto intermediate latent spacew
+Disentangles factors of variation
+2 Adaptive Instance Normalization (AdaIN):
+Injects style at each layer
+Controls different levels of detail
+Coarse (pose, shape)→Fine (color, texture)
+3 Style Mixing:
+Combine styles from different sources
+Fine-grained control over attributes
+4 Noise Injection:
+Adds stochastic variation
+Controls fine details (hair, pores)
+Result:State-of-the-art quality and control (NVIDIA, 2018-2020)
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 14 / 24
+
+===== PAGE 15 =====
+CycleGAN
+Unpaired Image-to-Image Translation
+Problem:Learn mapping between two domains without paired examples
+Architecture:
+Two generators:G:X→YandF:Y→X
+Two discriminators:D X andD Y
+Cycle Consistency Loss:F(G(x))≈xandG(F(y))≈y
+Objective:
+L=L GAN(G,D Y ) +L GAN(F,D X ) +λL cyc(G,F)
+Applications:
+Photo Painting (photos to Monet style)
+Summer Winter scenes
+Horse Zebra
+Day Night
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 15 / 24
+
+===== PAGE 16 =====
+Pix2Pix
+Paired Image-to-Image Translation
+Problem:Learn mapping from input image to output image with paired
+training data
+Architecture:
+Generator:U-Net architecture
+Encoder-decoder with skip connections
+Preserves low-level information
+Discriminator:PatchGAN
+Classifies image patches as real/fake
+Captures local structure
+Loss Function:
+L=L GAN +λL L1
+(Adversarial loss + pixel-wise reconstruction)
+Applications:Edges→Photo, Sketch→Photo, Semantic labels→
+Photo, Day→Night
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 16 / 24
+
+===== PAGE 17 =====
+BigGAN
+Large Scale GAN Training
+Scaling Up (DeepMind, 2018):
+Larger batch sizes (256-2048)
+More parameters (70M-160M)
+Higher resolution (128×128, 256×256, 512×512)
+Class-conditional generation (ImageNet)
+Architectural Improvements:
+Self-attention layers
+Spectral normalization
+Orthogonal regularization
+Truncation trick for sampling
+Results:
+Best Inception Score and FID on ImageNet
+Photorealistic, high-fidelity images
+Wide variety of object classes
+Tradeoff:Quality vs. diversity (truncation trick)
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 17 / 24
+
+===== PAGE 18 =====
+GAN Applications
+Diverse Use Cases:Computer Vision:
+Image generation
+Super-resolution
+Image inpainting
+Style transfer
+Face aging/de-aging
+Deepfakes
+Healthcare:
+Medical image synthesis
+Data augmentation
+Anomaly detection
+Creative Arts:
+Art generation
+Fashion design
+Video generation
+Music synthesis
+Other Domains:
+Text-to-image
+3D model generation
+Drug discovery
+Simulation and gaming
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 18 / 24
+
+===== PAGE 19 =====
+Image Generation Applications
+Practical Use Cases:
+1 PhotoRealistic Face Generation:
+StyleGAN, This Person Does Not Exist
+Character design, avatars
+2 Image Super-Resolution:
+SRGAN, ESRGAN
+Enhance low-resolution images
+Photo restoration
+3 Image Inpainting:
+Fill missing regions
+Object removal
+Photo editing
+4 Style Transfer:
+CycleGAN, StyleGAN
+Artistic rendering
+Photo filters
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 19 / 24
+
+===== PAGE 20 =====
+GANs vs Other Generative Models
+Comparison with Alternatives:
+Model Advantages Disadvantages Best For
+GANs Sharp images, fast sampling Training instability, mode col-
+lapse
+High-quality images
+VAEs Stable training, latent space Blurry outputs Latent manipulation
+Diffusion Models High quality, diversity Slow sampling State-of-the-art images
+Autoregressive Exact likelihood, stable Very slow sampling Sequence modeling
+Key Differences:
+GANs:Adversarial training, no explicit density
+VAEs:Variational inference, explicit density
+Diffusion:Iterative denoising, slow but high quality
+Autoregressive:Sequential generation, slow
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 20 / 24
+
+===== PAGE 21 =====
+Evaluation Metrics for GANs
+Quantitative Metrics:
+1 Inception Score (IS):
+Measures quality and diversity
+Uses pre-trained Inception network
+Higher is better
+Limited: doesn’t compare to real data
+2 Fr´ echet Inception Distance (FID):
+Compares feature distributions
+Real vs generated data
+Lower is better
+Most widely used metric
+3 Precision and Recall:
+Precision: quality (
+Recall: diversity (coverage)
+Trade-off between both
+4 Kernel Inception Distance (KID):
+Unbiased estimator
+Alternative to FID
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 21 / 24
+
+===== PAGE 22 =====
+Limitations and Ethical Concerns
+Technical Limitations:
+Training instability and convergence issues
+Mode collapse
+Difficult to control outputs precisely
+Limited understanding of generated samples
+Evaluation challenges
+Ethical Concerns:
+1 Deepfakes:
+Misinformation and manipulation
+Non-consensual content
+Identity theft
+2 Bias and Fairness:
+Inherits biases from training data
+Can amplify stereotypes
+3 Intellectual Property:
+Ownership of generated content
+Training data copyright
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 22 / 24
+
+===== PAGE 23 =====
+GANs vs Diffusion Models
+The Rise of Diffusion Models:
+Why Diffusion Models are Gaining:
+Training Stability:More stable than GANs
+Mode Coverage:Less mode collapse
+Quality:State-of-the-art image quality
+Controllability:Easier to guide generation
+GAN Advantages:
+Speed:Single forward pass (fast sampling)
+Real-time:Suitable for interactive applications
+Established:Many variants and applications
+Current Trend:
+Diffusion models (DALL-E 2, Stable Diffusion, Midjourney) dominate
+text-to-image
+GANs still used for real-time and specialized applications
+Hybrid approaches emerging
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 23 / 24
+
+===== PAGE 24 =====
+Summary
+Key Takeaways:
+1 GANs use adversarial training: Generator vs Discriminator
+2 Training challenges: mode collapse, instability, evaluation
+3 Major variants: DCGAN, cGAN, WGAN, StyleGAN, CycleGAN
+4 Applications: image generation, translation, enhancement, creative
+arts
+5 Evaluation: FID, IS, Precision/Recall
+6 Ethical concerns: deepfakes, bias, IP rights
+7 Competition from diffusion models, but GANs remain relevant
+Historical Impact
+GANs revolutionized generative modeling and paved the way for modern
+generative AI, inspiring architectures and training techniques used across
+the field.
+Course Instructor Lecture 9: Introduction to Generative Adversarial Networks (GANs)February 10, 2026 24 / 24

@@ -1,0 +1,1116 @@
+
+
+===== PAGE 1 =====
+GENERATIVE AI AND LARGE LANGUAGE MODELS
+Code: DSE3261
+Department of Data science and Engineerin
+Manipal university Jaipur
+January 11, 2026
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 1 / 55
+
+===== PAGE 2 =====
+1: CONCEPT OF AI, INTRODUCTION TO
+GENERATIVE AI
+
+===== PAGE 3 =====
+What is Artificial Intelligence?
+Artificial Intelligence (AI) refers to the simulation of human intelligence processes by computer
+systems. These processes include:
+Learning:Acquiring information and rules from data
+Reasoning:Using rules to reach logical or approximate conclusions
+Self-correction:Improving performance through iterative refinement
+Scope of AI
+Narrow AI (Weak AI):Task-specific systems (voice assistants, image recognition)
+General AI (Strong AI):Hypothetical human-level intelligence
+Super AI:Theoretical intelligence surpassing human cognition
+Key Characteristics
+Autonomous decision-making
+Adaptability to new situations
+Pattern recognition and prediction
+Natural language understanding
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 3 / 55
+
+===== PAGE 4 =====
+Core Domains of Artificial Intelligence
+Major AI Domains
+1 Machine Learning (ML)
+Algorithms that improve through experience
+Supervised, unsupervised, and reinforcement learning
+Examples: Spam filtering, fraud detection
+2 Natural Language Processing (NLP)
+Understanding and generating human language
+Applications: Chatbots, translation, sentiment analysis
+3 Computer Vision
+Interpreting images and videos
+Used in autonomous vehicles and medical imaging
+4 Robotics and Expert Systems
+Autonomous machines and knowledge-based systems
+Note:Modern AI systems often integrate multiple domains.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 4 / 55
+
+===== PAGE 5 =====
+Key Milestones in AI Development
+Historical Evolution
+1950s – Birth of AI
+Alan Turing proposes the Turing Test (1950)
+Dartmouth Conference coins the term AI (1956)
+1960s–70s – Early Enthusiasm
+ELIZA chatbot
+First AI Winter due to hardware limitations
+1980s–90s – Expert Systems
+Commercial expert systems
+Deep Blue defeats Garry Kasparov (1997)
+2010s–2020s – Deep Learning & Generative AI
+AlexNet, AlphaGo, GPT, DALL-E, ChatGPT
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 5 / 55
+
+===== PAGE 6 =====
+Challenges in Rule-Based AI Systems
+Rule-Based Systems
+Traditional AI systems rely on explicitly programmed IF–THEN rules.
+1 Scalability Issues
+Exponential growth of rules
+Difficult to maintain and update
+2 Brittleness
+Fail in unexpected situations
+Cannot handle ambiguity
+3 Knowledge Acquisition Bottleneck
+Hard to extract expert knowledge
+Domain knowledge evolves rapidly
+4 No Learning Capability
+No automatic improvement from experience
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 6 / 55
+
+===== PAGE 7 =====
+Challenges in Traditional Machine Learning Systems
+Limitations of Classical ML
+Feature Engineering Dependency
+Manual feature extraction
+Requires domain expertise
+Large Data Requirements
+Labeled data is expensive
+Sensitive to data quality
+Limited Generalization
+Overfitting issues
+Poor performance on unseen data
+Interpretability and Security
+Black-box models
+Vulnerable to adversarial attacks
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 7 / 55
+
+===== PAGE 8 =====
+Introduction to Generative AI
+What is Generative AI?
+Generative AI refers to systems that can create new, original content such as text, images,
+audio, video, code, and data.
+Core Principle
+Learn the probability distributionP(X) and generate new samples
+Key Capabilities
+Content creation (text, images, music)
+Data augmentation and synthesis
+Creative assistance and ideation
+Code generation and problem solving
+Foundation Models
+Transformers, GANs, VAEs, Diffusion Models
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 8 / 55
+
+===== PAGE 9 =====
+AI vs Generative AI: Conceptual Difference
+Traditional AI
+Predicts or classifies data
+Learns decision boundaries
+ModelsP(Y|X)
+Output: labels or scores
+Generative AI
+Creates new content
+Learns data distribution
+ModelsP(X) orP(X|Y)
+Output: text, images, code
+Insight:Traditional AI decideswhat is,
+Generative AI imagineswhat could be.
+Traditional AI
+Analyzes data
+Predicts / Classifies
+P(Y|X)
+Generative AI
+Creates content
+Learns distribution
+P(X) orP(X|Y)
+Paradigm Shift
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 9 / 55
+
+===== PAGE 10 =====
+Generative AI Applications Across Industries
+Healthcare:Drug discovery, medical imaging, diagnosis
+Content & Media:Text, image, video, music generation
+Software Development:Code generation, debugging
+Education:Personalized learning, virtual tutors
+Business:Customer service, reporting, analytics
+Finance:Fraud simulation, risk assessment
+Scientific Research:Hypothesis generation, simulations
+Impact:Faster innovation, democratized expertise, scalable creativity
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 10 / 55
+
+===== PAGE 11 =====
+Generative AI Applications Across Industries
+Healthcare:Drug discovery, medical imaging, diagnosis
+Content & Media:Text, image, video, music generation
+Software Development:Code generation, debugging
+Education:Personalized learning, virtual tutors
+Business:Customer service, reporting, analytics
+Finance:Fraud simulation, risk assessment
+Scientific Research:Hypothesis generation, simulations
+Impact:Faster innovation, democratized expertise, scalable creativity
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 11 / 55
+
+===== PAGE 12 =====
+Summary: Introduction to AI and Generative AI
+Key Takeaways
+AI simulates human intelligence through learning and reasoning
+Evolution from rule-based systems to deep learning
+Generative AI represents a paradigm shift toward creation
+Applications span every major industry
+Future AI will be multimodal, autonomous, and collaborative
+Looking Ahead
+Upcoming lectures will explore architectures, models, and implementation of generative AI
+systems.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 12 / 55
+
+===== PAGE 13 =====
+2: HISTORY AND EVOLUTION OF AI
+AND GENERATIVE AI
+
+===== PAGE 14 =====
+The Genesis of Artificial Intelligence (1940s–1950s)
+Pre-AI Era: Theoretical Foundations
+1943 – McCulloch–Pitts Neuron
+First mathematical model of artificial
+neurons
+Neurons perform logical operations
+Foundation of modern neural networks
+Limitation:Binary activation, no
+learning
+1950 – The Turing Test
+Alan Turing:“Computing Machinery
+and Intelligence”
+Introduced the imitation game
+Intelligence judged via conversation
+1950 – Claude Shannon’s Chess Program
+First algorithmic game-playing approach
+Introduced minimax and strategic search
+Games became AI benchmarks
+1951 – SNARC (Minsky)
+First neural network hardware machine
+Learned via reinforcement
+Key Insight:Foundations of neural
+networks, learning, and evaluation were
+established
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 14 / 55
+
+===== PAGE 15 =====
+Birth and First Golden Age of AI (1956–1974)
+1956 – Dartmouth Conference
+Organized by John McCarthy, Marvin
+Minsky, Claude Shannon
+TermArtificial Intelligencecoined
+Belief: AI solvable within a generation
+Established AI as an academic discipline
+Major Developments
+Logic Theorist (1956)– First AI
+program
+General Problem Solver (1957)–
+Domain-independent problem solving
+Machine Learning (1959)– Arthur
+Samuel’s checkers
+Key Programs
+ELIZA (1966)– Early chatbot using
+pattern matching
+SHRDLU (1968–70)– Language
+understanding in blocks world
+Expert Systems– DENDRAL, MYCIN
+Emerging Limitations
+Insufficient computational power
+Focus on toy problems
+Overly optimistic predictions
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 15 / 55
+
+===== PAGE 16 =====
+The First AI Winter (1974–1980)
+Causes of the First AI Winter
+1 Computational Limitations
+Limited memory and processing power
+Exponential search complexity
+2 Combinatorial Explosion
+Real-world problems too large to search
+Translation and planning infeasible
+3 Lack of Common Sense Knowledge
+No effective knowledge representation
+Narrow-domain success only
+4 Overpromising and Underdelivering
+Unrealistic timelines damaged
+credibility
+Key Triggering Events
+Lighthill Report (1973)– UK funding collapse
+DARPA Cuts (1974)– US funding reduced
+Impact:Lab closures, funding loss, AI became unfashionable.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 16 / 55
+
+===== PAGE 17 =====
+Expert Systems and the AI Renaissance (1980–1987)
+What Are Expert Systems?
+Knowledge-based systems emulating human experts
+IF–THEN rules with inference engines
+Explanation facilities for transparency
+Why They Succeeded
+Narrow, well-defined domains
+Economic value to businesses
+Explainable decision-making
+Landmark Systems
+MYCIN– Medical diagnosis
+XCON– Computer configuration (saved$25M/year)
+PROSPECTOR– Mineral discovery
+Commercial Impact
+$1B AI industry by mid-1980s
+AI companies, LISP machines, expert shells
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 17 / 55
+
+===== PAGE 18 =====
+The Second AI Winter (1987–1993)
+Triggers of the Second Collapse
+1 AI Hardware Market Collapse
+LISP machines outcompeted by PCs
+AI hardware companies failed
+2 Expert System Limitations
+Knowledge acquisition bottleneck
+Maintenance complexity
+Brittleness outside narrow domains
+3 Failure of Large Projects
+Japan’s Fifth Generation Project
+DARPA Strategic Computing Initiative
+Consequences
+Funding collapse
+Term “AI” avoided
+Researchers moved to adjacent fields
+Key Lesson:Economic viability and realism are critical.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 18 / 55
+
+===== PAGE 19 =====
+What Kept AI Alive During the AI Winter
+1. Niche Successes
+Expert systems continued to provide
+value
+Military and aerospace applications
+remained active
+Academic research continued at reduced
+scale
+2. Foundational Work
+Neural networks (Rumelhart, Hinton,
+LeCun)
+Probabilistic methods development
+Computational learning theory advances
+Steady progress in robotics
+3. Related Fields Thrived
+Machine learning under statistics
+Pattern recognition in signal processing
+Data mining in databases
+Later merged back into AI
+Critical Insight
+Need for realistic expectations
+Importance of measurable progress
+Value of empirical validation
+Economic viability is essential
+Transition Period
+AI was unfashionable but technologies
+matured
+Set the stage for the machine learning
+revolution
+Led to resurgence in the 2000s
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 19 / 55
+
+===== PAGE 20 =====
+Rise of Machine Learning (1993–2010)
+Paradigm Shift: From Logic to Statistics
+Why Statistical Approaches Emerged
+Knowledge engineering bottleneck in
+expert systems
+Explosion of digital data
+Increasing computational power
+(Moore’s Law)
+Success of probabilistic models
+Data Availability
+Internet produced massive datasets
+Sensors generated continuous data
+Storage costs plummeted
+Data became the new fuel
+Computational Advances
+CPU speeds doubling every 18–24
+months
+Parallel processing
+GPUs repurposed for computation
+Distributed computing frameworks
+Algorithmic Innovations
+Strong mathematical foundations
+PAC learning theory
+Efficient optimization
+Cross-validation and regularization
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 20 / 55
+
+===== PAGE 21 =====
+Major Machine Learning Breakthroughs
+Neural Networks Renaissance
+Backpropagation (1986)
+Rumelhart, Hinton, Williams
+Enabled training deep networks
+Convolutional Neural Networks
+LeNet (1998) – handwritten digits
+Used by banks to read checks
+Conv→Pool→FC architecture
+LSTM (1997)
+Solved vanishing gradient problem
+Enabled sequence learning
+Used in speech and translation
+Support Vector Machines
+Vapnik, margin theory
+Kernel trick for non-linear problems
+Dominated ML competitions
+Ensemble Methods
+Random Forests (2001)
+Bagging + random features
+Strong for tabular data
+Boosting (AdaBoost, Gradient Boosting)
+Combines weak learners
+XGBoost dominates competitions
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 21 / 55
+
+===== PAGE 22 =====
+Success Stories of Machine Learning
+Probabilistic Graphical Models
+Bayesian Networks
+Hidden Markov Models
+Markov Chain Monte Carlo
+Used in speech, robotics, bioinformatics
+IBM Deep Blue (1997)
+Defeated Garry Kasparov
+200 million positions/sec
+Reignited public interest
+Autonomous Vehicles
+DARPA Challenges (2004–2007)
+Proved self-driving feasible
+Netflix Prize (2006–2009)
+$1M for 10% improvement
+Collaborative filtering + ensembles
+Showed business value of ML
+Practical Applications
+Spam filtering
+Recommendation systems
+Search engines
+Fraud detection
+Medical image analysis
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 22 / 55
+
+===== PAGE 23 =====
+The Deep Learning Revolution (2010–2020)
+The Perfect Storm: Why Deep Learning Succeeded
+Big Data Era
+ImageNet (2009): 14M labeled images
+Web-scale text corpora
+Social media generated labeled data
+Millions of examples for training
+Computational Power
+GPUs for neural network training
+CUDA enabled GPU programming
+10–100x speedup over CPUs
+Cloud platforms (AWS, Azure)
+Google TPUs
+Algorithmic Innovations
+ReLU activation functions
+Better weight initialization
+Dropout (2012)
+Batch Normalization (2015)
+Residual connections (2015)
+Adam optimizer (2014)
+Key Result
+Deep networks became trainable,
+scalable, and stable
+Enabled learning from massive
+real-world data
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 23 / 55
+
+===== PAGE 24 =====
+Deep Learning Breakthroughs
+AlexNet (2012)
+8-layer CNN, 60M parameters
+Won ImageNet by huge margin
+Used GPUs, ReLU, dropout
+Sparked deep learning revolution
+Computer Vision Models
+VGGNet (2014): very deep CNNs
+GoogLeNet (2014): inception modules
+ResNet (2015): 152 layers, skip
+connections
+Surpassed human accuracy on ImageNet
+Word Embeddings
+Word2Vec (2013), GloVe (2014)
+Captured semantic meaning
+Sequence Models
+Seq-to-Seq with LSTMs (2014)
+Attention Mechanism (2015)
+Transformer (2017) — “Attention is All
+You Need”
+Foundation of BERT, GPT, T5
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 24 / 55
+
+===== PAGE 25 =====
+Deep Learning in Games and Industry
+Game-Playing Breakthroughs
+AlphaGo (2016): defeated Lee Sedol
+AlphaZero (2017): learned from self-play
+OpenAI Five (2018): mastered Dota 2
+Showed creativity and strategic
+reasoning
+Philosophical Shift
+Learning from data ¿ hand-coded
+knowledge
+Industry Transformation
+Google (TensorFlow, DeepMind)
+Facebook (PyTorch, FAIR)
+Microsoft (Azure ML)
+Amazon (AWS, Alexa)
+Apple (Siri, Core ML)
+Practical Applications
+Voice assistants
+Autonomous vehicles
+Medical image diagnosis
+Fraud detection
+Recommendation systems
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 25 / 55
+
+===== PAGE 26 =====
+Birth and Rise of Generative AI (2014–2020)
+Why Generative Models Matter
+Move beyond prediction to creation
+Learn full data distributions
+Enable synthetic data generation
+Support unsupervised learning
+Enable creativity (images, text, audio)
+Core Generative Paradigms
+GANs (Adversarial learning)
+VAEs (Probabilistic latent models)
+Autoregressive models
+Diffusion models
+GANs — Ian Goodfellow (2014)
+Introduced at NIPS 2014
+Two networks in competition
+Generator creates fake samples
+Discriminator detects real vs fake
+Adversarial training improves both
+Key Idea:
+Nash equilibrium→realistic data
+generation
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 26 / 55
+
+===== PAGE 27 =====
+Generative Adversarial Networks (GANs)
+GAN Architecture
+Random noise→Generator→Fake
+image
+Real images→Discriminator
+Discriminator outputs Real / Fake
+Feedback trains both networks
+Initial Applications
+Face generation
+Image-to-image translation
+Style transfer
+GAN Evolution
+DCGAN (2015): Stable deep GANs
+Progressive GAN (2017): 1024×1024
+faces
+StyleGAN (2018–19): Style control,
+realism
+“This Person Does Not Exist” (2019)
+Challenges
+Mode collapse
+Training instability
+Limited diversity sometimes
+Hard to evaluate
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 27 / 55
+
+===== PAGE 28 =====
+Other Generative Model Families
+Variational Autoencoders (2013)
+Encoder→latent space→decoder
+Probabilistic generative model
+Smooth interpolation
+KL divergence + reconstruction loss
+Applications
+Data compression
+Anomaly detection
+Drug discovery
+Recommendation systems
+Autoregressive Models
+PixelRNN / PixelCNN (2016)
+Generate pixels one by one
+Very high quality but slow
+WaveNet (2016)
+Audio generation
+Natural text-to-speech
+Used in Google Assistant
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 28 / 55
+
+===== PAGE 29 =====
+From Research to Generative AI Era
+Early Language Models
+GPT-1 (2018): Generative Transformer
+BERT (2018): Bidirectional
+understanding
+GPT-2 (2019): 1.5B parameters
+Generated coherent long text
+Capabilities
+Story writing
+Translation
+Summarization
+Reasoning
+Diffusion Models
+Noise→denoise→generate
+More stable than GANs
+High-quality and diverse samples
+Foundation for 2021–23 explosion
+By 2020
+Scaling laws proven
+Transfer learning standard
+Multimodal research emerging
+Infrastructure + data ready
+Outcome:Stage set for GPT-3 and GenAI
+revolution.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 29 / 55
+
+===== PAGE 30 =====
+The Generative AI Explosion (2020–Present)
+GPT-3 and the Scale Revolution
+GPT-3 (June 2020)
+175B parameters (100×GPT-2)
+Trained on 45TB text
+$4–12M training cost
+Emergent abilities from scale
+Few-Shot Learning
+Learns tasks from prompt examples
+No task-specific fine-tuning
+Natural language as programming
+Capabilities
+Translation
+Writing stories
+Code generation
+Question answering
+Basic reasoning
+Limitations
+Hallucinations
+No real-world grounding
+Biases
+Weak multi-step reasoning
+API Impact
+100s of apps built
+Commercial viability proven
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 30 / 55
+
+===== PAGE 31 =====
+Image Generation Takes Off
+DALL-E + CLIP (2021)
+Text→Image
+400M image-text pairs (CLIP)
+Enabled zero-shot vision
+DALL-E 2 (2022)
+Diffusion-based
+1024×1024 resolution
+Inpainting, variations, styles
+Midjourney
+Artistic focus
+Discord interface
+Subscription model
+Stable Diffusion
+Open source
+Runs on consumer GPUs
+Enabled DreamBooth, ControlNet,
+LoRA
+Impact
+Disrupted design and art
+Copyright debates
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 31 / 55
+
+===== PAGE 32 =====
+ChatGPT and the LLM Explosion
+ChatGPT (Nov 2022)
+GPT-3.5 + RLHF
+Free public access
+100M users in 2 months
+Mainstream AI moment
+GPT-4 (2023)
+Multimodal
+Stronger reasoning
+Longer context
+Bar-exam level performance
+Open-Source Models
+LLaMA (Meta)
+Vicuna, Alpaca
+Mistral
+Claude, Gemini
+Why It Matters
+Democratized access
+Competition accelerated innovation
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 32 / 55
+
+===== PAGE 33 =====
+Multimodal Generative AI
+Audio & Music
+MusicLM, Riffusion
+ElevenLabs voice cloning
+Vall-E TTS
+Video
+Runway Gen-2
+Meta Make-A-Video
+Sora (2024)
+Code Generation
+GitHub Copilot
+AlphaCode
+GPT-4 Code Interpreter
+Devin AI engineer
+Economic Impact
+New jobs
+Productivity tools
+VC investment explosion
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 33 / 55
+
+===== PAGE 34 =====
+Summary: History and Evolution of AI
+Cycles of AI
+1956–74: Optimism
+1974–80: AI Winter
+1980s: Expert systems
+1990s: ML
+2010s: Deep learning
+2020s: Generative AI
+Paradigm Shifts
+Rules→Data→Scale→Emergence
+Symbolic→ML→DL→GenAI
+Features→Representations→Prompts
+Final Insight
+Data + Compute + Algorithms drive
+breakthroughs
+Real progress beats hype
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 34 / 55
+
+===== PAGE 35 =====
+3: DEEP LEARNING ARCHITECTURES VS
+TRANSFORMER ARCHITECTURES
+
+===== PAGE 36 =====
+Introduction to Neural Network Architectures
+What is a Neural Network Architecture?
+Structural design of interconnected
+neurons
+Defines how data flows and is processed
+Determines what patterns can be learned
+Core Components
+Neurons:y=f( P wi xi +b)
+Layers: Input→Hidden→Output
+Connections: weights define influence
+Activations: ReLU, Sigmoid, Tanh,
+Softmax
+Why Architecture Matters
+Images→CNNs
+Sequences→RNNs / Transformers
+Tabular→MLPs
+Better design→less data & compute
+Evolution
+Perceptrons→MLPs
+CNNs RNNs
+Deep networks
+Transformers
+Goal of This Lecture
+Compare CNNs, RNNs, Transformers
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 36 / 55
+
+===== PAGE 37 =====
+Multi-Layer Perceptrons (MLPs)
+What is an MLP?
+Fully connected feedforward network
+Layered structure
+Uses nonlinear activations
+Mathematics
+h=f(Wx+b)
+Example
+Input: 784 pixels
+Hidden: 256→128
+Output: 10 classes
+Advantages
+Universal approximator
+Simple and flexible
+Works for tabular data
+Limitations
+No spatial or temporal structure
+Huge parameter count
+Overfitting prone
+Used For
+Tabular data
+Final classification layers
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 37 / 55
+
+===== PAGE 38 =====
+Convolutional Neural Networks (CNNs)
+Core Idea
+Local connectivity
+Weight sharing
+Hierarchical feature learning
+Components
+Convolution
+ReLU
+Pooling
+Fully Connected
+Why CNNs Work
+Translation invariant
+Parameter efficient
+Preserves spatial structure
+Famous CNNs
+LeNet
+AlexNet
+VGG
+ResNet
+Applications
+Images, video, medical scans, self-driving
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 38 / 55
+
+===== PAGE 39 =====
+Recurrent Neural Networks (RNNs)
+What is an RNN?
+Designed for sequences
+Uses hidden state memory
+Processes data step-by-step
+Equation
+ht = tanh(Whht−1 +W x xt)
+Strengths
+Handles variable-length input
+Captures temporal patterns
+Problems
+Vanishing gradients
+No parallelization
+Weak long-term memory
+Uses
+Language, speech, time-series
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 39 / 55
+
+===== PAGE 40 =====
+LSTM and GRU
+Why LSTM?
+Solves vanishing gradient
+Has memory cell
+Uses gates to control flow
+Gates
+Forget
+Input
+Output
+GRU
+Simpler than LSTM
+Two gates: Reset, Update
+Faster and lighter
+Still Used For
+Speech
+Time-series
+Real-time systems
+Transition
+Limitations→Transformers
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 40 / 55
+
+===== PAGE 41 =====
+Introduction to Transformer Architecture
+The Paradigm Shift: “Attention is All You Need” (Vaswani et al., 2017)
+What Problem Did Transformers Solve?
+RNN/LSTM Limitations
+Sequential processing (no parallelization)
+Hidden-state bottleneck
+Weak long-range dependencies
+Complex gating to stabilize gradients
+CNN Limitations for Sequences
+Fixed receptive fields
+Many layers needed for global context
+Not naturally variable-length
+Transformer Solution
+Self-attention connects all tokens
+directly
+No recurrence or convolution
+Full parallelization on GPUs
+Long-range context with path length 1
+Key Advantages
+10–100×faster training than RNNs
+Direct long-range dependency modeling
+Interpretable attention weights
+Scales to billions of parameters
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 41 / 55
+
+===== PAGE 42 =====
+Transformer Architecture Overview
+Input Tokens
+Embeddings + Positional Encoding
+Encoder Stack
+(Self-Attention + FFN)
+Decoder Stack
+(Masked Self-Attn, Cross-Attn, FFN)
+Linear + Softmax
+Variants:
+Encoder-Decoder (Translation, Summarization)
+Encoder-Only (BERT)
+Decoder-Only (GPT)
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 42 / 55
+
+===== PAGE 43 =====
+Self-Attention: The Core Innovation
+IdeaEach token attends to all others to
+compute its representation.
+Intuition
+“Which words matter for me?”
+Weighted combination of all words
+Direct long-range links
+Query–Key–Value
+Qi =x i WQ ,K i =x i WK ,V i =x i WV
+Attention Scores
+Score(i,j) = Qi ·K j√dk
+Final Output
+Attention(Q,K,V) = softmax
+ QK T
+√dk
+
+V
+Properties
+Parallelizable
+Dynamic context-dependent
+Interpretable
+Global receptive field
+Complexity
+Time:O(n 2d)
+Memory:O(n 2)
+Compared to
+RNNs: sequential, bottlenecked
+CNNs: local, hierarchical
+Self-Attention: global parallel
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 43 / 55
+
+===== PAGE 44 =====
+Self-Attention Visualization
+The animal it0.45
+0.12
+0.15
+““it” attends mostly to “animal” – correct coreference.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 44 / 55
+
+===== PAGE 45 =====
+Multi-Head Attention
+Why Multiple Heads?
+Syntax, semantics, coreference, position
+One head cannot capture all
+Multiple heads specialize
+Per-Head
+Qi =QW Q
+i ,K i =KW K
+i ,V i =VW V
+i
+headi = Attention(Qi ,K i ,V i)
+Combine
+MultiHead(Q,K,V) = Concat(head 1, ...,head h)W O
+Dimension Splitting
+dmodel = 512,h= 8⇒d k = 64
+Same cost as single attention
+Forces specialization
+Benefits
+Richer representations
+Robustness
+Interpretability
+Efficient parallelization
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 45 / 55
+
+===== PAGE 46 =====
+Multi-Head Attention Flow
+Input
+Head 1 Head 2 Head 3
+Concatenate
+LinearW O
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 46 / 55
+
+===== PAGE 47 =====
+Single vs Multi-Head Attention
+Aspect Single Head Multi-Head
+Perspectives 1 Many
+Expressiveness Limited High
+Specialization No Yes
+Robustness Lower Higher
+Parameters∼1M∼1M (same)
+Key Insight:Multiple heads give multiple “views” of the same sentence.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 47 / 55
+
+===== PAGE 48 =====
+Feed-Forward Networks and Layer Components
+Beyond Attention:
+Attention mixes information across tokens
+Feed-Forward Networks (FFN) transform each token individually
+Adds non-linearity and model capacity
+FFN Architecture
+FFN(x) = Activation(xW 1 +b 1)W2 +b 2
+W1 ∈R dmodel ×dff ,W 2 ∈R dff ×dmodel ,d ff = 4dmodel
+GELU Version
+FFN(x) = GELU(xW 1 +b 1)W2 +b 2
+BERT-base Example:
+dmodel = 768,d ff = 3072
+FFN parameters per layer≈4.7M
+12 layers⇒56M FFN parameters
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 48 / 55
+
+===== PAGE 49 =====
+Transformer Layer Structure
+Input
+LayerNorm
+Multi-Head Attention
+Residual Add
+LayerNorm
+Feed Forward Network
+Residual Add
+Output
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 49 / 55
+
+===== PAGE 50 =====
+Transformer Building Blocks and Architectures
+Core Training Stabilizers
+Layer Normalization
+LN(x) =γ x−µ
+σ +β
+Normalizes features for stable training.
+Residual Connection
+y=x+ Sublayer(x)
+Preserves gradients
+Enables very deep networks (100+
+layers)
+Dropout
+Applied after attention and FFN
+Typical rate: 0.1
+Prevents overfitting
+Transformer Architectures
+Three Main Variants
+1 Encoder–Decoder(T5, BART)
+Translation, summarization
+2 Encoder–Only(BERT) Text
+understanding, classification
+3 Decoder–Only(GPT, LLaMA) Text
+generation, chat, coding
+Insight:Stabilization techniques make deep Transformers trainable, while architectural
+variants define how they are used.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 50 / 55
+
+===== PAGE 51 =====
+Transformer Architectures (Part 1)
+Encoder–Decoder (Original Transformer)
+Two stacks: Encoder + Decoder
+Encoder: bidirectional self-attention
+Decoder: autoregressive generation
+Usescross-attention:
+Attn(Qdec ,K enc ,V enc)
+Used for
+Machine translation
+Summarization
+Question answering
+Example:
+“The cat sat”→“Le chat ´ etait assis”
+Models: T5, BART, mBART, Whisper
+Encoder-Only (BERT-style)
+Fully bidirectional self-attention
+Sees left and right context
+Trained usingMasked Language
+Modeling (MLM)
+P(x mask |context)
+Special Tokens:
+[CLS]– sequence representation
+[SEP]– segment separator
+[MASK]– token to predict
+Used for
+Sentiment analysis
+NER
+Semantic search
+Models: BERT, RoBERTa, ALBERT,
+DeBERTa
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 51 / 55
+
+===== PAGE 52 =====
+Transformer Architectures (Part 2)
+Decoder-Only (GPT-style)
+Usescausal self-attention
+Each token sees only past tokens
+Trained with next-token prediction:
+P(xt |x 1, . . . ,xt−1)
+Capabilities
+Text generation
+Chatbots
+Code generation
+Few-shot learning
+Models: GPT-2, GPT-3, GPT-4, LLaMA,
+Claude, Gemini
+Comparison
+Aspect Encoder-
+Only
+Decoder-
+Only
+Context Bidirectional Left-only
+Training MLM Next-token
+Generation No Yes
+Best for Understanding Generation
+Examples BERT GPT
+Modern Trend
+Decoder-only dominates
+Prompting replaces fine-tuning
+Few-shot learning emerges at scale
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 52 / 55
+
+===== PAGE 53 =====
+Training Objectives and Alignment
+Core Training Objectives
+1. Autoregressive (GPT)
+L=−
+X
+logP(x t|x<t)
+2. Masked LM (BERT)
+L=−
+X
+logP(x mask |context)
+3. Seq2Seq (T5)
+P(yt|x,y <t)
+Instruction Tuning
+Trains on instruction→response pairs
+Enables zero-shot and task following
+RLHF (Human Alignment)
+Humans rank model outputs
+Reward model trained
+PPO optimizes model behavior
+Used in ChatGPT, Claude, Gemini.
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 53 / 55
+
+===== PAGE 54 =====
+Training Infrastructure and Scaling
+Training at Scale
+GPT-3
+10,000 GPUs
+300B tokens
+$4–12M compute
+Optimization
+Adam optimizer
+LR warmup + decay
+Gradient clipping
+Mixed precision
+Distributed training
+Scaling Laws
+Loss∝N −α, α≈0.076
+Chinchilla Law
+Tokens∝Parameters
+Implication
+Bigger models need more data
+Undertrained models waste parameters
+Compute, data and size must scale
+together
+Department of Data science and Engineerin Manipal university JaipurGENERATIVE AI AND LARGE LANGUAGE MODELS January 11, 2026 54 / 55
+
+===== PAGE 55 =====
+Thank You
+The End

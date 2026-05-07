@@ -1,0 +1,483 @@
+
+
+===== PAGE 1 =====
+Lecture 7: Large Language Models and Comparison of
+SLMs and LLMs
+DSE3261: Generative AI and Large Language Models
+Course Instructor
+February 10, 2026
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 1 / 26
+
+===== PAGE 2 =====
+Lecture Outline
+1 Large Language Models (LLMs)
+2 Comparison of SLMs and LLMs
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 2 / 26
+
+===== PAGE 3 =====
+What are Large Language Models (LLMs)?
+Definition
+Large Language Models are neural networks with billions to trillions of
+parameters, trained on massive text corpora, capable of understanding and
+generating human-like text with remarkable fluency and knowledge.
+Defining Characteristics:
+Scale:10B+ parameters (often 100B+)
+Data:Trained on trillions of tokens
+Compute:Requires massive computational resources
+Emergence:Exhibits capabilities not present in smaller models
+Generality:Performs well across diverse tasks without fine-tuning
+Paradigm Shift:From task-specific models to general-purpose foundation
+models
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 3 / 26
+
+===== PAGE 4 =====
+The Scaling Hypothesis
+Core Principle:Model performance improves predictably with scale (data,
+parameters, compute)
+Scaling Laws (Kaplan et al., 2020):
+L(N)≈
+ Nc
+N
+αN
+Where:
+L(N) = Loss with N parameters
+Nc = Critical parameter count
+αN = Scaling exponent (≈0.076)
+Key Insights:
+Performance scales as power law with parameters, data, compute
+Larger models are more sample-efficient
+Emergent abilities appear at certain scale thresholds
+Returns diminish but don’t plateau
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 4 / 26
+
+===== PAGE 5 =====
+Evolution of LLM Scale
+Historical Growth:
+Model Year Parameters Organization
+GPT-1 2018 117M OpenAI
+BERT-Large 2018 340M Google
+GPT-2 2019 1.5B OpenAI
+T5-11B 2019 11B Google
+GPT-3 2020 175B OpenAI
+Gopher 2021 280B DeepMind
+Megatron-Turing 2021 530B Microsoft/NVIDIA
+PaLM 2022 540B Google
+GPT-4 2023 1.7T (rumored) OpenAI
+Observation:Exponential growth in model size over just 5 years (117M
+→1000B+)
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 5 / 26
+
+===== PAGE 6 =====
+Architecture of Modern LLMs
+Transformer-Based Architecture:
+Input Layer:
+Token embeddings (vocabulary size×embedding dim)
+Positional encodings
+Transformer Blocks (N layers):
+Multi-head self-attention
+Feed-forward networks
+Layer normalization
+Residual connections
+Output Layer:
+Linear projection to vocabulary
+Softmax for probability distribution
+Typical Hyperparameters (GPT-3 175B):
+Layers: 96
+Hidden size: 12,288
+Attention heads: 96
+Context window: 2,048 tokens
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 6 / 26
+
+===== PAGE 7 =====
+Training Large Language Models
+Training Process:
+1 Data Collection:
+Web crawl (Common Crawl)
+Books, academic papers, code
+Filtering and deduplication
+Typical size: 300B - 2T+ tokens
+2 Pre-training Objective:
+Causal language modeling (next token prediction)
+Self-supervised learning
+Minimizes cross-entropy loss
+3 Computational Requirements:
+Thousands of GPUs/TPUs
+Months of training time
+Millions of dollars in compute costs
+Advanced distributed training techniques
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 7 / 26
+
+===== PAGE 8 =====
+Distributed Training Techniques
+Parallelism Strategies:
+1 Data Parallelism:
+Replicate model across devices
+Split data batches
+Synchronize gradients
+2 Model Parallelism:
+Split model across devices
+Each device holds part of model
+Required when model doesn’t fit on single device
+3 Pipeline Parallelism:
+Split model into sequential stages
+Process micro-batches in pipeline
+Reduces memory, improves utilization
+4 Tensor Parallelism:
+Split individual layers/tensors
+Parallel computation within layer
+Used in Megatron-LM
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 8 / 26
+
+===== PAGE 9 =====
+Emergent Abilities of LLMs
+Emergence
+Abilities that appear suddenly at certain scales, not present in smaller
+models, and not explicitly trained for.
+Key Emergent Abilities:
+1 Few-Shot Learning:
+Learn new tasks from few examples
+In-context learning without parameter updates
+Emerges around 10B+ parameters
+2 Chain-of-Thought Reasoning:
+Step-by-step problem solving
+Improves complex reasoning tasks
+Emerges around 100B+ parameters
+3 Instruction Following:
+Follow complex natural language instructions
+Zero-shot task generalization
+Enhanced by instruction tuning
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 9 / 26
+
+===== PAGE 10 =====
+In-Context Learning
+Concept:LLMs learn to perform new tasks from examples provided in the
+prompt, without parameter updates
+Learning Paradigms:
+Zero-Shot:
+Task description only, no examples
+”Translate this to French: Hello”
+One-Shot:
+One example provided
+Example + new input
+Few-Shot:
+Multiple examples (typically 3-10)
+Pattern recognition from examples
+Advantage:No need for task-specific training data or fine-tuning
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 10 / 26
+
+===== PAGE 11 =====
+Prompt Engineering for LLMs
+Definition:The art and science of crafting effective prompts to elicit
+desired responses from LLMs
+Key Techniques:
+1 Clear Instructions:
+Explicit task description
+Specify output format
+Provide constraints
+2 Role Prompting:
+”You are an expert programmer...”
+Sets context and expertise level
+3 Chain-of-Thought:
+”Let’s think step by step”
+Encourages reasoning process
+Improves complex problem solving
+4 Few-Shot Examples:
+Provide input-output pairs
+Demonstrates desired behavior
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 11 / 26
+
+===== PAGE 12 =====
+Prompt Engineering for LLMs
+Definition:The art and science of crafting effective prompts to elicit
+desired responses from LLMs
+Key Techniques:
+1 Clear Instructions:
+Explicit task description
+Specify output format
+Provide constraints
+2 Role Prompting:
+”You are an expert programmer...”
+Sets context and expertise level
+3 Chain-of-Thought:
+”Let’s think step by step”
+Encourages reasoning process
+Improves complex problem solving
+4 Few-Shot Examples:
+Provide input-output pairs
+Demonstrates desired behavior
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 12 / 26
+
+===== PAGE 13 =====
+Prompt Engineering for LLMs
+Definition:The art and science of crafting effective prompts to elicit
+desired responses from LLMs
+Key Techniques:
+1 Clear Instructions:
+Explicit task description
+Specify output format
+Provide constraints
+2 Role Prompting:
+”You are an expert programmer...”
+Sets context and expertise level
+3 Chain-of-Thought:
+”Let’s think step by step”
+Encourages reasoning process
+Improves complex problem solving
+4 Few-Shot Examples:
+Provide input-output pairs
+Demonstrates desired behavior
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 13 / 26
+
+===== PAGE 14 =====
+Capabilities of Modern LLMs
+Demonstrated Capabilities:
+Language Tasks:
+Translation
+Summarization
+Question answering
+Dialogue
+Creative writing
+Text analysis
+Reasoning Tasks:
+Mathematical reasoning
+Logical inference
+Common sense reasoning
+Code generation
+Problem decomposition
+Analogical reasoning
+Knowledge:
+Broad world knowledge from training data
+Factual recall (with limitations)
+Cross-domain understanding
+Temporal knowledge (up to training cutoff)
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 14 / 26
+
+===== PAGE 15 =====
+Limitations of LLMs
+Key Limitations:
+1 Hallucinations:
+Generate plausible but false information
+Confident incorrect responses
+Difficult to detect automatically
+2 Knowledge Cutoff:
+No information beyond training date
+Cannot access real-time data
+Outdated information on evolving topics
+3 Reasoning Limitations:
+Struggles with complex multi-step reasoning
+Can make logical errors
+Limited mathematical precision
+4 Context Window:
+Limited input length (2K-200K tokens)
+Cannot process very long documents end-to-end
+Context degradation over long sequences
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 15 / 26
+
+===== PAGE 16 =====
+LLM Challenges and Risks
+Technical Challenges:
+Computational cost ($millions for training)
+Energy consumption and environmental impact
+Inference latency and cost
+Difficulty in evaluation and benchmarking
+Ethical and Social Risks:
+Bias and fairness issues
+Misinformation generation
+Privacy concerns (training data)
+Copyright and intellectual property
+Job displacement
+Dual-use potential (malicious applications)
+Mitigation Strategies:
+Alignment techniques (RLHF)
+Content filtering and safety measures
+Transparency and documentation
+Responsible release policies
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 16 / 26
+
+===== PAGE 17 =====
+SLMs vs LLMs - Size and Scale
+Comparative Overview:
+Aspect SLMs LLMs
+Parameters ¡ 1B 10B - 1000B+
+Training Data 10B - 100B tokens 300B - 2T+ tokens
+Training Cost$1K -$100K$1M -$100M+
+Training Time Hours - Days Weeks - Months
+Model Size 100MB - 4GB 20GB - 500GB+
+Inference Speed Fast (ms) Slower (100ms - sec)
+Hardware Needs CPU/Mobile GPU High-end GPU/TPU
+Key Difference
+LLMs are 10-1000x larger in every dimension (parameters, data, compute,
+cost)
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 17 / 26
+
+===== PAGE 18 =====
+SLMs vs LLMs - Capabilities
+Capability Comparison:
+Capability SLMs LLMs
+Task Performance Good for specific
+tasks
+Excellent across
+tasks
+Generalization Limited Strong
+Few-Shot Learning Weak/Absent Strong
+Zero-Shot Very limited Capable
+Reasoning Basic Advanced
+Knowledge Breadth Narrow Broad
+Instruction Follow-
+ing
+Requires fine-tuning Natural
+Emergent Abilities Absent Present
+Key Insight:LLMs exhibit qualitatively different capabilities, not just
+quantitative improvements
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 18 / 26
+
+===== PAGE 19 =====
+SLMs vs LLMs - Deployment
+Deployment Characteristics:
+Small Language Models:
++ Edge deployment
++ Mobile devices
++ Real-time inference
++ Low latency
++ Offline capable
++ Privacy-preserving
+- Limited capabilities
+- Task-specific
+Large Language Models:
++ Superior performance
++ General purpose
++ Rich capabilities
++ Emergent abilities
+- Cloud-only
+- High latency
+- Expensive inference
+- Data privacy concerns
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 19 / 26
+
+===== PAGE 20 =====
+SLMs vs LLMs - Cost Analysis
+Total Cost of Ownership:
+Cost Factor SLMs LLMs
+Training$1K -$100K$1M -$100M
+Infrastructure Minimal Significant
+Inference (per 1K tokens)$0.0001 -$0.001$0.01 -$0.10
+Storage MB - GB 10s - 100s GB
+Fine-tuning Low High
+Maintenance Low High
+Energy Consumption Minimal Substantial
+Economic Considerations:
+SLMs: Lower upfront and operational costs
+LLMs: High initial investment, economies of scale for large
+deployments
+Choice depends on use case, volume, and performance requirements
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 20 / 26
+
+===== PAGE 21 =====
+SLMs vs LLMs - Use Case Selection
+When to Choose SLMs:
+Edge/mobile deployment required
+Real-time, low-latency needs
+Privacy-sensitive applications
+Limited budget/resources
+Specific, well-defined tasks
+Offline functionality required
+High-volume, cost-sensitive scenarios
+When to Choose LLMs:
+Complex reasoning required
+General-purpose applications
+Few-shot/zero-shot learning needed
+Broad knowledge coverage essential
+Quality over cost priority
+Multi-task, multi-domain applications
+Cutting-edge performance required
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 21 / 26
+
+===== PAGE 22 =====
+Hybrid Approaches
+Combining SLMs and LLMs:
+1 Cascading Models:
+SLM for initial filtering/routing
+LLM for complex queries only
+Cost optimization
+2 Distillation Pipeline:
+LLM generates training data
+SLM learns from LLM outputs
+Deploy efficient SLM
+3 Specialized + General:
+SLM for domain-specific tasks
+LLM for general capabilities
+Best of both worlds
+4 Retrieval-Augmented:
+SLM with retrieval mechanism
+Access to external knowledge
+Bridges capability gap
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 22 / 26
+
+===== PAGE 23 =====
+Future Trends - Convergence
+Emerging Trends:
+1 Efficient Large Models:
+Mixture of Experts (MoE)
+Sparse activation
+Conditional computation
+2 Smarter Small Models:
+Better training data curation
+Advanced distillation techniques
+Architecture innovations
+3 Adaptive Models:
+Dynamic model selection
+Adaptive computation
+Early exit mechanisms
+4 Specialized Medium Models:
+1B-10B parameter sweet spot
+Domain-optimized
+Good balance of capability and efficiency
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 23 / 26
+
+===== PAGE 24 =====
+Environmental Considerations
+Carbon Footprint Comparison:
+Model Type Training CO2 (tons) Inference/1M queries
+Small (100M) 0.01 - 0.1 Negligible
+Medium (1B) 0.1 - 1 Low
+Large (10B) 1 - 10 Moderate
+Very Large (100B+) 100 - 500 High
+Sustainability Considerations:
+SLMs: Lower environmental impact
+LLMs: Significant carbon footprint during training
+Green AI movement: Efficiency-focused research
+Trade-offs between capability and sustainability
+Responsibility
+Consider environmental impact when choosing model size
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 24 / 26
+
+===== PAGE 25 =====
+Decision Framework
+Model Selection Criteria:
+Requirements
+Deployment? Task Complexity?
+SLM Hybrid Hybrid LLM
+Edge/MobileCloud OK Simple/SpecificComplex/General
+Key Questions:
+Where will it run? (edge vs cloud)
+What’s the task complexity? (specific vs general)
+What’s the budget? (cost constraints)
+What performance level is needed? (minimum accuracy)
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 25 / 26
+
+===== PAGE 26 =====
+Summary
+Key Takeaways:
+1 LLMs are 10B+ parameter models with emergent capabilities
+2 Scaling laws show predictable improvements with size
+3 LLMs exhibit few-shot learning, reasoning, broad knowledge
+4 SLMs offer efficiency, deployability, privacy
+5 LLMs provide superior capability, generality, performance
+6 Trade-offs: capability vs efficiency, cost vs performance
+7 Hybrid approaches can combine strengths of both
+8 Model selection depends on use case requirements
+Strategic Insight
+No one-size-fits-all solution. Choose based on specific requirements:
+deployment constraints, task complexity, budget, and performance needs.
+Next Lecture:Popular LLM Architectures
+Course Instructor Lecture 7: Large Language Models and Comparison of SLMs and LLMsFebruary 10, 2026 26 / 26
