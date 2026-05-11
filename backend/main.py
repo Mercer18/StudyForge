@@ -25,6 +25,7 @@ class HealthCheck(BaseModel):
 def root():
     return HealthCheck(status="ok", message="StudyForge API is running.")
 
-from routes import subjects
+from routes import subjects, chat
 
 app.include_router(subjects.router, prefix="/api/v1/subjects", tags=["Subjects"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["Chat"])

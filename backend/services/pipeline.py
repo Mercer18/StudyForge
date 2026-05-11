@@ -43,6 +43,16 @@ def process_document_pipeline(subject_id: str, file_bytes: bytes, filename: str,
             file_options={"content-type": "application/json", "upsert": "true"}
         )
         
+        # Also upload raw text for Chat Tutor
+        print(f"[{subject_id}] Uploading raw text to Supabase Storage...")
+        raw_text_bytes = extracted_text.encode('utf-8')
+        raw_storage_path = f"{subject_id}/raw_text.txt"
+        supabase.storage.from_(bucket_name).upload(
+            file=raw_text_bytes,
+            path=raw_storage_path,
+            file_options={"content-type": "text/plain", "upsert": "true"}
+        )
+        
         # Get the public URL
         study_data_url = supabase.storage.from_(bucket_name).get_public_url(storage_path)
         
@@ -95,6 +105,16 @@ def process_youtube_pipeline(subject_id: str, youtube_url: str, subject_title: s
             file=json_bytes,
             path=storage_path,
             file_options={"content-type": "application/json", "upsert": "true"}
+        )
+        
+        # Also upload raw text for Chat Tutor
+        print(f"[{subject_id}] Uploading raw text to Supabase Storage...")
+        raw_text_bytes = extracted_text.encode('utf-8')
+        raw_storage_path = f"{subject_id}/raw_text.txt"
+        supabase.storage.from_(bucket_name).upload(
+            file=raw_text_bytes,
+            path=raw_storage_path,
+            file_options={"content-type": "text/plain", "upsert": "true"}
         )
         
         study_data_url = supabase.storage.from_(bucket_name).get_public_url(storage_path)

@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Sparkles, BrainCircuit, BookOpen } from 'lucide-react'
+import { Navbar } from '@/components/navbar'
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col items-center justify-center selection:bg-primary/30">
+      <Navbar />
+      
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full pointer-events-none animate-pulse duration-10000" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-600/10 blur-[120px] rounded-full pointer-events-none" />

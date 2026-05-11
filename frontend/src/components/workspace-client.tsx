@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { BookOpen, Layers } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -10,6 +11,10 @@ import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { FlashcardView } from './flashcard'
+import { MessageSquareText } from 'lucide-react'
+import { ChatTutor } from './chat-tutor'
+import { useParams } from 'next/navigation'
+import { Mermaid } from './mermaid'
 
 interface Section {
   id: string
@@ -34,6 +39,9 @@ interface StudyData {
 export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null, subjectTitle: string }) {
   const [activeTab, setActiveTab] = useState<'reader' | 'flashcards'>('reader')
   const [activeSectionId, setActiveSectionId] = useState<string | null>(data?.sections?.[0]?.id || null)
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const params = useParams()
+  const subjectId = params.id as string
 
   if (!data) return null
 
@@ -121,6 +129,15 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm, remarkMath]}
                   rehypePlugins={[rehypeKatex]}
+                  components={{
+                    code({node, inline, className, children, ...props}: any) {
+                      const match = /language-(\w+)/.exec(className || '')
+                      if (!inline && match && match[1] === 'mermaid') {
+                        return <Mermaid chart={String(children).replace(/\n$/, '')} />
+                      }
+                      return <code className={className} {...props}>{children}</code>
+                    }
+                  }}
                 >
                   {activeSection.content}
                 </ReactMarkdown>
@@ -140,6 +157,21 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
 
         </div>
       </main>
+
+      {/* Floating Chat Button (when chat is closed) */}
+      {!isChatOpen && (
+        <Button 
+          onClick={() => setIsChatOpen(true)}
+          className="absolute bottom-6 right-6 h-14 w-14 rounded-full shadow-[0_0_30px_-5px_rgba(249,115,22,0.5)] hover:shadow-[0_0_40px_0px_rgba(249,115,22,0.6)] hover:-translate-y-1 transition-all z-40 bg-primary"
+        >
+          <MessageSquareText className="w-6 h-6 text-primary-foreground" />
+        </Button>
+      )}
+
+      {/* Chat Tutor Sidebar */}
+      {isChatOpen && (
+        <ChatTutor subjectId={subjectId} onClose={() => setIsChatOpen(false)} />
+      )}
     </div>
   )
 }
