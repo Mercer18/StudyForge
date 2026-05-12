@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Flame } from 'lucide-react'
+import { AuthModal } from './auth-modal'
+import { ThemeToggle } from './theme-toggle'
 
 export function Navbar() {
   return (
@@ -18,14 +20,17 @@ export function Navbar() {
 
         {/* Navigation / Actions */}
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Log in
-          </Link>
-          <Link href="/login">
+          <ThemeToggle />
+          <AuthModal>
+            <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-transparent border-none outline-none">
+              Log in
+            </button>
+          </AuthModal>
+          <AuthModal>
             <Button className="rounded-full px-6 shadow-md hover:shadow-lg transition-all border border-primary/20 bg-primary/90 hover:bg-primary text-primary-foreground">
               Sign Up Free
             </Button>
-          </Link>
+          </AuthModal>
         </div>
       </div>
     </header>
