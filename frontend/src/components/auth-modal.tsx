@@ -16,9 +16,9 @@ import {
 import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
-export function AuthModal({ children }: { children: React.ReactNode }) {
+export function AuthModal({ children, initialTab = 'login' }: { children: React.ReactNode, initialTab?: 'login' | 'signup' }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login')
+  const [activeTab, setActiveTab] = useState<'login' | 'signup'>(initialTab)
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
 
@@ -35,23 +35,8 @@ export function AuthModal({ children }: { children: React.ReactNode }) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex bg-muted/50 p-1 rounded-lg mt-4">
-          <button 
-            className={cn("flex-1 text-sm font-medium py-1.5 rounded-md transition-all", activeTab === 'login' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
-            onClick={() => setActiveTab('login')}
-          >
-            Log In
-          </button>
-          <button 
-            className={cn("flex-1 text-sm font-medium py-1.5 rounded-md transition-all", activeTab === 'signup' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
-            onClick={() => setActiveTab('signup')}
-          >
-            Sign Up
-          </button>
-        </div>
-
         {activeTab === 'login' ? (
-          <form className="space-y-4 pt-4">
+          <form className="space-y-4 pt-4" autoComplete="on">
             <div className="space-y-2">
               <Label htmlFor="identifier">Email / Username</Label>
               <Input
@@ -59,6 +44,7 @@ export function AuthModal({ children }: { children: React.ReactNode }) {
                 name="identifier"
                 type="text"
                 placeholder="m@example.com or Mercer18"
+                autoComplete="username"
                 required
               />
             </div>
@@ -68,6 +54,7 @@ export function AuthModal({ children }: { children: React.ReactNode }) {
                 id="login-password"
                 name="password"
                 type="password"
+                autoComplete="current-password"
                 required
               />
             </div>
@@ -81,7 +68,7 @@ export function AuthModal({ children }: { children: React.ReactNode }) {
             </Button>
           </form>
         ) : (
-          <form className="space-y-4 pt-4">
+          <form className="space-y-4 pt-4" autoComplete="off">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -89,6 +76,7 @@ export function AuthModal({ children }: { children: React.ReactNode }) {
                 name="username"
                 type="text"
                 placeholder="Mercer18"
+                autoComplete="off"
                 required
               />
             </div>
@@ -99,6 +87,7 @@ export function AuthModal({ children }: { children: React.ReactNode }) {
                 name="email"
                 type="email"
                 placeholder="m@example.com"
+                autoComplete="off"
                 required
               />
             </div>
@@ -108,6 +97,7 @@ export function AuthModal({ children }: { children: React.ReactNode }) {
                 id="signup-password"
                 name="password"
                 type="password"
+                autoComplete="off"
                 required
               />
             </div>

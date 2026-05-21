@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useState, useEffect } from "react"
 import { useDropzone } from "react-dropzone"
-import { UploadCloud, File, X, Loader2 } from "lucide-react"
+import { UploadCloud, File, X, Loader2, Link2, FileText, Sparkles, Terminal } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,33 @@ export function UploadModal() {
   const [activeTab, setActiveTab] = useState<"file" | "youtube">("file")
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [activeStage, setActiveStage] = useState("Initializing workspace parser...")
+
+  // Simulated active terminal stages during background polling
+  useEffect(() => {
+    if (!isUploading) return
+    const stages = [
+      "Ingesting raw document bytes...",
+      "Stripping character tables and links...",
+      "Slicing document into 15k semantic chunks...",
+      "Running Map-Reduce chunk analysis...",
+      "Interfacing with Groq Llama-3 AI...",
+      "Structuring Table of Contents metadata...",
+      "Synthesizing 3D interactive flashcards...",
+      "Generating responsive concept diagram mappings...",
+      "Compiling final ForgeBook JSON payload..."
+    ]
+
+    const interval = setInterval(() => {
+      const currentStageIndex = Math.min(
+        Math.floor((progress / 100) * stages.length),
+        stages.length - 1
+      )
+      setActiveStage(stages[currentStageIndex])
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isUploading, progress])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -47,42 +74,45 @@ export function UploadModal() {
     if (activeTab === "youtube" && !youtubeUrl) return
 
     setIsUploading(true)
-    setProgress(10) // Initial progress for starting
+    setProgress(10)
 
     try {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
       
-      if (!user) {
+      if (!token) {
         throw new Error("Must be logged in to upload")
       }
 
       let generateRes;
 
       if (activeTab === "file" && file) {
-        // 1a. Send file to FastAPI
         const formData = new FormData()
         formData.append("file", file)
-        formData.append("title", file.name.replace(/\.[^/.]+$/, "")) // Remove extension for title
-        formData.append("user_id", user.id)
+        formData.append("title", file.name.replace(/\.[^/.]+$/, ""))
 
-        setProgress(30) // Text extraction and chunking
+        setProgress(25)
 
         generateRes = await fetch("http://127.0.0.1:8000/api/v1/subjects/generate", {
           method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          },
           body: formData,
         })
       } else {
-        // 1b. Send YouTube URL to FastAPI
         const formData = new FormData()
         formData.append("youtube_url", youtubeUrl)
         formData.append("title", videoTitle || "YouTube Video Summary")
-        formData.append("user_id", user.id)
 
-        setProgress(30)
+        setProgress(25)
 
         generateRes = await fetch("http://127.0.0.1:8000/api/v1/subjects/generate-youtube", {
           method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          },
           body: formData,
         })
       }
@@ -93,25 +123,26 @@ export function UploadModal() {
 
       const { subject_id } = await generateRes.json()
 
-      // 2. Poll for completion
       const pollInterval = setInterval(async () => {
         try {
-          const statusRes = await fetch(`http://127.0.0.1:8000/api/v1/subjects/${subject_id}/status`)
+          const statusRes = await fetch(`http://127.0.0.1:8000/api/v1/subjects/${subject_id}/status`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          })
           if (statusRes.ok) {
             const data = await statusRes.json()
             
             if (data.status === "processing") {
-              setProgress((prev) => (prev < 90 ? prev + 5 : prev)) // Fake progress while waiting
+              setProgress((prev) => (prev < 92 ? prev + 4 : prev))
             } else if (data.status === "completed") {
               clearInterval(pollInterval)
               setProgress(100)
               
-              // Success! Give it a tiny delay so user sees 100%, then redirect or close
               setTimeout(() => {
                 setIsUploading(false)
                 setOpen(false)
                 setFile(null)
-                // Teleport the user directly to the new microsite
                 router.push(`/subject/${subject_id}`)
               }, 1000)
             } else if (data.status === "failed") {
@@ -141,62 +172,82 @@ export function UploadModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={buttonVariants()}>Upload Document</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Forge a New Subject</DialogTitle>
-          <DialogDescription>
-            Upload a PDF or Word document. We will extract the text, analyze the concepts, and generate your personal textbook.
+      <DialogTrigger className={`${buttonVariants()} font-mono text-xs uppercase tracking-wider h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm cursor-pointer rounded`}>
+        + forge new subject
+      </DialogTrigger>
+      
+      <DialogContent className="sm:max-w-md border border-border bg-card/95 backdrop-blur-md rounded-xl p-6 transition-all duration-300">
+        <DialogHeader className="space-y-1">
+          <div className="flex items-center gap-1.5 text-primary">
+            <Sparkles className="w-4 h-4 shrink-0 animate-pulse" />
+            <span className="font-mono text-[10px] uppercase font-bold tracking-widest">engine control panel</span>
+          </div>
+          <DialogTitle className="text-xl font-extrabold tracking-tight font-heading">Forge Learning Workspace</DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground font-mono leading-relaxed">
+            Ingest textbook files or YouTube lectures to synthesize structured ForgeBooks.
           </DialogDescription>
         </DialogHeader>
 
         {!isUploading ? (
-          <div className="w-full">
-            <div className="flex gap-2 p-1 bg-muted/50 rounded-lg mb-6 border border-white/5">
+          <div className="w-full mt-4">
+            
+            {/* Minimalist Switch Tabs (Monkeytype Style) */}
+            <div className="flex gap-2 p-1 bg-muted/30 border border-border/80 rounded-md mb-6">
               <button 
                 onClick={() => setActiveTab("file")}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "file" ? "bg-background shadow-md border border-white/10" : "text-muted-foreground hover:text-foreground hover:bg-background/30"}`}
+                className={`flex-1 py-2 text-xs font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === "file" 
+                    ? "bg-card text-primary border border-border/70 shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/10"
+                }`}
               >
-                Document Upload
+                <FileText className="w-3.5 h-3.5" />
+                <span>file upload</span>
               </button>
               <button 
                 onClick={() => setActiveTab("youtube")}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "youtube" ? "bg-background shadow-md border border-white/10" : "text-muted-foreground hover:text-foreground hover:bg-background/30"}`}
+                className={`flex-1 py-2 text-xs font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === "youtube" 
+                    ? "bg-card text-primary border border-border/70 shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/10"
+                }`}
               >
-                YouTube Link
+                <Link2 className="w-3.5 h-3.5" />
+                <span>youtube url</span>
               </button>
             </div>
             
+            {/* File Ingestion View */}
             {activeTab === "file" && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-1 duration-200">
                 <div
                   {...getRootProps()}
-                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-                    ${isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50"}
-                    ${file ? "bg-muted/50" : ""}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200
+                    ${isDragActive ? "border-primary bg-primary/5" : "border-border/80 hover:border-primary/50"}
+                    ${file ? "bg-muted/10 border-solid" : ""}
                   `}
                 >
                   <input {...getInputProps()} />
                   
                   {!file ? (
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <UploadCloud className="h-10 w-10 mb-2" />
-                      <p className="font-medium text-foreground">Click or drag file to this area</p>
-                      <p className="text-sm">Supports PDF and DOCX</p>
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground select-none">
+                      <UploadCloud className="h-8 w-8 mb-1 text-muted-foreground/80" />
+                      <p className="text-xs font-bold font-mono uppercase tracking-wider text-foreground">Click or drag document here</p>
+                      <p className="text-[10px] text-muted-foreground/75 font-mono">Supports academic PDFs & DOCX files</p>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between bg-background p-4 rounded-md border shadow-sm">
+                    <div className="flex items-center justify-between bg-muted/40 p-3.5 rounded border border-border shadow-inner">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <File className="h-8 w-8 text-primary shrink-0" />
-                        <div className="flex flex-col items-start truncate">
-                          <span className="text-sm font-medium truncate w-[200px] text-left">{file.name}</span>
-                          <span className="text-xs text-muted-foreground">
+                        <File className="h-6 w-6 text-primary shrink-0" />
+                        <div className="flex flex-col items-start truncate font-mono">
+                          <span className="text-xs font-bold truncate w-[200px] text-left text-foreground">{file.name}</span>
+                          <span className="text-[9px] text-muted-foreground mt-0.5">
                             {(file.size / 1024 / 1024).toFixed(2)} MB
                           </span>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={removeFile}>
-                        <X className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" onClick={removeFile} className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer">
+                        <X className="h-3.5 h-3.5" />
                       </Button>
                     </div>
                   )}
@@ -204,51 +255,76 @@ export function UploadModal() {
               </div>
             )}
 
+            {/* YouTube Ingestion View */}
             {activeTab === "youtube" && (
-              <div className="space-y-4 p-5 border border-white/10 rounded-xl bg-card/50 backdrop-blur-sm shadow-inner animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">YouTube URL</label>
+              <div className="space-y-4 p-5 border border-border bg-muted/10 rounded-lg animate-in fade-in slide-in-from-bottom-1 duration-200 font-mono">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">youtube address</label>
                   <Input 
                     placeholder="https://www.youtube.com/watch?v=..." 
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
-                    className="h-12 bg-background/50 border-white/10 focus-visible:ring-primary"
+                    className="h-10 bg-card/60 border-border focus-visible:ring-1 focus-visible:ring-primary font-mono text-xs rounded"
                   />
                 </div>
-                <div className="space-y-2 pt-2">
-                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Subject Title</label>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">custom title (optional)</label>
                   <Input 
-                    placeholder="E.g. Machine Learning Full Course" 
+                    placeholder="E.g. Quantum Physics Lecture 3" 
                     value={videoTitle}
                     onChange={(e) => setVideoTitle(e.target.value)}
-                    className="h-12 bg-background/50 border-white/10 focus-visible:ring-primary"
+                    className="h-10 bg-card/60 border-border focus-visible:ring-1 focus-visible:ring-primary font-mono text-xs rounded"
                   />
                 </div>
               </div>
             )}
 
-            <div className="flex justify-end gap-3 mt-8">
-              <Button variant="outline" className="border-white/10 hover:bg-white/5" onClick={() => setOpen(false)}>Cancel</Button>
+            {/* Footer buttons */}
+            <div className="flex justify-end gap-3 mt-8 font-mono">
+              <Button 
+                variant="ghost" 
+                className="h-10 px-4 text-xs uppercase text-muted-foreground hover:text-foreground cursor-pointer rounded border border-border hover:bg-muted/40" 
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
               <Button 
                 onClick={handleUpload} 
-                disabled={(activeTab === 'file' && !file) || (activeTab === 'youtube' && (!youtubeUrl || !videoTitle))}
-                className="shadow-[0_0_20px_-5px_rgba(249,115,22,0.4)]"
+                disabled={(activeTab === 'file' && !file) || (activeTab === 'youtube' && !youtubeUrl)}
+                className="h-10 px-5 text-xs uppercase bg-primary hover:bg-primary/90 text-primary-foreground font-bold tracking-wider shadow-sm cursor-pointer rounded"
               >
-                Forge Workspace
+                ⚡ ignite forge
               </Button>
             </div>
+
           </div>
         ) : (
-          <div className="py-8 flex flex-col items-center justify-center space-y-6">
-            <div className="flex flex-col items-center space-y-2 text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-              <h3 className="text-lg font-medium">Forging Your Workspace</h3>
-              <p className="text-sm text-muted-foreground">Extracting text and analyzing concepts...</p>
+          /* High-Performance Active Terminal Progress view */
+          <div className="py-6 flex flex-col items-center justify-center space-y-6 font-mono select-none">
+            
+            <div className="w-full bg-black/40 border border-border p-4 rounded-md space-y-2 text-[10px] text-muted-foreground leading-relaxed animate-in fade-in duration-300">
+              <div className="flex items-center gap-1.5 text-primary border-b border-white/5 pb-2 mb-2 font-bold">
+                <Terminal className="w-3.5 h-3.5 animate-spin shrink-0" />
+                <span>ACTIVE PIPELINE METRICS</span>
+              </div>
+              <div className="flex items-start gap-1">
+                <span className="text-primary font-bold">{`>`}</span>
+                <span className="text-foreground font-semibold">{activeStage}</span>
+                <span className="typing-caret w-1 h-3 bg-primary inline-block ml-0.5" />
+              </div>
+              <div className="text-[9px] text-muted-foreground/60 mt-1">
+                Allocating Groq token bandwidth... [OK]
+              </div>
             </div>
+
             <div className="w-full space-y-2">
-              <Progress value={progress} className="h-2" />
-              <p className="text-xs text-right text-muted-foreground">{progress}%</p>
+              <div className="flex items-center justify-between text-xs font-mono text-muted-foreground px-1">
+                <span>overall completion</span>
+                <span className="text-primary font-bold">{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-1.5 bg-muted/40" />
             </div>
+
           </div>
         )}
       </DialogContent>

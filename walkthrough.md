@@ -15,7 +15,16 @@ Welcome to Phase 6. StudyForge is no longer just generating "summaries"—it is 
    - It is forced to heavily utilize `**bold**` text for critical vocabulary.
    - **Mind Maps:** It is instructed to generate `mermaid.js` code blocks whenever it needs to explain complex relationships or architectures.
 
-3. **Frontend Visual Upgrades**
+3. **Authentication UX Overhaul:**
+    *   **Unified Auth Modal:** Replaced the standalone `/login` page with a professional tabbed `AuthModal` popup, allowing users to sign up or log in without leaving the main landing page.
+    *   **Username Support:** Extended the Supabase `profiles` table schema and backend `auth-actions.ts` to support login via `Email` OR `Username`.
+    *   **Auth Resolution:** Implemented server-side Admin Client logic to resolve `usernames` to `emails` during login, bridging the gap between custom user identity and Supabase Auth.
+*   **Landing Page Revamp:** 
+    *   Updated hero content to focus on **Interactive Microsites** and support for **PDF, PPT, DOCX, and YouTube**.
+    *   Integrated a **Theme Toggle** directly into the homepage navbar.
+    *   Polished the design with better spacing, responsive fonts, and theme-aware feature cards.
+
+4. **Frontend Visual Upgrades**
    - I installed the `mermaid` package into your Next.js application.
    - I built a custom `<Mermaid>` React component that securely intercepts these generated code blocks and renders them natively as beautiful, dark-themed SVG flowcharts directly inside the Reader Workspace.
 

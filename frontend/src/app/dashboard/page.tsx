@@ -8,6 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UploadModal } from '@/components/upload-modal'
 import { DeleteSubjectButton } from '@/components/delete-subject-button'
+import { 
+  Flame, 
+  LogOut, 
+  FolderOpen, 
+  Calendar,
+  Layers,
+  BookOpen
+} from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,73 +44,125 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Premium Forge Background Gradient */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col font-sans transition-all duration-300">
       
-      <header className="border-b border-white/5 bg-background/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold">StudyForge</h1>
+      {/* Background Radial Gradients */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
+      
+      {/* Sleek Dashboard Header */}
+      <header className="border-b border-border bg-card/40 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="bg-primary/10 p-1.5 rounded border border-primary/20 transition-all duration-300 group-hover:scale-105">
+              <Flame className="w-4 h-4 text-primary" />
+            </div>
+            <span className="font-bold text-lg tracking-tight font-heading">StudyForge</span>
+            <span className="key-badge uppercase select-none font-mono text-[9px] px-1 py-0 h-4">deck</span>
+          </Link>
+
+          {/* Account Console Metrics */}
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <span className="text-sm text-muted-foreground">{user.email}</span>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <span className="key-badge select-none uppercase font-mono text-[9px]">user</span>
+              <span className="text-xs font-mono text-muted-foreground">{user.email}</span>
+            </div>
             <form action={logout}>
-              <Button type="submit" variant="outline" size="sm">Log out</Button>
+              <Button type="submit" variant="ghost" size="sm" className="h-9 px-3 text-xs font-mono text-muted-foreground hover:text-foreground cursor-pointer border border-border/80 hover:bg-muted/50 rounded flex items-center gap-1.5">
+                <LogOut className="w-3.5 h-3.5" />
+                <span>logout</span>
+              </Button>
             </form>
           </div>
+
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+      {/* Main Panel Content */}
+      <main className="flex-1 container mx-auto px-6 py-10 relative z-10 max-w-6xl">
+        
+        {/* Welcome Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-10 pb-6 border-b border-border">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">My Subjects</h2>
-            <p className="text-muted-foreground mt-1">
-              Upload study materials to generate interactive workspaces.
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight font-heading">Subject Library</h2>
+            <p className="text-xs md:text-sm text-muted-foreground font-mono mt-1 leading-relaxed">
+              Upload files or links to synthesize interactive learning workspaces.
             </p>
           </div>
           <UploadModal />
         </div>
 
+        {/* Workspace Subject Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {subjects && subjects.length > 0 ? (
             subjects.map((subject) => (
-              <Card key={subject.id} className="flex flex-col h-full relative z-10">
-                <CardHeader>
+              <Card 
+                key={subject.id} 
+                className="flex flex-col h-[200px] border border-border/80 bg-card/30 hover:border-primary/40 hover:bg-card/50 transition-all duration-300 rounded-lg group shadow-sm justify-between relative overflow-hidden"
+              >
+                
+                {/* Horizontal Active Highlight Bar */}
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/30 to-amber-500/20 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+
+                <CardHeader className="p-5 pb-0">
                   <div className="flex items-start justify-between gap-4">
-                    <Link href={`/subject/${subject.id}`} className="flex-1 min-w-0 group cursor-pointer">
-                      <CardTitle className="truncate group-hover:text-primary transition-colors" title={subject.title}>{subject.title}</CardTitle>
-                      <CardDescription className="line-clamp-2 mt-1">
-                        {subject.description || "Generated learning workspace."}
+                    <Link href={`/subject/${subject.id}`} className="flex-1 min-w-0 group/link cursor-pointer">
+                      <CardTitle className="text-base font-extrabold font-heading truncate group-hover/link:text-primary transition-colors leading-snug" title={subject.title}>
+                        {subject.title}
+                      </CardTitle>
+                      <CardDescription className="text-xs line-clamp-2 mt-1.5 font-sans leading-relaxed text-muted-foreground">
+                        {subject.description || "Synthesized academic document study module."}
                       </CardDescription>
                     </Link>
-                    <DeleteSubjectButton subjectId={subject.id} />
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <DeleteSubjectButton subjectId={subject.id} />
+                    </div>
                   </div>
                 </CardHeader>
-                <Link href={`/subject/${subject.id}`} className="mt-auto block cursor-pointer">
-                  <CardContent>
-                    <div className="flex items-center justify-between mt-4">
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {new Date(subject.created_at).toLocaleDateString()}
-                      </span>
-                      <span className={`text-xs px-2 py-1 rounded-md font-medium border ${
-                        subject.status === 'completed' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                        subject.status === 'processing' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                        'bg-red-500/10 text-red-500 border-red-500/20'
+
+                <Link href={`/subject/${subject.id}`} className="block cursor-pointer p-5 pt-0 mt-auto">
+                  <div className="flex items-center justify-between border-t border-border/50 pt-4 text-[10px] font-mono">
+                    
+                    {/* Date Badge */}
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <Calendar className="w-3.5 h-3.5 shrink-0" />
+                      <span>{new Date(subject.created_at).toLocaleDateString(undefined, { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
+                    </div>
+
+                    {/* Status Dot (Monkeytype indicators) */}
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ring-2 ${
+                        subject.status === 'completed' ? 'bg-green-500 ring-green-500/20 animate-pulse' :
+                        subject.status === 'processing' ? 'bg-amber-500 ring-amber-500/20 animate-pulse' :
+                        'bg-red-500 ring-red-500/20'
+                      }`} />
+                      <span className={`font-semibold capitalize ${
+                        subject.status === 'completed' ? 'text-green-500' :
+                        subject.status === 'processing' ? 'text-amber-500' :
+                        'text-red-500'
                       }`}>
-                        {subject.status.charAt(0).toUpperCase() + subject.status.slice(1)}
+                        {subject.status}
                       </span>
                     </div>
-                  </CardContent>
+
+                  </div>
                 </Link>
+
               </Card>
             ))
           ) : (
-            <Card className="col-span-full py-12 flex flex-col items-center justify-center text-center">
-              <CardHeader>
-                <CardTitle>No Subjects Yet</CardTitle>
-                <CardDescription>Click "Upload Document" to forge your first subject.</CardDescription>
+            <Card className="col-span-full border-2 border-dashed border-border/70 bg-card/20 py-16 flex flex-col items-center justify-center text-center rounded-xl p-6">
+              <div className="p-4 rounded-full bg-muted/30 border border-border mb-4 text-muted-foreground/60">
+                <FolderOpen className="w-8 h-8" />
+              </div>
+              <CardHeader className="p-0 max-w-sm">
+                <CardTitle className="text-lg font-bold font-heading text-foreground">No Forged Workspaces</CardTitle>
+                <CardDescription className="text-xs text-muted-foreground font-mono mt-1">
+                  Your list is currently empty. Initialize your library by clicking "Upload Document".
+                </CardDescription>
               </CardHeader>
             </Card>
           )}

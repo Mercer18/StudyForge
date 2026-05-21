@@ -87,6 +87,7 @@ def generate_subject_knowledge_graph(extracted_text: str, subject_title: str) ->
                 ],
                 model="llama-3.1-8b-instant",
                 temperature=0.3,
+                max_tokens=4096,
                 response_format={"type": "json_object"}
             )
             

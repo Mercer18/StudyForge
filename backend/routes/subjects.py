@@ -1,8 +1,9 @@
-from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional
 from services.supabase_client import supabase
 from services.pipeline import process_document_pipeline, process_youtube_pipeline
+from services.auth import get_current_user
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ async def generate_subject(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     title: str = Form(...),
-    user_id: str = Form(...)
+    current_user = Depends(get_current_user)
 ):
     """
     Endpoint to receive a document upload, create a subject row, 
@@ -31,11 +32,14 @@ async def generate_subject(
         file_bytes = await file.read()
         
         # Ensure user exists in profiles table to prevent foreign key errors
-        supabase.table("profiles").upsert({"id": user_id}).execute()
+        supabase.table("profiles").upsert({
+            "id": current_user.id,
+            "email": current_user.email
+        }).execute()
         
         # 1. Create the Subject in Supabase
         subject_data = {
-            "user_id": user_id,
+            "user_id": current_user.id,
             "title": title,
             "status": "processing"
         }
@@ -67,7 +71,7 @@ async def generate_subject_from_youtube(
     background_tasks: BackgroundTasks,
     youtube_url: str = Form(...),
     title: str = Form(...),
-    user_id: str = Form(...)
+    current_user = Depends(get_current_user)
 ):
     """
     Endpoint to receive a YouTube URL, create a subject row, 
@@ -77,10 +81,13 @@ async def generate_subject_from_youtube(
         raise HTTPException(status_code=400, detail="Invalid YouTube URL.")
         
     try:
-        supabase.table("profiles").upsert({"id": user_id}).execute()
+        supabase.table("profiles").upsert({
+            "id": current_user.id,
+            "email": current_user.email
+        }).execute()
         
         subject_data = {
-            "user_id": user_id,
+            "user_id": current_user.id,
             "title": title,
             "status": "processing"
         }
@@ -106,7 +113,10 @@ async def generate_subject_from_youtube(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{subject_id}/status", response_model=SubjectStatusResponse)
-async def get_subject_status(subject_id: str):
+async def get_subject_status(
+    subject_id: str,
+    current_user = Depends(get_current_user)
+):
     """
     Polling endpoint to check if the background pipeline is complete.
     """
@@ -116,6 +126,11 @@ async def get_subject_status(subject_id: str):
         raise HTTPException(status_code=404, detail="Subject not found")
         
     subject = response.data[0]
+    
+    # Enforce tenant isolation / ownership check
+    if subject.get("user_id") != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this subject")
+        
     return SubjectStatusResponse(
         id=subject["id"],
         status=subject["status"],

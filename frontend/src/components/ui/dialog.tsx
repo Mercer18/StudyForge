@@ -12,9 +12,14 @@ function Dialog({ ...props }: DialogPrimitive.Root.Props) {
 }
 
 function DialogTrigger({ children, ...props }: DialogPrimitive.Trigger.Props) {
+  const isElement = React.isValidElement(children)
   return (
-    <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} render={children}>
-      {children}
+    <DialogPrimitive.Trigger 
+      data-slot="dialog-trigger" 
+      {...props} 
+      render={isElement ? (children as React.ReactElement) : undefined}
+    >
+      {isElement ? undefined : children}
     </DialogPrimitive.Trigger>
   )
 }

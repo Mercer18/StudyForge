@@ -1,9 +1,10 @@
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List
 from services.supabase_client import supabase
 from groq import Groq
+from services.auth import get_current_user
 
 router = APIRouter()
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
@@ -16,11 +17,22 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage]
 
 @router.post("/{subject_id}")
-async def chat_with_document(subject_id: str, request: ChatRequest):
+async def chat_with_document(
+    subject_id: str,
+    request: ChatRequest,
+    current_user = Depends(get_current_user)
+):
     """
     Retrieves raw text from storage, builds a RAG prompt, and streams/returns response.
     """
     try:
+        # 0. Enforce tenant isolation / ownership check
+        subject_res = supabase.table("subjects").select("user_id").eq("id", subject_id).execute()
+        if not subject_res.data:
+            raise HTTPException(status_code=404, detail="Subject not found")
+        if subject_res.data[0]["user_id"] != current_user.id:
+            raise HTTPException(status_code=403, detail="Forbidden: You do not own this subject")
+            
         # 1. Fetch raw text from Supabase
         bucket_name = "studyforge-files"
         storage_path = f"{subject_id}/raw_text.txt"
@@ -74,6 +86,9 @@ RULES:
         
         return {"reply": reply}
         
+    except HTTPException as he:
+        # Re-raise HTTPExceptions (like 404, 403)
+        raise he
     except Exception as e:
         print(f"Error in chat endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))

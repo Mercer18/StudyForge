@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react"
+import { ChevronLeft, ChevronRight, RotateCw, RefreshCw } from "lucide-react"
 
 interface FlashcardData {
   id: string
@@ -14,14 +14,41 @@ interface FlashcardData {
 export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+
+  // Keyboard navigation listener (Space to flip, arrows to navigate)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Avoid firing if the user is typing in the chat sidebar or active inputs
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+        return
+      }
+
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault()
+        setIsFlipped((prev) => !prev)
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'l') {
+        e.preventDefault()
+        handleNext()
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'h') {
+        e.preventDefault()
+        handlePrev()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [currentIndex, isFlipped, flashcards])
 
   if (!flashcards || flashcards.length === 0) {
-    return <div className="text-center text-muted-foreground p-8">No flashcards generated for this document.</div>
+    return <div className="text-center text-muted-foreground p-8 font-mono text-xs">No active study cards synthesized.</div>
   }
 
   const handleNext = () => {
     setIsFlipped(false)
-    // Small timeout to allow the flip animation to reset before changing content
+    setTilt({ x: 0, y: 0 })
     setTimeout(() => {
       setCurrentIndex((prev) => (prev + 1) % flashcards.length)
     }, 150)
@@ -29,70 +56,122 @@ export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
 
   const handlePrev = () => {
     setIsFlipped(false)
+    setTilt({ x: 0, y: 0 })
     setTimeout(() => {
       setCurrentIndex((prev) => (prev - 1 + flashcards.length) % flashcards.length)
     }, 150)
   }
 
+  // Real-time 3D Card Tilt Math based on mouse displacement
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget
+    const rect = card.getBoundingClientRect()
+    
+    // Compute distance from center of the card
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+    
+    // Rotate max 12 degrees
+    const rotateX = -(y / (rect.height / 2)) * 12
+    const rotateY = (x / (rect.width / 2)) * 12
+    
+    setTilt({ x: rotateX, y: rotateY })
+  }
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 })
+  }
+
   const currentCard = flashcards[currentIndex]
 
   return (
-    <div className="w-full max-w-2xl flex flex-col items-center">
+    <div className="w-full max-w-xl flex flex-col items-center select-none font-sans">
       
-      {/* 3D Scene Container for the Flip Effect */}
+      {/* 3D Scene View Box */}
       <div 
-        className="relative w-full h-80 sm:h-96 [perspective:1000px] cursor-pointer group"
+        className="relative w-full h-80 perspective-1000 cursor-pointer group"
         onClick={() => setIsFlipped(!isFlipped)}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
       >
         <div 
-          className={`w-full h-full transition-all duration-500 [transform-style:preserve-3d] ${
-            isFlipped ? '[transform:rotateY(180deg)]' : ''
-          }`}
+          className="w-full h-full duration-150 preserve-3d rounded-lg border border-border bg-card/40 backdrop-blur-md shadow-md transition-shadow hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] group-hover:border-primary/30"
+          style={{
+            transform: `rotateX(${tilt.x}deg) rotateY(${isFlipped ? 180 - tilt.y : tilt.y}deg)`
+          }}
         >
-          {/* Front of Card */}
-          <Card className="absolute inset-0 backface-hidden flex items-center justify-center p-8 text-center shadow-[0_0_40px_-15px_rgba(0,0,0,0.5)] hover:shadow-[0_0_50px_-15px_rgba(249,115,22,0.2)] transition-all duration-500 border border-white/10 group-hover:border-primary/40 bg-card/40 backdrop-blur-2xl">
-            <CardContent className="p-0 flex flex-col items-center justify-center h-full w-full">
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-6 font-heading border border-primary/20">
-                Question
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-bold leading-tight font-heading max-w-lg mx-auto">
+          {/* Card Front face */}
+          <Card className="absolute inset-0 backface-hidden flex items-center justify-center p-8 text-center bg-card/60 border-none shadow-none">
+            <CardContent className="p-0 flex flex-col items-center justify-between h-full w-full relative">
+              <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">FRONT • STUDY CONCEPT</span>
+              
+              <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-heading leading-snug max-w-md mx-auto my-auto text-foreground">
                 {currentCard.front}
               </h3>
-              <div className="absolute bottom-6 left-0 w-full flex justify-center text-muted-foreground/60 transition-opacity group-hover:text-primary/70">
-                <span className="flex items-center text-sm font-medium">
-                  <RotateCw className="w-4 h-4 mr-2 animate-spin-slow" /> Click to flip
-                </span>
+              
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors group-hover:text-primary mt-auto">
+                <RotateCw className="w-3.5 h-3.5" />
+                <span className="font-mono uppercase tracking-wider">Click or Press space to flip</span>
               </div>
             </CardContent>
           </Card>
 
-          {/* Back of Card */}
-          <Card className="absolute inset-0 [transform:rotateY(180deg)] backface-hidden flex items-center justify-center p-8 text-center bg-primary/5 backdrop-blur-2xl border border-primary/30 shadow-[0_0_50px_-15px_rgba(249,115,22,0.15)]">
-            <CardContent className="p-0 flex flex-col items-center justify-center h-full w-full">
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-6 font-heading shadow-lg shadow-primary/30">
-                Answer
-              </span>
-              <h3 className="text-xl sm:text-2xl font-medium leading-relaxed max-w-xl mx-auto">
+          {/* Card Back face (reversed 180) */}
+          <Card className="absolute inset-0 [transform:rotateY(180deg)] backface-hidden flex items-center justify-center p-8 text-center bg-primary/[3%] border-none shadow-none rounded-lg">
+            <CardContent className="p-0 flex flex-col items-center justify-between h-full w-full relative">
+              <span className="font-mono text-[9px] text-primary uppercase tracking-widest font-bold">BACK • CORE SOLUTION</span>
+              
+              <p className="text-sm sm:text-base leading-relaxed max-w-md mx-auto my-auto text-foreground/90 font-mono">
                 {currentCard.back}
-              </h3>
+              </p>
+              
+              <div className="flex items-center gap-1 text-[10px] text-primary/70 mt-auto">
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span className="font-mono uppercase tracking-wider font-bold">Verifying Knowledge</span>
+              </div>
             </CardContent>
           </Card>
+
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between w-full mt-10 px-4">
-        <Button variant="outline" size="icon" onClick={handlePrev} className="rounded-full h-14 w-14 border border-white/10 bg-card/50 backdrop-blur-md hover:bg-primary/20 hover:text-primary hover:border-primary/50 transition-all shadow-lg">
-          <ChevronLeft className="h-6 w-6" />
+      {/* Tactile Monkeytype Controls Bar */}
+      <div className="flex items-center justify-between w-full mt-8 px-2 font-mono">
+        
+        {/* Prev key badge */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handlePrev} 
+          className="rounded border border-border h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-muted/40 cursor-pointer transition-all"
+        >
+          <ChevronLeft className="h-5 w-5" />
         </Button>
         
-        <div className="text-sm font-bold tracking-widest uppercase text-muted-foreground bg-card/30 px-4 py-2 rounded-full border border-white/5 backdrop-blur-sm">
-          Card <span className="text-foreground">{currentIndex + 1}</span> of {flashcards.length}
+        {/* Dynamic Keybinding Helpers */}
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          <div className="text-[11px] font-bold text-muted-foreground">
+            Card <span className="text-foreground">{currentIndex + 1}</span> of {flashcards.length}
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-[9px] text-muted-foreground/60 select-none">
+            <span className="key-badge">space</span>
+            <span>flip</span>
+            <span className="text-border">|</span>
+            <span className="key-badge">← / →</span>
+            <span>swipe</span>
+          </div>
         </div>
         
-        <Button variant="outline" size="icon" onClick={handleNext} className="rounded-full h-14 w-14 border border-white/10 bg-card/50 backdrop-blur-md hover:bg-primary/20 hover:text-primary hover:border-primary/50 transition-all shadow-lg">
-          <ChevronRight className="h-6 w-6" />
+        {/* Next key badge */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleNext} 
+          className="rounded border border-border h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-muted/40 cursor-pointer transition-all"
+        >
+          <ChevronRight className="h-5 w-5" />
         </Button>
+
       </div>
 
     </div>

@@ -92,9 +92,8 @@ export async function signup(formData: FormData) {
 
   revalidatePath('/', 'layout')
   
-  // If email confirmation is enabled, they might not be logged in yet.
-  // We'll try to redirect to dashboard, but the page will handle auth check.
-  redirect('/dashboard')
+  // If email confirmation is enabled, they need to check their inbox.
+  redirect(`/verify-email?email=${encodeURIComponent(email)}`)
 }
 
 export async function logout() {

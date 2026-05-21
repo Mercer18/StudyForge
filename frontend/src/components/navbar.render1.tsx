@@ -12,10 +12,10 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="bg-primary/20 p-1.5 rounded-lg">
+          <div className="bg-primary/20 p-1.5 rounded-lg group-hover:bg-primary/30 transition-colors">
             <Flame className="w-5 h-5 text-primary" />
           </div>
-          <span className="font-bold text-xl tracking-tight">StudyForge</span>
+          <span className="font-heading font-bold text-xl tracking-tight">StudyForge</span>
         </Link>
 
         {/* Navigation / Actions */}
@@ -27,7 +27,7 @@ export function Navbar() {
             </button>
           </AuthModal>
           <AuthModal initialTab="signup">
-            <Button className="rounded-md px-5 h-9 font-semibold shadow-md bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button className="rounded-full px-6 shadow-md hover:shadow-lg transition-all border border-primary/20 bg-primary/90 hover:bg-primary text-primary-foreground">
               Sign Up Free
             </Button>
           </AuthModal>
