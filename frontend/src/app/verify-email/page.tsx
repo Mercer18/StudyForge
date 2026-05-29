@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
+import { Suspense } from 'react'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
-  const email = searchParams.get('email')
+  const email = searchParams ? searchParams.get('email') : null
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 selection:bg-primary/30">
@@ -48,5 +49,17 @@ export default function VerifyEmailPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center font-mono text-xs text-muted-foreground">
+        Initializing verify vault...
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }

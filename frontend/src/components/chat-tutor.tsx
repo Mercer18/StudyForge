@@ -47,7 +47,8 @@ export function ChatTutor({ subjectId, onClose }: { subjectId: string, onClose: 
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/chat/${subjectId}`, {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8085"
+      const response = await fetch(`${apiBase}/api/v1/chat/${subjectId}`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

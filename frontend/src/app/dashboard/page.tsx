@@ -8,8 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UploadModal } from '@/components/upload-modal'
 import { DeleteSubjectButton } from '@/components/delete-subject-button'
+import { AnimatedLogo } from '@/components/animated-logo'
 import { 
-  Flame, 
   LogOut, 
   FolderOpen, 
   Calendar,
@@ -56,9 +56,7 @@ export default async function DashboardPage() {
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="bg-primary/10 p-1.5 rounded border border-primary/20 transition-all duration-300 group-hover:scale-105">
-              <Flame className="w-4 h-4 text-primary" />
-            </div>
+            <AnimatedLogo size={28} />
             <span className="font-bold text-lg tracking-tight font-heading">StudyForge</span>
             <span className="key-badge uppercase select-none font-mono text-[9px] px-1 py-0 h-4">deck</span>
           </Link>

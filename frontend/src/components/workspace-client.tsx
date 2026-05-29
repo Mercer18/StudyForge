@@ -13,9 +13,11 @@ import { FlashcardView } from './flashcard'
 import { ChatTutor } from './chat-tutor'
 import { useParams } from 'next/navigation'
 import { Mermaid } from './mermaid'
+import { MindMap } from './mind-map'
 import { 
   BookOpen, 
   Layers, 
+  Workflow,
   MessageSquareText, 
   ChevronLeft, 
   ChevronRight, 
@@ -47,10 +49,11 @@ interface StudyData {
   overview: string
   sections: Section[]
   flashcards: FlashcardData[]
+  mind_map?: any
 }
 
 export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null, subjectTitle: string }) {
-  const [activeTab, setActiveTab] = useState<'reader' | 'flashcards'>('reader')
+  const [activeTab, setActiveTab] = useState<'reader' | 'flashcards' | 'mindmap'>('reader')
   const [activeSectionId, setActiveSectionId] = useState<string | null>(data?.sections?.[0]?.id || null)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -146,27 +149,38 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
 
           {/* Module Switch Tab Pills */}
           <div className="p-5 flex-1 flex flex-col">
-            <div className="flex p-1 bg-muted/40 border border-border/80 rounded-md mb-6 shrink-0">
+            <div className="flex p-1 bg-muted/40 border border-border/80 rounded-md mb-6 shrink-0 gap-1">
               <button
                 onClick={() => setActiveTab('reader')}
-                className={`flex-grow flex items-center justify-center py-2 text-xs font-mono font-bold uppercase rounded transition-all cursor-pointer ${
+                className={`flex-grow flex items-center justify-center py-2 text-[10px] font-mono font-bold uppercase rounded transition-all cursor-pointer ${
                   activeTab === 'reader' 
                     ? 'bg-card text-primary border border-border/70 shadow-sm' 
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+                <BookOpen className="h-3.5 w-3.5 mr-1" />
                 Reader
               </button>
               <button
+                onClick={() => setActiveTab('mindmap')}
+                className={`flex-grow flex items-center justify-center py-2 text-[10px] font-mono font-bold uppercase rounded transition-all cursor-pointer ${
+                  activeTab === 'mindmap' 
+                    ? 'bg-card text-primary border border-border/70 shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Workflow className="h-3.5 w-3.5 mr-1" />
+                ForgeMap
+              </button>
+              <button
                 onClick={() => setActiveTab('flashcards')}
-                className={`flex-grow flex items-center justify-center py-2 text-xs font-mono font-bold uppercase rounded transition-all cursor-pointer ${
+                className={`flex-grow flex items-center justify-center py-2 text-[10px] font-mono font-bold uppercase rounded transition-all cursor-pointer ${
                   activeTab === 'flashcards' 
                     ? 'bg-card text-primary border border-border/70 shadow-sm' 
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <Layers className="h-3.5 w-3.5 mr-1.5" />
+                <Layers className="h-3.5 w-3.5 mr-1" />
                 ForgeCards
               </button>
             </div>
@@ -214,6 +228,18 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
                 </div>
               </div>
             )}
+
+            {/* Mind Map Stats Panel */}
+            {activeTab === 'mindmap' && (
+              <div className="px-2 text-xs text-muted-foreground leading-relaxed font-mono space-y-4">
+                <div className="border border-border p-4 rounded bg-muted/10 space-y-2">
+                  <p>Synthesized <span className="text-primary font-bold">1 interactive</span> syllabus map.</p>
+                  <p className="text-[10px] text-muted-foreground/75 leading-relaxed">
+                    View structural hierarchy and key chapters. Interactive nodes map curriculum domains.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
         </div>
@@ -232,7 +258,8 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
       <main className="flex-grow overflow-y-auto bg-background flex flex-col items-center relative">
         
         {/* Floating Timer Console and Chat controls */}
-        <div className="w-full max-w-4xl px-8 lg:px-12 py-4 flex items-center justify-between border-b border-border/50 shrink-0 sticky top-0 bg-background/90 backdrop-blur z-10">
+        {/* Floating Timer Console and Chat controls */}
+        <div className={`w-full px-8 lg:px-12 py-4 flex items-center justify-between border-b border-border/50 shrink-0 sticky top-0 bg-background/90 backdrop-blur z-10 transition-all duration-300 ${activeTab === 'mindmap' ? 'max-w-[96%]' : 'max-w-4xl'}`}>
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setIsFlowActive(true)}
@@ -251,7 +278,7 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
         </div>
 
         {/* Text Pane */}
-        <div className="w-full max-w-4xl flex-1 px-8 lg:px-12 py-10 pb-20">
+        <div className={`w-full flex-1 px-8 lg:px-12 py-10 pb-20 transition-all duration-300 ${activeTab === 'mindmap' ? 'max-w-[96%]' : 'max-w-4xl'}`}>
           
           {activeTab === 'reader' && activeSection && (
             <div className="animate-in fade-in duration-300 max-w-3xl mx-auto">
@@ -294,6 +321,12 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
                 </ReactMarkdown>
               </div>
 
+            </div>
+          )}
+
+          {activeTab === 'mindmap' && (
+            <div className="animate-in fade-in duration-300 w-full">
+              <MindMap data={data.mind_map} />
             </div>
           )}
 

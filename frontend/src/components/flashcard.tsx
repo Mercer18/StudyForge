@@ -1,9 +1,13 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, RotateCw, RefreshCw } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 
 interface FlashcardData {
   id: string
@@ -95,42 +99,54 @@ export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
         onMouseLeave={handleMouseLeave}
       >
         <div 
-          className="w-full h-full duration-150 preserve-3d rounded-lg border border-border bg-card/40 backdrop-blur-md shadow-md transition-shadow hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] group-hover:border-primary/30"
+          className="w-full h-full duration-150 preserve-3d"
           style={{
             transform: `rotateX(${tilt.x}deg) rotateY(${isFlipped ? 180 - tilt.y : tilt.y}deg)`
           }}
         >
           {/* Card Front face */}
-          <Card className="absolute inset-0 backface-hidden flex items-center justify-center p-8 text-center bg-card/60 border-none shadow-none">
-            <CardContent className="p-0 flex flex-col items-center justify-between h-full w-full relative">
-              <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">FRONT • STUDY CONCEPT</span>
-              
-              <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-heading leading-snug max-w-md mx-auto my-auto text-foreground">
-                {currentCard.front}
-              </h3>
-              
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors group-hover:text-primary mt-auto">
-                <RotateCw className="w-3.5 h-3.5" />
-                <span className="font-mono uppercase tracking-wider">Click or Press space to flip</span>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-between p-8 text-center rounded-lg border border-border bg-card/60 backdrop-blur-md shadow-md transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] group-hover:border-primary/30 overflow-visible">
+            <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">FRONT • STUDY CONCEPT</span>
+            
+            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-heading leading-snug max-w-md mx-auto my-auto text-foreground">
+              {currentCard.front}
+            </h3>
+            
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors group-hover:text-primary mt-auto">
+              <RotateCw className="w-3.5 h-3.5" />
+              <span className="font-mono uppercase tracking-wider">Click or Press space to flip</span>
+            </div>
+          </div>
 
           {/* Card Back face (reversed 180) */}
-          <Card className="absolute inset-0 [transform:rotateY(180deg)] backface-hidden flex items-center justify-center p-8 text-center bg-primary/[3%] border-none shadow-none rounded-lg">
-            <CardContent className="p-0 flex flex-col items-center justify-between h-full w-full relative">
-              <span className="font-mono text-[9px] text-primary uppercase tracking-widest font-bold">BACK • CORE SOLUTION</span>
-              
-              <p className="text-sm sm:text-base leading-relaxed max-w-md mx-auto my-auto text-foreground/90 font-mono">
+          <div className="absolute inset-0 [transform:rotateY(180deg)] backface-hidden flex flex-col items-center justify-between p-8 text-center rounded-lg border border-primary/20 bg-primary/[3%] backdrop-blur-md shadow-md transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] group-hover:border-primary/30 overflow-visible">
+            <span className="font-mono text-[9px] text-primary uppercase tracking-widest font-bold">BACK • CORE SOLUTION</span>
+            
+            <div className="w-full max-w-md mx-auto my-auto text-foreground/90 overflow-y-auto max-h-[170px] pr-1 scrollbar-thin">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={{
+                  p: ({ children }) => <p className="mb-2 last:mb-0 text-center leading-relaxed font-sans text-sm sm:text-base">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc pl-4 text-left space-y-1 my-2 text-sm text-foreground/80">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-4 text-left space-y-1 my-2 text-sm text-foreground/80">{children}</ol>,
+                  li: ({ children }) => <li className="text-xs sm:text-sm">{children}</li>,
+                  code: ({ className, children, ...props }) => (
+                    <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs text-primary" {...props}>
+                      {children}
+                    </code>
+                  ),
+                }}
+              >
                 {currentCard.back}
-              </p>
-              
-              <div className="flex items-center gap-1 text-[10px] text-primary/70 mt-auto">
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span className="font-mono uppercase tracking-wider font-bold">Verifying Knowledge</span>
-              </div>
-            </CardContent>
-          </Card>
+              </ReactMarkdown>
+            </div>
+            
+            <div className="flex items-center gap-1 text-[10px] text-primary/70 mt-auto">
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span className="font-mono uppercase tracking-wider font-bold">Verifying Knowledge</span>
+            </div>
+          </div>
 
         </div>
       </div>

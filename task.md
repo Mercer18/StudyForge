@@ -1,16 +1,37 @@
-# StudyForge Phase 1 MVP Tasks
+# StudyForge Landing Page Revamp Checklist 🌋✨
 
-- `[/]` Scaffold Next.js Frontend
-  - `[ ]` Initialize Next.js App Router project
-  - `[ ]` Install Tailwind CSS and Shadcn UI
-  - `[ ]` Setup basic folder structure (`components`, `lib`, `app`)
-- `[ ]` Scaffold FastAPI Backend
-  - `[ ]` Initialize Python virtual environment
-  - `[ ]` Install FastAPI, Uvicorn, PyMuPDF, Groq
-  - `[ ]` Setup basic folder structure (`routes`, `services`, `parsers`, `generators`)
-- `[ ]` Database Setup
-  - `[ ]` Document Supabase setup instructions or use local Supabase
-  - `[ ]` Define SQL schema for Users, Subjects, Uploads, Focus Sessions
-- `[ ]` Frontend Auth & Dashboard (Week 1)
-- `[ ]` Backend Upload & Processing Pipeline (Week 2 & 3)
-- `[ ]` Microsite Generation & Flashcards (Week 4 & 5)
+- `[x]` Global CSS Overhaul (`globals.css`)
+  - `[x]` Add `@keyframes infinite-scroll` and custom animations
+  - `[x]` Define utility classes for marquee and floating ambient layers
+- `[x]` Floating Glassmorphic Capsule Navbar (`navbar.tsx`)
+  - `[x]` Refactor structure into horizontal centered floating container
+  - `[x]` Implement backdrop glass styling and amber/gold gradients
+  - `[x]` Re-integrate ThemeToggle and AuthModal triggers
+- `[x]` Premium Split-Grid Landing Page (`page.tsx`)
+  - `[x]` Wrap root in dark theme colors with layered glowing background layers
+  - `[x]` Build Left Column: announcement badges, massive headings, CTAs, statistics
+  - `[x]` Build Right Column: interactive playground simulator inside visual glass card deck
+  - `[x]` Add Infinite Scrolling Marquee with double-sided opacity masks
+  - `[x]` Redesign Bento Grid cards with custom borders and hover overlays
+- `[x]` Animated Voxel Logo Integrations
+  - `[x]` Created self-contained dynamic `<AnimatedLogo />` component mimicking Ra.One voxel assembly
+  - `[x]` Embed in landing page floating capsule navbar
+  - `[x]` Embed in dashboard subject header
+  - `[x]` Integrate inside interactive AI sandbox playground (idle layout)
+  - `[x]` Design dual-pane processing state sandbox showing rolling logs alongside live voxel document rendering
+  - `[x]` Transform standard loader on real-time textbook processing page into 120px glowing gold voxel assembly screen
+- `[x]` Verification & Walkthrough
+  - `[x]` Test interactive play simulation phases
+  - `[x]` Validate responsive layouts (mobile, tablet, desktop)
+  - `[x]` Verify scroll animations and styling consistency
+- `[x]` Iteration: Clean Layout & Spacing Bug Fixes
+  - `[x]` Remove Phase 2 Announcement Pill
+  - `[x]` Remove Fake Statistics Ticker under main CTA
+  - `[x]` Remove Fake Trust Institution Marquee
+  - `[x]` Remove TRUST navigation anchor from floating Navbar
+  - `[x]` Fix mouse-scroll locking by switching main page container to `overflow-x-hidden`
+  - `[x]` Fix anchor scroll offsets by applying `scroll-mt-28` to sections
+  - `[x]` Fix text count badge overlap collision in sandbox textarea using `pb-10`
+  - `[x]` Repair JSX syntax error in `AnimatedLogo.tsx` for duplicate attribute
+  - `[x]` Run full tsc compiler type-safety checks (0 errors)
+  - `[x]` Run production build verification (successful)

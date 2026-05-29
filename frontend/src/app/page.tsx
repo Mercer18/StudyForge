@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { AuthModal } from '@/components/auth-modal'
+import { AnimatedLogo } from '@/components/animated-logo'
 
 interface PresetTopic {
   title: string
@@ -164,349 +165,407 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen bg-background relative overflow-hidden flex flex-col items-center justify-start pt-24 pb-12 selection:bg-primary/20 transition-all duration-300 ease-in-out font-sans"
+      className="min-h-screen bg-background text-foreground relative overflow-x-hidden flex flex-col items-center justify-start pb-20 selection:bg-amber-500/25 selection:text-foreground transition-all duration-300 ease-in-out font-sans w-full"
       style={{
-        // Dynamic variable mapping for custom CSS radial glow
         "--x": `${mousePosition.x}px`,
         "--y": `${mousePosition.y}px`
       } as React.CSSProperties}
     >
       <Navbar />
       
-      {/* Background Orbs & Ambient Mouse Glow */}
-      <div className="absolute inset-0 ambient-glow pointer-events-none z-0" />
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-primary/5 blur-[120px] rounded-full pointer-events-none animate-pulse duration-10000" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[45%] bg-amber-600/5 blur-[120px] rounded-full pointer-events-none" />
-      
-      <div className="container px-6 mx-auto relative z-10 flex flex-col items-center text-center">
-        
-        {/* Banner Tag */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted/60 text-muted-foreground text-xs md:text-sm font-mono mb-8 border border-border shadow-sm">
-          <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
-          <span>Transform raw documents into structured textbooks.</span>
-        </div>
-
-        {/* Hero Title */}
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 max-w-4xl font-heading leading-[1.1] text-foreground">
-          Forge chaotic documents into <br className="hidden md:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-500 to-amber-600">
-            pure knowledge.
-          </span>
-        </h1>
-
-        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mb-12 leading-relaxed">
-          Upload PDFs, DOCX, or YouTube lectures. StudyForge parses, chunks, and structures them into tactile, lightning-fast workspaces packed with formulas, diagrams, and flashcards.
-        </p>
-
-        {/* Main CTA */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-16 items-center justify-center">
-          <AuthModal initialTab="signup">
-            <Button size="lg" className="h-12 px-8 text-base font-semibold group relative overflow-hidden transition-all duration-300 rounded-lg bg-primary hover:bg-primary/95 text-primary-foreground shadow-[0_4px_20px_-5px_rgba(226,183,20,0.4)] cursor-pointer">
-              <span className="relative z-10 flex items-center gap-2">
-                Start Forging Free <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Button>
-          </AuthModal>
-        </div>
-
-        {/* ==================== INTERACTIVE PLAYGROUND (MONKEYTYPE STYLE) ==================== */}
-        <div className="w-full max-w-4xl border border-border rounded-xl bg-card/60 backdrop-blur-md shadow-2xl p-1 text-left relative z-20 overflow-hidden mb-24">
+      {/* Background Gradients Layer */}
+      <div className="absolute inset-0 ambient-glow pointer-events-none z-0 opacity-80" />
+      <div className="absolute top-[-10%] left-[-15%] w-[60%] h-[50%] bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08)_0%,transparent_70%)] blur-[120px] rounded-full pointer-events-none z-0" />
+      <div className="absolute bottom-[-10%] right-[-15%] w-[55%] h-[55%] bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.06)_0%,transparent_75%)] blur-[120px] rounded-full pointer-events-none z-0" />
+      <div className="absolute top-[20%] right-[10%] w-[350px] h-[350px] bg-primary/5 blur-[90px] rounded-full pointer-events-none animate-rotate-slow duration-30000 z-0" />
+ 
+      {/* Main Hero Split Grid Container */}
+      <div className="container px-4 sm:px-6 mx-auto relative z-10 max-w-7xl pt-16 sm:pt-24 lg:pt-32 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
-          {/* Deck Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/40">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30" />
-              <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30" />
-              <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30" />
-              <span className="font-mono text-xs text-muted-foreground ml-2">forge-playground.sh</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="key-badge">esc</span>
-              <span className="text-xs text-muted-foreground font-mono">active</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-12 min-h-[380px]">
+          {/* Left Column (6 cols): Typography & Branding CTA */}
+          <div className="lg:col-span-6 flex flex-col items-start text-left space-y-6 relative z-10">
             
-            {/* Left Interactive Input Section (5 columns) */}
-            <div className="md:col-span-5 p-6 border-b md:border-b-0 md:border-r border-border flex flex-col justify-between space-y-6">
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-foreground font-mono uppercase tracking-wider">Source Material Input</h3>
-                  <div className="flex gap-1.5">
-                    <button
-                      onClick={() => selectPreset("quantum")}
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded transition-all ${
-                        activePreset === "quantum" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      Quantum
-                    </button>
-                    <button
-                      onClick={() => selectPreset("ai")}
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded transition-all ${
-                        activePreset === "ai" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      Neural Net
-                    </button>
-                  </div>
-                </div>
 
-                <div className="relative">
-                  <textarea
-                    value={inputText}
-                    onChange={(e) => {
-                      setInputText(e.target.value)
-                      setForgeState("idle")
-                    }}
-                    placeholder="Paste academic syllabus, raw notes, or text here..."
-                    className="w-full h-44 bg-muted/30 border border-border rounded-lg p-3.5 text-xs font-mono text-foreground leading-relaxed focus:outline-none focus:border-primary resize-none transition-colors"
-                  />
-                  <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5">
-                    <span className="key-badge font-mono text-[9px]">chars: {inputText.length}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Button 
-                  onClick={triggerForgeSimulation}
-                  disabled={!inputText.trim() || forgeState === "forging"}
-                  className="w-full h-11 text-xs font-mono font-bold tracking-wider uppercase bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Flame className="w-4 h-4 animate-pulse" />
-                  {forgeState === "forging" ? "Forging In Progress..." : "Forge Interactive Microsite"}
+ 
+            {/* Giant Title */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] sm:leading-[1.1] font-heading">
+              Forge chaotic files <br className="hidden sm:block" />
+              into <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-400 to-amber-500 drop-shadow-[0_2px_15px_rgba(245,158,11,0.15)]">pure knowledge.</span>
+            </h1>
+ 
+            {/* Premium Description */}
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg leading-relaxed">
+              Upload notes, complex textbooks, PDFs, slides, or YouTube lectures. StudyForge parses, chunks, and structures them into tactile, high-performance study workspaces packed with formulas, flippable cards, and interactive diagrams.
+            </p>
+ 
+            {/* Master CTA Actions */}
+            <div className="flex flex-wrap gap-4 pt-2">
+              <AuthModal initialTab="signup">
+                <Button size="lg" className="h-11 px-6 text-xs font-bold font-mono tracking-wider uppercase bg-primary hover:bg-primary/95 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all rounded-full hover:scale-[1.02] cursor-pointer">
+                  Start Forging Free <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
-                <p className="text-[10px] text-muted-foreground font-mono text-center">
-                  Press <kbd className="bg-muted px-1.5 py-0.5 rounded border border-border text-[9px]">enter</kbd> or click to process
-                </p>
+              </AuthModal>
+              <a 
+                href="#features" 
+                className="h-11 px-6 rounded-full border border-border/80 hover:border-border bg-muted/40 hover:bg-muted/70 text-xs font-bold font-mono tracking-wider text-foreground transition-all flex items-center justify-center cursor-pointer"
+              >
+                EXPLORE FEATURES
+              </a>
+            </div>
+ 
+
+ 
+          </div>
+ 
+          {/* Right Column (6 cols): The Interactive Playground Deck inside Hero Card */}
+          <div id="demo" className="lg:col-span-6 w-full relative z-20 scroll-mt-28">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-amber-500/10 blur-[40px] rounded-2xl opacity-60 pointer-events-none" />
+            
+            <div className="w-full border border-border/80 rounded-2xl bg-card/60 backdrop-blur-md shadow-2xl p-1 text-left relative overflow-hidden transition-all duration-300 hover:border-border">
+              
+              {/* Deck Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/20">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-foreground/10" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-foreground/10" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-foreground/10" />
+                  <span className="font-mono text-[10px] text-muted-foreground ml-2">forge-playground.sh</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="key-badge">esc</span>
+                  <span className="text-[10px] text-muted-foreground/70 font-mono">active</span>
+                </div>
               </div>
 
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-12 min-h-[380px]">
+                
+                {/* Left Interactive Input Section (5 columns) */}
+                <div className="md:col-span-5 p-5 border-b md:border-b-0 md:border-r border-border/40 flex flex-col justify-between space-y-4">
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[10px] font-bold text-foreground font-mono uppercase tracking-wider">Raw Material</h3>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => selectPreset("quantum")}
+                          className={`text-[9px] font-mono px-2 py-0.5 rounded transition-all ${
+                            activePreset === "quantum" ? "bg-primary text-primary-foreground font-bold" : "bg-muted/40 text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          Quantum
+                        </button>
+                        <button
+                          onClick={() => selectPreset("ai")}
+                          className={`text-[9px] font-mono px-2 py-0.5 rounded transition-all ${
+                            activePreset === "ai" ? "bg-primary text-primary-foreground font-bold" : "bg-muted/40 text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          Neural
+                        </button>
+                      </div>
+                    </div>
 
-            {/* Right Result Simulator (7 columns) */}
-            <div className="md:col-span-7 bg-muted/10 flex flex-col overflow-hidden relative">
-              
-              {/* Idle State */}
-              {forgeState === "idle" && (
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                  <div className="p-3 rounded-full bg-muted/40 border border-border animate-bounce">
-                    <MousePointerClick className="w-6 h-6 text-muted-foreground" />
+                    <div className="relative">
+                      <textarea
+                        value={inputText}
+                        onChange={(e) => {
+                          setInputText(e.target.value)
+                          setForgeState("idle")
+                        }}
+                        placeholder="Paste lecture notes or transcripts..."
+                        className="w-full h-40 bg-muted/20 border border-border/80 rounded-lg p-3 pb-10 text-[11px] font-mono text-foreground leading-relaxed focus:outline-none focus:border-primary/50 resize-none transition-colors"
+                      />
+                      <div className="absolute bottom-2 right-2">
+                        <span className="key-badge font-mono text-[8px]">chars: {inputText.length}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-semibold font-mono">Workspace Generation Pending</h4>
-                    <p className="text-xs text-muted-foreground max-w-sm">
-                      Input your content or choose a pre-loaded topic, then click the forge button to watch StudyForge dynamically assemble a microsite.
+
+                  <div className="space-y-2">
+                    <Button 
+                      onClick={triggerForgeSimulation}
+                      disabled={!inputText.trim() || forgeState === "forging"}
+                      className="w-full h-10 text-[10px] font-mono font-bold tracking-wider uppercase bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-transform active:scale-[0.98]"
+                    >
+                      <Flame className="w-3.5 h-3.5 animate-pulse" />
+                      {forgeState === "forging" ? "Forging..." : "Forge Workspace"}
+                    </Button>
+                    <p className="text-[9px] text-muted-foreground/60 font-mono text-center">
+                      Click to process raw text inside AI Sandbox
                     </p>
                   </div>
-                </div>
-              )}
 
-              {/* Forging State (Terminal Console Logs) */}
-              {forgeState === "forging" && (
-                <div className="flex-1 p-6 font-mono text-[11px] text-foreground space-y-2.5 overflow-y-auto bg-black/35 select-none animate-in fade-in duration-300">
-                  <div className="flex items-center gap-2 text-primary pb-2 border-b border-white/5">
-                    <Terminal className="w-3.5 h-3.5 animate-spin" />
-                    <span>PARSING ENGINE INITIALIZED</span>
-                  </div>
-                  {terminalLogs.map((log, idx) => (
-                    <div key={idx} className="flex items-start gap-1 leading-relaxed text-muted-foreground">
-                      <span className="text-primary select-none shrink-0 font-bold">{`>`}</span>
-                      <span className={idx === terminalLogs.length - 1 ? "text-primary font-bold" : ""}>
-                        {log.substring(2)}
-                      </span>
-                      {idx === terminalLogs.length - 1 && <span className="typing-caret w-1.5 h-3.5 bg-primary inline-block ml-0.5" />}
-                    </div>
-                  ))}
                 </div>
-              )}
 
-              {/* Completed Workspace State */}
-              {forgeState === "completed" && (
-                <div className="flex-1 flex flex-col overflow-hidden animate-in fade-in duration-500">
+                {/* Right Result Simulator (7 columns) */}
+                <div className="md:col-span-7 bg-muted/[0.03] dark:bg-white/[0.01] flex flex-col overflow-hidden relative">
                   
-                  {/* Miniature Workspace Tabs */}
-                  <div className="flex border-b border-border bg-card/30 p-1 gap-1">
-                    <button
-                      onClick={() => setPlaygroundTab("notes")}
-                      className={`flex-1 py-2 text-[10px] font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
-                        playgroundTab === "notes" ? "bg-card text-primary border border-border" : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <BookOpen className="w-3.5 h-3.5" />
-                      Notes
-                    </button>
-                    <button
-                      onClick={() => setPlaygroundTab("flashcards")}
-                      className={`flex-1 py-2 text-[10px] font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
-                        playgroundTab === "flashcards" ? "bg-card text-primary border border-border" : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Layers className="w-3.5 h-3.5" />
-                      Flashcards
-                    </button>
-                    <button
-                      onClick={() => setPlaygroundTab("diagram")}
-                      className={`flex-1 py-2 text-[10px] font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
-                        playgroundTab === "diagram" ? "bg-card text-primary border border-border" : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <GitBranch className="w-3.5 h-3.5" />
-                      Diagram
-                    </button>
-                  </div>
-
-                  {/* Playground Views */}
-                  <div className="flex-1 p-6 overflow-y-auto max-h-[340px]">
-                    
-                    {playgroundTab === "notes" && (
-                      <div className="space-y-4 animate-in fade-in duration-300">
-                        <div className="space-y-2">
-                          <h4 className="text-xl font-extrabold tracking-tight font-heading text-foreground">
-                            {PRESETS[activePreset].contentTitle}
-                          </h4>
-                          <div className="flex flex-wrap gap-1.5">
-                            {PRESETS[activePreset].keyConcepts.map((concept, index) => (
-                              <span key={index} className="key-badge">{concept}</span>
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-6 font-sans">
-                          {PRESETS[activePreset].content}
+                  {/* Idle State */}
+                  {forgeState === "idle" && (
+                    <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4">
+                      <div className="relative group p-4">
+                        <div className="absolute inset-0 bg-primary/10 blur-xl rounded-full scale-75 group-hover:scale-100 transition-transform duration-500 opacity-60 pointer-events-none" />
+                        <AnimatedLogo size={72} className="relative z-10 animate-pulse duration-[3000ms]" />
+                      </div>
+                      <div className="space-y-1 relative z-10">
+                        <h4 className="text-xs font-semibold font-mono text-foreground tracking-wide uppercase">Forge Sandbox Idle</h4>
+                        <p className="text-[10px] text-muted-foreground max-w-[220px] leading-relaxed mx-auto">
+                          Select a lecture preset or paste custom texts, then trigger the forge to assemble.
                         </p>
-                        <div className="border border-primary/20 bg-primary/5 rounded-lg p-3">
-                          <h5 className="text-[10px] font-bold text-primary uppercase font-mono tracking-wider mb-1">AI Document Overview</h5>
-                          <p className="text-[11px] text-muted-foreground leading-relaxed">
-                            {PRESETS[activePreset].overview}
-                          </p>
-                        </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {playgroundTab === "flashcards" && (
-                      <div className="h-full flex flex-col items-center justify-center py-4 animate-in fade-in duration-300 select-none">
-                        {/* 3D Tactile Card Container */}
-                        <div 
-                          onClick={() => setFlashcardFlipped(!flashcardFlipped)}
-                          className="w-full max-w-[280px] h-36 cursor-pointer perspective-1000 group/card"
-                        >
-                          <div className={`w-full h-full relative transition-transform duration-500 preserve-3d rounded-lg border border-border bg-card/65 shadow-md flex items-center justify-center p-4 text-center ${
-                            flashcardFlipped ? "rotate-y-180" : ""
-                          }`}>
-                            
-                            {/* Front Side */}
-                            <div className="absolute inset-0 p-5 flex flex-col items-center justify-between backface-hidden">
-                              <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">FRONT • STUDY CARD</span>
-                              <p className="text-xs font-semibold text-foreground font-heading max-w-xs">{PRESETS[activePreset].flashcard.front}</p>
-                              <span className="key-badge flex items-center gap-1">
-                                Click to Flip <RefreshCw className="w-2.5 h-2.5" />
-                              </span>
-                            </div>
-
-                            {/* Back Side */}
-                            <div className="absolute inset-0 p-5 flex flex-col items-center justify-between backface-hidden rotate-y-180 bg-primary/5 border border-primary/20 rounded-lg">
-                              <span className="font-mono text-[9px] text-primary uppercase tracking-widest font-bold">BACK • VERIFIED CORE ANSWER</span>
-                              <p className="text-xs font-mono text-muted-foreground leading-relaxed">{PRESETS[activePreset].flashcard.back}</p>
-                              <span className="key-badge font-mono text-[8px]">space to flip</span>
-                            </div>
-
+                  {/* Forging State (Terminal Console Logs + Assembly Hologram) */}
+                  {forgeState === "forging" && (
+                    <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-muted/20 dark:bg-black/40 divide-y md:divide-y-0 md:divide-x divide-border/40 select-none animate-in fade-in duration-300">
+                      {/* Left: Terminal Console Logs */}
+                      <div className="flex-1 p-5 font-mono text-[10px] text-foreground/90 space-y-2 overflow-y-auto min-h-[160px] md:min-h-0">
+                        <div className="flex items-center gap-2 text-primary pb-2 border-b border-border/40">
+                          <Terminal className="w-3 h-3 animate-spin" />
+                          <span>CORE ENGINE PROCESSING</span>
+                        </div>
+                        {terminalLogs.map((log, idx) => (
+                          <div key={idx} className="flex items-start gap-1 leading-relaxed text-muted-foreground">
+                            <span className="text-primary select-none shrink-0 font-bold">{`>`}</span>
+                            <span className={idx === terminalLogs.length - 1 ? "text-primary font-bold" : ""}>
+                              {log.substring(2)}
+                            </span>
+                            {idx === terminalLogs.length - 1 && <span className="typing-caret w-1 h-3 bg-primary inline-block ml-0.5" />}
                           </div>
+                        ))}
+                      </div>
+
+                      {/* Right: Assembly Hologram Visualization */}
+                      <div className="w-full md:w-44 flex flex-col items-center justify-center p-6 bg-muted/[0.03] dark:bg-white/[0.01] shrink-0 space-y-3">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse pointer-events-none" />
+                          <AnimatedLogo size={80} className="relative z-10" />
+                        </div>
+                        <div className="text-center">
+                          <span className="font-mono text-[8px] font-bold text-amber-500 uppercase tracking-widest animate-pulse">
+                            Forging: 78%
+                          </span>
                         </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {playgroundTab === "diagram" && (
-                      <div className="h-full flex items-center justify-center py-2 animate-in fade-in duration-300">
-                        <div className="w-full max-w-sm bg-card/40 border border-border/80 rounded-lg p-4 shadow-sm flex items-center justify-center">
-                          {PRESETS[activePreset].svgMap}
-                        </div>
+                  {/* Completed Workspace State */}
+                  {forgeState === "completed" && (
+                    <div className="flex-1 flex flex-col overflow-hidden animate-in fade-in duration-500">
+                      
+                      {/* Miniature Workspace Tabs */}
+                      <div className="flex border-b border-border/50 bg-muted/20 p-1 gap-1">
+                        <button
+                          onClick={() => setPlaygroundTab("notes")}
+                          className={`flex-1 py-1.5 text-[9px] font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
+                            playgroundTab === "notes" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <BookOpen className="w-3 h-3" />
+                          Notes
+                        </button>
+                        <button
+                          onClick={() => setPlaygroundTab("flashcards")}
+                          className={`flex-1 py-1.5 text-[9px] font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
+                            playgroundTab === "flashcards" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Layers className="w-3 h-3" />
+                          Cards
+                        </button>
+                        <button
+                          onClick={() => setPlaygroundTab("diagram")}
+                          className={`flex-1 py-1.5 text-[9px] font-mono font-bold uppercase rounded transition-all flex items-center justify-center gap-1.5 ${
+                            playgroundTab === "diagram" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <GitBranch className="w-3 h-3" />
+                          Mind Map
+                        </button>
                       </div>
-                    )}
 
-                  </div>
+                      {/* Playground Views */}
+                      <div className="flex-1 p-5 overflow-y-auto max-h-[300px]">
+                        
+                        {playgroundTab === "notes" && (
+                          <div className="space-y-4 animate-in fade-in duration-300 text-left">
+                            <div className="space-y-2">
+                              <h4 className="text-base font-extrabold tracking-tight font-heading text-foreground">
+                                {PRESETS[activePreset].contentTitle}
+                              </h4>
+                              <div className="flex flex-wrap gap-1">
+                                {PRESETS[activePreset].keyConcepts.map((concept, index) => (
+                                  <span key={index} className="key-badge text-[8px]">{concept}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground leading-relaxed font-sans">
+                              {PRESETS[activePreset].content}
+                            </p>
+                            <div className="border border-primary/20 bg-primary/5 rounded-lg p-2.5">
+                              <h5 className="text-[8px] font-bold text-primary uppercase font-mono tracking-wider mb-0.5">AI Summary Badge</h5>
+                              <p className="text-[9px] text-muted-foreground/85 leading-relaxed">
+                                {PRESETS[activePreset].overview}
+                              </p>
+                            </div>
+                          </div>
+                        )}
 
-                  {/* Micro Footer CTA */}
-                  <div className="border-t border-border px-6 py-2.5 bg-card/10 flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground font-mono">Dynamic learning workspace rendering engine v1.2</span>
-                    <AuthModal initialTab="signup">
-                      <button className="text-[10px] font-bold text-primary font-mono hover:underline flex items-center gap-1 cursor-pointer">
-                        Forge personal files now <ChevronRight className="w-3 h-3" />
-                      </button>
-                    </AuthModal>
-                  </div>
+                        {playgroundTab === "flashcards" && (
+                          <div className="h-full flex flex-col items-center justify-center py-2 animate-in fade-in duration-300 select-none">
+                            <div 
+                              onClick={() => setFlashcardFlipped(!flashcardFlipped)}
+                              className="w-full max-w-[240px] h-28 cursor-pointer perspective-1000 group/card"
+                            >
+                              <div className={`w-full h-full relative transition-transform duration-500 preserve-3d rounded-lg border border-border/80 bg-muted/10 hover:bg-muted/20 shadow-md flex items-center justify-center p-4 text-center ${
+                                flashcardFlipped ? "rotate-y-180" : ""
+                              }`}>
+                                
+                                {/* Front Side */}
+                                <div className="absolute inset-0 p-4 flex flex-col items-center justify-between backface-hidden">
+                                  <span className="font-mono text-[8px] text-muted-foreground uppercase tracking-widest">FRONT • STUDY</span>
+                                  <p className="text-[10px] font-semibold text-foreground font-heading max-w-xs">{PRESETS[activePreset].flashcard.front}</p>
+                                  <span className="key-badge flex items-center gap-1 text-[8px]">
+                                    Click to Flip <RefreshCw className="w-2 h-2" />
+                                  </span>
+                                </div>
+
+                                {/* Back Side */}
+                                <div className="absolute inset-0 p-4 flex flex-col items-center justify-between backface-hidden rotate-y-180 bg-primary/5 border border-primary/20 rounded-lg">
+                                  <span className="font-mono text-[8px] text-primary uppercase tracking-widest font-bold">BACK • ANSWER</span>
+                                  <p className="text-[10px] font-mono text-muted-foreground leading-relaxed">{PRESETS[activePreset].flashcard.back}</p>
+                                  <span className="key-badge font-mono text-[7px]">click to flip back</span>
+                                </div>
+
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {playgroundTab === "diagram" && (
+                          <div className="h-full flex items-center justify-center py-1 animate-in fade-in duration-300">
+                            <div className="w-full max-w-xs bg-muted/10 border border-border/60 rounded-lg p-3 shadow-sm flex items-center justify-center">
+                              {PRESETS[activePreset].svgMap}
+                            </div>
+                          </div>
+                        )}
+
+                      </div>
+
+                      {/* Micro Footer CTA */}
+                      <div className="border-t border-border/40 px-4 py-2.5 bg-muted/[0.03] flex items-center justify-between shrink-0">
+                        <span className="text-[8px] text-muted-foreground/60 font-mono">Workspace Engine v1.2</span>
+                        <AuthModal initialTab="signup">
+                          <button className="text-[9px] font-bold text-primary font-mono hover:underline flex items-center gap-0.5 cursor-pointer bg-transparent border-none outline-none">
+                            Forge your files <ChevronRight className="w-2.5 h-2.5" />
+                          </button>
+                        </AuthModal>
+                      </div>
+
+                    </div>
+                  )}
 
                 </div>
-              )}
+
+              </div>
 
             </div>
-
           </div>
 
         </div>
-
-        {/* ==================== BENTO FEATURE CARDS SYSTEM ==================== */}
-        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-12 gap-6 text-left relative z-20">
-          
-          {/* Card 1: Smart Microsites */}
-          <div className="md:col-span-6 p-8 rounded-xl bg-card/40 border border-border/70 backdrop-blur-sm shadow-sm hover:border-primary/40 group transition-all duration-300">
-            <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 text-primary w-fit mb-6 transition-all duration-300 group-hover:scale-105">
-              <BrainCircuit className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold font-heading mb-2 text-foreground">Structured Workspaces</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Don't skim endless raw data. Our system categorizes content into crisp readings, summary overview badges, and formatted key takeaways automatically.
-            </p>
-          </div>
-
-          {/* Card 2: Interactive Mind Maps */}
-          <div className="md:col-span-6 p-8 rounded-xl bg-card/40 border border-border/70 backdrop-blur-sm shadow-sm hover:border-primary/40 group transition-all duration-300">
-            <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 text-primary w-fit mb-6 transition-all duration-300 group-hover:scale-105">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold font-heading mb-2 text-foreground">Tactile Concepts & Diagrams</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Generate native mathematical formatting via LaTeX expressions and visualize multi-node dependencies directly using dynamic SVG-rendered flow charts.
-            </p>
-          </div>
-
-          {/* Card 3: Deep Processing Engine */}
-          <div className="md:col-span-4 p-6 rounded-xl bg-card/40 border border-border/70 backdrop-blur-sm shadow-sm hover:border-primary/40 group transition-all duration-300">
-            <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary w-fit mb-5 transition-all duration-300 group-hover:scale-105">
-              <Zap className="w-4 h-4" />
-            </div>
-            <h3 className="text-base font-bold font-heading mb-2 text-foreground">Map-Reduce Processing</h3>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              No context size failures. Slices huge documentation or hours-long YouTube closed captions into neat semantic chunks and synthesizes them into books.
-            </p>
-          </div>
-
-          {/* Card 4: Keyboard Driven UX */}
-          <div className="md:col-span-4 p-6 rounded-xl bg-card/40 border border-border/70 backdrop-blur-sm shadow-sm hover:border-primary/40 group transition-all duration-300">
-            <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary w-fit mb-5 transition-all duration-300 group-hover:scale-105">
-              <Terminal className="w-4 h-4" />
-            </div>
-            <h3 className="text-base font-bold font-heading mb-2 text-foreground">Performance Keybindings</h3>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Interact seamlessly without taking your hands off the keyboard. Tap spacebars to flip cards, arrow keys for review, and escape to toggle side chat.
-            </p>
-          </div>
-
-          {/* Card 5: Gamified Streaks */}
-          <div className="md:col-span-4 p-6 rounded-xl bg-card/40 border border-border/70 backdrop-blur-sm shadow-sm hover:border-primary/40 group transition-all duration-300">
-            <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary w-fit mb-5 transition-all duration-300 group-hover:scale-105">
-              <Flame className="w-4 h-4" />
-            </div>
-            <h3 className="text-base font-bold font-heading mb-2 text-foreground">Deep Flow Mode</h3>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Immerse yourself completely in study sessions. Activate the dimming Pomodoro timer deck to lock out distraction, trace progress streaks, and boost retention.
-            </p>
-          </div>
-
-        </div>
-
       </div>
+
+
+
+      {/* ==================== BENTO GRID FEATURES ==================== */}
+      <section id="features" className="container px-4 sm:px-6 mx-auto relative z-10 max-w-5xl py-24 sm:py-32 scroll-mt-28">
+        <div className="text-center space-y-4 mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold font-heading text-foreground">
+            The last study workspace you'll ever need
+          </h2>
+          <p className="text-muted-foreground max-w-xl mx-auto text-sm">
+            StudyForge handles mapping, organizing, and synthesizing academic workloads like an expert teaching assistant.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-fr">
+          
+          {/* Card 1: Structured Workspaces (6 cols) */}
+          <div className="md:col-span-6 p-8 rounded-2xl bg-card/40 hover:bg-card/60 border border-border/80 hover:border-amber-500/40 backdrop-blur-sm shadow-xl group transition-all duration-300 relative flex flex-col justify-between overflow-hidden">
+            <span className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            <div>
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-primary w-fit mb-6 transition-all duration-300 group-hover:scale-105">
+                <BrainCircuit className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-bold font-heading mb-2 text-foreground">Structured Workspaces</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Skip raw pages. StudyForge slices and maps incoming texts into gorgeous, legible reading segments with automatic bulleted core concept tags.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2: Interactive Mind Maps (6 cols) */}
+          <div className="md:col-span-6 p-8 rounded-2xl bg-card/40 hover:bg-card/60 border border-border/80 hover:border-amber-500/40 backdrop-blur-sm shadow-xl group transition-all duration-300 relative flex flex-col justify-between overflow-hidden">
+            <span className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            <div>
+              <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 dark:text-purple-300 w-fit mb-6 transition-all duration-300 group-hover:scale-105">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-bold font-heading mb-2 text-foreground">Tactile Mind Map Diagrams</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Visualize syllabus taxonomies directly. Render dynamic units in colorful grids connected by flowing SVG arrows to track units, topics, and bottom-drawer cross-cutting concepts.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3: Deep Map-Reduce Processing (4 cols) */}
+          <div className="md:col-span-4 p-6 rounded-2xl bg-card/40 hover:bg-card/60 border border-border/80 hover:border-amber-500/40 backdrop-blur-sm shadow-xl group transition-all duration-300 relative flex flex-col justify-between overflow-hidden">
+            <span className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            <div>
+              <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-primary w-fit mb-5 transition-all duration-300 group-hover:scale-105">
+                <Zap className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-bold font-heading mb-2 text-foreground">Map-Reduce Processing</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Zero context failures. Slices extensive textbook syllabi or transcripts into neat vectors and parses them securely in seconds.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4: Keyboard Driven UX (4 cols) */}
+          <div className="md:col-span-4 p-6 rounded-2xl bg-card/40 hover:bg-card/60 border border-border/80 hover:border-amber-500/40 backdrop-blur-sm shadow-xl group transition-all duration-300 relative flex flex-col justify-between overflow-hidden">
+            <span className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gray-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            <div>
+              <div className="p-2.5 rounded-lg bg-muted/60 dark:bg-white/10 border border-border/80 dark:border-white/20 text-foreground dark:text-gray-300 w-fit mb-5 transition-all duration-300 group-hover:scale-105">
+                <Terminal className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-bold font-heading mb-2 text-foreground">Tactile UX Keybindings</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Fly through flashcards using arrow keys and press escape to toggle focus states instantly. Perfect for high-speed active recall training.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 5: Gamified Streaks (4 cols) */}
+          <div className="md:col-span-4 p-6 rounded-2xl bg-card/40 hover:bg-card/60 border border-border/80 hover:border-amber-500/40 backdrop-blur-sm shadow-xl group transition-all duration-300 relative flex flex-col justify-between overflow-hidden">
+            <span className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            <div>
+              <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-primary w-fit mb-5 transition-all duration-300 group-hover:scale-105">
+                <Flame className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-bold font-heading mb-2 text-foreground">Deep Flow Mode</h3>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Activate the pomodoro focus console. Study inside a distraction-free screen while logging analytics to trace daily session streaks.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
     </div>
   )
 }

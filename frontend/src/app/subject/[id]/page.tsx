@@ -5,6 +5,7 @@ import { WorkspaceClient } from '@/components/workspace-client'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { AnimatedLogo } from '@/components/animated-logo'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,13 +65,31 @@ export default async function SubjectPage({
   // If still processing
   if (subject.status !== 'completed' || !subject.study_data_url) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <h1 className="text-2xl font-bold">Forging Your Workspace...</h1>
-        <p className="text-muted-foreground">The AI is currently analyzing your document.</p>
-        <Link href="/dashboard">
-          <Button variant="outline" className="mt-4">Back to Dashboard</Button>
-        </Link>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#050409] text-white p-6 relative overflow-hidden">
+        {/* Glow backdrop layer */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.06)_0%,transparent_60%)] pointer-events-none" />
+        
+        <div className="relative flex flex-col items-center text-center space-y-6 max-w-sm z-10 animate-in fade-in duration-700">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-110 animate-pulse pointer-events-none" />
+            <AnimatedLogo size={120} className="relative z-10" />
+          </div>
+          
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight font-heading bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">
+              Forging Your Workspace...
+            </h1>
+            <p className="text-xs text-gray-400 font-mono leading-relaxed max-w-[280px] mx-auto">
+              Our neural engines are mapping, indexing, and synthesizing your vectors into structured knowledge modules.
+            </p>
+          </div>
+          
+          <Link href="/dashboard" className="pt-2">
+            <Button variant="outline" className="border-white/10 hover:border-amber-500/35 hover:bg-white/5 font-mono text-[10px] uppercase tracking-wider rounded-full h-9 px-6 transition-all">
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
       </div>
     )
   }

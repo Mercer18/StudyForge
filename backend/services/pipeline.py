@@ -4,6 +4,60 @@ from parsers.pdf_parser import extract_text_from_pdf_bytes
 from parsers.youtube_parser import extract_text_from_youtube
 from generators.groq_generator import generate_subject_knowledge_graph
 from services.supabase_client import supabase
+from services.text_splitter import split_text_recursive
+from fastembed import TextEmbedding
+
+# Thread-safe lazy-loaded embedding model
+_embedding_model = None
+
+def get_embedding_model():
+    """
+    Lazily loads the FastEmbed TextEmbedding model (BAAI/bge-small-en-v1.5) on first call.
+    This prevents slow startup of FastAPI and downloads the model on demand.
+    """
+    global _embedding_model
+    if _embedding_model is None:
+        print("Initializing FastEmbed TextEmbedding model (BAAI/bge-small-en-v1.5)...")
+        _embedding_model = TextEmbedding()
+    return _embedding_model
+
+def index_document_vectors(subject_id: str, extracted_text: str):
+    """
+    Semantic chunking, vector embedding generation, and bulk PostgreSQL vector insertion.
+    """
+    print(f"[{subject_id}] Starting vector indexing pipeline...")
+    
+    # 1. Chunk text into small overlapping paragraphs
+    chunks = split_text_recursive(extracted_text, max_chunk_size=1000, overlap=200)
+    if not chunks:
+        print(f"[{subject_id}] No chunks generated for indexing.")
+        return
+        
+    print(f"[{subject_id}] Generated {len(chunks)} text chunks for Vector RAG.")
+    
+    # 2. Get the embedding model and embed chunks in batch
+    model = get_embedding_model()
+    print(f"[{subject_id}] Generating embeddings for {len(chunks)} chunks...")
+    embeddings = list(model.embed(chunks))
+    
+    # 3. Formulate the database rows
+    rows = []
+    for i, (chunk, emb) in enumerate(zip(chunks, embeddings)):
+        rows.append({
+            "subject_id": subject_id,
+            "chunk_index": i,
+            "content": chunk,
+            "embedding": emb.tolist()  # Convert numpy float32 array to serializable Python float list
+        })
+        
+    # 4. Bulk insert vectors in batches of 100 to avoid payload limit errors
+    batch_size = 100
+    for start_idx in range(0, len(rows), batch_size):
+        batch = rows[start_idx:start_idx + batch_size]
+        print(f"[{subject_id}] Inserting vector batch {start_idx // batch_size + 1} ({len(batch)} chunks)...")
+        supabase.table("document_embeddings").insert(batch).execute()
+        
+    print(f"[{subject_id}] Vector indexing pipeline completed successfully!")
 
 def process_document_pipeline(subject_id: str, file_bytes: bytes, filename: str, subject_title: str):
     """
@@ -11,7 +65,8 @@ def process_document_pipeline(subject_id: str, file_bytes: bytes, filename: str,
     1. Extracts text from the document.
     2. Sends text to Groq to generate the structured knowledge graph.
     3. Uploads the JSON to Supabase Storage.
-    4. Updates the Subject row in Postgres to 'completed' with the storage URL.
+    4. Indexes the extracted text into the vector database.
+    5. Updates the Subject row in Postgres to 'completed' with the storage URL.
     """
     try:
         # Update status to processing (just in case)
@@ -32,18 +87,18 @@ def process_document_pipeline(subject_id: str, file_bytes: bytes, filename: str,
         print(f"[{subject_id}] Uploading generated data to Supabase Storage...")
         json_bytes = json.dumps(study_data).encode('utf-8')
         
-        # Ensure the bucket exists (We assume "studyforge-files" bucket is created by the user)
+        # Ensure the bucket exists
         bucket_name = "studyforge-files"
         storage_path = f"{subject_id}/study_data.json"
         
-        # Upload the json file (upsert=True allows overwriting if it exists)
+        # Upload the json file
         supabase.storage.from_(bucket_name).upload(
             file=json_bytes,
             path=storage_path,
             file_options={"content-type": "application/json", "upsert": "true"}
         )
         
-        # Also upload raw text for Chat Tutor
+        # Also upload raw text for Chat Tutor fallback
         print(f"[{subject_id}] Uploading raw text to Supabase Storage...")
         raw_text_bytes = extracted_text.encode('utf-8')
         raw_storage_path = f"{subject_id}/raw_text.txt"
@@ -56,6 +111,12 @@ def process_document_pipeline(subject_id: str, file_bytes: bytes, filename: str,
         # Get the public URL
         study_data_url = supabase.storage.from_(bucket_name).get_public_url(storage_path)
         
+        # 3.5. Index Document Vectors for RAG Chat Tutor
+        try:
+            index_document_vectors(subject_id, extracted_text)
+        except Exception as ve:
+            print(f"[{subject_id}] Vector indexing failed (continuing anyway): {ve}")
+            
         # 4. Update Database
         print(f"[{subject_id}] Updating database...")
         supabase.table("subjects").update({
@@ -78,7 +139,8 @@ def process_youtube_pipeline(subject_id: str, youtube_url: str, subject_title: s
     1. Extracts transcript from YouTube URL.
     2. Sends text to Groq.
     3. Uploads JSON to Supabase Storage.
-    4. Updates Postgres row.
+    4. Indexes the transcript into the vector database.
+    5. Updates Postgres row.
     """
     try:
         supabase.table("subjects").update({"status": "processing"}).eq("id", subject_id).execute()
@@ -107,7 +169,7 @@ def process_youtube_pipeline(subject_id: str, youtube_url: str, subject_title: s
             file_options={"content-type": "application/json", "upsert": "true"}
         )
         
-        # Also upload raw text for Chat Tutor
+        # Also upload raw text for Chat Tutor fallback
         print(f"[{subject_id}] Uploading raw text to Supabase Storage...")
         raw_text_bytes = extracted_text.encode('utf-8')
         raw_storage_path = f"{subject_id}/raw_text.txt"
@@ -119,6 +181,12 @@ def process_youtube_pipeline(subject_id: str, youtube_url: str, subject_title: s
         
         study_data_url = supabase.storage.from_(bucket_name).get_public_url(storage_path)
         
+        # 3.5. Index Document Vectors for RAG Chat Tutor
+        try:
+            index_document_vectors(subject_id, extracted_text)
+        except Exception as ve:
+            print(f"[{subject_id}] Vector indexing failed (continuing anyway): {ve}")
+            
         # 4. Update Database
         print(f"[{subject_id}] Updating database...")
         supabase.table("subjects").update({

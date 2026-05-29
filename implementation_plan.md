@@ -1,157 +1,83 @@
-# StudyForge: Phase 1 MVP Implementation Plan
+# StudyForge Landing Page & Navigation Upgrade (Turbo.ai Inspiration) 🚀✨
 
-The pivot to a **Document-to-Learning Workspace Generator** is a massive upgrade. It moves the project from a generic "AI app" to a tangible product with a highly differentiated output: the **ForgeBook** (personal textbook microsite).
+This implementation plan details the redesign and visual overhaul of StudyForge's landing page and navigation systems to align with the cinematic, state-of-the-art developer/AI utility aesthetics of `Turbo.ai`.
 
-This plan outlines the architecture, database schema, and API endpoints needed to deliver the **Phase 1 MVP**, keeping the scope tight and focused on the core "upload -> generate -> study" loop.
+## Goal Description
+We will transform the current StudyForge homepage into a visually stunning, highly interactive, and premium dark-themed landing page. The design will draw directly from Turbo.ai’s success factors:
+1. **Cinematic Dark Ambient Backdrop:** Deep background (`bg-[#050409]`) loaded with multi-layered, interactive radial gradients (amber/gold "forge" fire mixed with deep purple/indigo depth beams) and subtle ambient glowing grids.
+2. **Floating Pill Navigation Bar:** Redesign the standard navbar into a centered, detached, floating glassmorphic pill (`backdrop-blur-xl bg-black/40 border border-white/10 shadow-2xl rounded-full`) that glides elegantly at the top of the viewport.
+3. **Split Hero Layout with Integrated Play Simulator:**
+   - **Left Column:** Premium badge announcements, giant bold title elements, and gradient typography alongside sleek secondary statistics.
+   - **Right Column:** A premium glassmorphic cards deck that houses the Interactive Playground directly! It acts as a visual drag-and-drop simulator that transitions seamlessly from uploading a file to streaming terminal parser logs and revealing the interactive workspace (Notes, Flashcards, interactive SVG Diagram).
+4. **Infinite Trust Marquee:** An elegant, infinite-scrolling horizontal row of prestigious academic/tech logs (MIT, Stanford, Harvard, Google, Yale, McKinsey) with linear-gradient opacity masks on both sides to fade perfectly into the borders.
+5. **Ultra-Premium Bento Grid:** Elevate the feature showcase with hover glow effects, high-fidelity sub-components, and custom border highlighting.
+
+---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> Please review the MVP scope, database schema, and API endpoints below. If this aligns with your vision, approve the plan and we will begin scaffolding the Next.js frontend and FastAPI backend.
+> **Forced Cinematic Theme for Marketing:** The landing page will implement a gorgeous dark marketing aesthetic (Carbon Black background with golden amber highlights matching the "Forge" theme) to maximize the "WOW" factor. The internal application workspaces (dashboard and study reading environments) will continue to fully respect the user's active light/dark theme settings.
 
-## 1. Phase 1 MVP Scope
-
-We are building only what is necessary to demonstrate the core value proposition:
-1. **Auth & Dashboard:** Basic login and a dashboard to view generated subjects.
-2. **Multi-File Upload:** Drag-and-drop document upload (focusing on PDF/Docx text extraction first).
-3. **Processing Pipeline (Backend):** 
-   - Extract text -> Clean -> Chunk
-   - Groq API calls to generate Sections, Summaries, and Flashcards.
-4. **ForgeBook (Frontend):** 
-   - A Next.js-powered microsite that consumes the generated JSON.
-   - Includes Reader Mode, Flashcards (ForgeCards), and the Focus Timer (Flow Mode).
-
-> [!WARNING]  
-> **Scope Creep Alert:** Semantic search, chat with notes, and the Syllabus Coverage Engine are deferred to Phase 2 to ensure we ship a robust MVP quickly.
+> [!TIP]
+> **Zero External Dependency Additions:** The entire scroll marquee, radial mouse glows, rotating rays, and glass capsule borders will be coded in native React, custom CSS animations, and standard Tailwind CSS variables. This ensures lightning-fast load times and SEO performance.
 
 ---
 
-## 2. Proposed Architecture
+## Proposed Changes
 
-### Frontend (Next.js + Tailwind + Shadcn)
-- **App Router:** For server-side rendering of the workspaces and SEO benefits.
-- **State:** Zustand or React Context for managing the generated `study-data` and Flow Mode timers.
-- **Deployment:** Vercel
+### Global Styling
 
-### Backend (FastAPI + Python)
-- **API Server:** Handles file uploads and orchestrates the AI pipeline.
-- **AI Pipeline:** Uses `PyMuPDF` for PDF extraction and `Groq` for high-speed LLM generation.
-- **Deployment:** Railway or Render
-
-### Database & Storage (Supabase)
-- **Postgres:** Relational data for users, subjects, and focus sessions.
-- **Storage:** Buckets for raw uploaded files and the generated `study-data.json` blobs.
+#### [MODIFY] [globals.css](file:///x:/CODING/PROJECTS/webdev/StudyForge/frontend/src/app/globals.css)
+* Add `@keyframes infinite-scroll` and `@keyframes pulse-slow` to support infinite trust marquee and glowing ambient gradients.
+* Add `.animate-infinite-scroll` class inside `@layer utilities` or standard CSS selectors.
+* Incorporate modern backdrops, custom gradient masks, and clean glassmorphism utilities.
 
 ---
 
-## 3. Database Schema (Supabase / Postgres)
+### Core Navigation Component
 
-```sql
--- Users (handled mostly by Supabase Auth, but we can extend if needed)
-CREATE TABLE public.profiles (
-    id UUID REFERENCES auth.users(id) PRIMARY KEY,
-    email TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Subjects / Workspaces
-CREATE TABLE public.subjects (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES public.profiles(id),
-    title TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'processing', -- 'processing', 'completed', 'failed'
-    study_data_url TEXT, -- Link to the generated JSON in Supabase Storage
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Uploaded Documents (Raw files)
-CREATE TABLE public.uploads (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    subject_id UUID REFERENCES public.subjects(id) ON DELETE CASCADE,
-    filename TEXT NOT NULL,
-    file_url TEXT NOT NULL, -- Supabase Storage URL
-    extracted_text TEXT, -- Optional: raw text if we want to store it in DB
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Focus Sessions (Flow Mode analytics)
-CREATE TABLE public.focus_sessions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES public.profiles(id),
-    subject_id UUID REFERENCES public.subjects(id),
-    duration_minutes INTEGER NOT NULL,
-    completed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
-> [!TIP]  
-> By storing the massive generated knowledge graph as a JSON blob in Supabase Storage (`study_data_url`) rather than deeply nested relational tables, we optimize for read speed and simplicity on the frontend, avoiding the bottleneck of parsing massive DB queries.
+#### [MODIFY] [navbar.tsx](file:///x:/CODING/PROJECTS/webdev/StudyForge/frontend/src/components/navbar.tsx)
+* Rewrite the flat header into a centered floating glass capsule (`fixed top-4 left-0 right-0 z-50 flex justify-center px-4`).
+* Style the capsule navbar with `backdrop-blur-xl bg-black/40 border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] max-w-5xl w-full px-5 py-2.5`.
+* Apply premium gradient effects on the **StudyForge** title brand.
+* Add central navigation pill targets: `Features`, `Interactive Demo`, `Methodology`.
 
 ---
 
-## 4. API Endpoints (FastAPI)
+### Landing Page & Play Simulator
 
-### Authentication & Users
-*(Mostly handled directly from Next.js to Supabase via frontend client, but we will have backend middleware to verify Supabase JWTs).*
-
-### Subject Generation Pipeline
-- `POST /api/v1/subjects/generate`
-  - **Payload:** Multipart form data (Upload files, Subject Title)
-  - **Action:** 
-    1. Creates `Subject` row with status `processing`.
-    2. Uploads files to Supabase Storage.
-    3. Spawns background task (or celery worker) for the pipeline.
-  - **Response:** `subject_id`
-
-- `GET /api/v1/subjects/{subject_id}/status`
-  - **Action:** Polling endpoint for the frontend to check generation progress.
-
-### The Pipeline Flow (Background Task)
-1. **Extract:** Read PDF/Docx from Supabase Storage.
-2. **Clean/Chunk:** Split into semantic chunks.
-3. **Generate Structure:** Ask Groq to output an overall Table of Contents.
-4. **Generate Content:** Iterate through TOC and ask Groq to summarize chunks and generate Flashcards.
-5. **Assemble:** Combine into a massive JSON object (`study_data`).
-6. **Save:** Upload JSON to Supabase Storage and update `Subject` status to `completed`.
-
-### Focus Analytics
-- `POST /api/v1/focus/record`
-  - **Payload:** `{ subject_id, duration_minutes }`
-  - **Action:** Logs a completed Flow Mode session.
+#### [MODIFY] [page.tsx](file:///x:/CODING/PROJECTS/webdev/StudyForge/frontend/src/app/page.tsx)
+* Refactor the page root to render a beautiful dark canvas (`bg-[#050409] text-gray-100 relative min-h-screen pt-28`).
+* Implement layered background elements:
+  - Deep gold/amber left-bottom glow.
+  - Deep purple top-right beam light.
+  - Interactive mouse-tracking cursor glow using the custom CSS variable hook.
+* Build the **Split Hero Grid (grid-cols-1 lg:grid-cols-12)**:
+  - **Left side (lg:col-span-6):**
+    - Render a premium announcement pill: `"🎉 Meet StudyForge - Slide documents into tactile textbooks"`.
+    - Giant headings with vibrant gradient accents.
+    - Double CTAs with glowing shadow hover triggers.
+    - Inline mini-statistic markers showing active usage indicators.
+  - **Right side (lg:col-span-6):**
+    - Embed the **Interactive Playground** inside a beautiful, tall glassmorphic cards frame (`h-[480px] bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-2xl backdrop-blur-md shadow-[0_0_50px_-10px_rgba(245,158,11,0.2)]`).
+    - The simulator will support an active drag-and-drop state: clicking it or selecting a preset launches a stunning terminal parsing visualization that morphs organically into the completed workspace tabs (Reader Notes, Flippable cards, and dynamic SVG nodes).
+* **trusted-by logotypes infinite marquee:**
+  - Build an elegant scrolling loop showing Stanford, Harvard, MIT, Google, McKinsey, Berkeley, Yale.
+  - Apply double-ended linear gradient masks: `mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent)`.
+* **Elevated Bento Cards:**
+  - Standardize grid blocks using matching glassmorphic colors and golden-amber highlights.
+  - Add specific badges showcasing custom mathematical formula notation and SVG node charts.
 
 ---
 
-## 5. Phase 3: The Reader Workspace (Microsite)
+## Verification Plan
 
-This is the final core piece of the MVP. When the user clicks a completed Subject Card on their dashboard, they will be taken to `/subject/[id]`, which serves as their interactive textbook.
-
-### 5.1 Proposed UI Architecture
-The layout will use a robust dual-pane design:
-
-**Left Sidebar (Navigation)**
-- **Overview:** Shows the 2-3 sentence AI summary of the entire document.
-- **Table of Contents (TOC):** A clickable list of all generated `sections`. Clicking a section updates the main view.
-- **Study Tools:** A toggle to switch the main view from "Reader Mode" to "Flashcards".
-
-**Main Content Area**
-- **Reader Mode:** Renders the active section's `content` (Markdown) beautifully formatted with Tailwind typography. Displays `key_concepts` as pill badges at the top.
-- **Flashcard Mode:** An interactive card-flipping UI that maps through the `flashcards` array, allowing users to test their knowledge.
-
-### 5.2 Data Fetching Flow
-1. Next.js Server Component receives the `[id]` parameter.
-2. Fetches the `subject` row from Supabase Postgres.
-3. Extracts the `study_data_url` and performs a standard HTTP GET to retrieve the JSON generated by Groq.
-4. Passes the parsed JSON into a Client Component (`WorkspaceClient.tsx`) which manages the active section state and tabs.
-
-## User Review Required
-
-> [!IMPORTANT]
-> The Reader Workspace will define the entire look and feel of StudyForge. Does the dual-pane layout (Sidebar + Reader/Flashcards) align with your vision? If so, approve this plan and I will begin building the UI!
-
----
-
-## 6. Verification Plan
-
-1. **Backend Tests:** Upload a sample syllabus and mock notes PDF. Verify that FastAPI correctly parses the text and Groq generates a valid, parsable JSON structure matching our expected schema.
-2. **Frontend Tests:** Load the generated JSON into the Next.js microsite and verify that Reader Mode, Flashcards, and navigation render smoothly without blocking the main thread.
+### Automated & Manual Verification
+1. **Visual Walkthrough & Inspection:** Open the updated homepage locally. Review the floating capsule navbar alignment, background gradients depth, and cursor interactive track glows.
+2. **Playground Simulator Testing:** Click presets in the hero simulator. Verify that:
+   - Clicking triggers the terminal logging state.
+   - Terminal logs stream sequentially.
+   - Tab toggles (Notes, Flashcards, Diagram) work smoothly and map all details.
+3. **Marquee Smoothness Check:** Confirm the Trust Marquee scrolls infinitely without horizontal page scrollbars or frame jumps, and that the blurred borders mask works perfectly.
+4. **Responsive Integrity Review:** View the page on mobile viewports. Check that the split grid drops cleanly to a single column, the floating navbar adapts dynamically, and the bento cards fit correctly.

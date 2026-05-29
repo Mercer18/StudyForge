@@ -80,6 +80,7 @@ export function UploadModal() {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8085"
       
       if (!token) {
         throw new Error("Must be logged in to upload")
@@ -94,7 +95,7 @@ export function UploadModal() {
 
         setProgress(25)
 
-        generateRes = await fetch("http://127.0.0.1:8000/api/v1/subjects/generate", {
+        generateRes = await fetch(`${apiBase}/api/v1/subjects/generate`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${token}`
@@ -108,7 +109,7 @@ export function UploadModal() {
 
         setProgress(25)
 
-        generateRes = await fetch("http://127.0.0.1:8000/api/v1/subjects/generate-youtube", {
+        generateRes = await fetch(`${apiBase}/api/v1/subjects/generate-youtube`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${token}`
@@ -125,7 +126,7 @@ export function UploadModal() {
 
       const pollInterval = setInterval(async () => {
         try {
-          const statusRes = await fetch(`http://127.0.0.1:8000/api/v1/subjects/${subject_id}/status`, {
+          const statusRes = await fetch(`${apiBase}/api/v1/subjects/${subject_id}/status`, {
             headers: {
               "Authorization": `Bearer ${token}`
             }
@@ -302,17 +303,17 @@ export function UploadModal() {
           /* High-Performance Active Terminal Progress view */
           <div className="py-6 flex flex-col items-center justify-center space-y-6 font-mono select-none">
             
-            <div className="w-full bg-black/40 border border-border p-4 rounded-md space-y-2 text-[10px] text-muted-foreground leading-relaxed animate-in fade-in duration-300">
-              <div className="flex items-center gap-1.5 text-primary border-b border-white/5 pb-2 mb-2 font-bold">
+            <div className="w-full bg-slate-950 border border-slate-800 p-4 rounded-md space-y-2 text-[10px] text-slate-300 leading-relaxed animate-in fade-in duration-300 shadow-inner">
+              <div className="flex items-center gap-1.5 text-primary border-b border-slate-900 pb-2 mb-2 font-bold">
                 <Terminal className="w-3.5 h-3.5 animate-spin shrink-0" />
                 <span>ACTIVE PIPELINE METRICS</span>
               </div>
               <div className="flex items-start gap-1">
                 <span className="text-primary font-bold">{`>`}</span>
-                <span className="text-foreground font-semibold">{activeStage}</span>
+                <span className="text-white font-semibold">{activeStage}</span>
                 <span className="typing-caret w-1 h-3 bg-primary inline-block ml-0.5" />
               </div>
-              <div className="text-[9px] text-muted-foreground/60 mt-1">
+              <div className="text-[9px] text-slate-500 mt-1 font-mono">
                 Allocating Groq token bandwidth... [OK]
               </div>
             </div>

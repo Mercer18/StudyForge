@@ -147,6 +147,7 @@
 
 @layer utilities {
   .backface-hidden {
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
   }
 
@@ -178,5 +179,23 @@
   }
   .rotate-y-180 {
     transform: rotateY(180deg);
+  }
+
+  /* Infinite Trust Marquee Loop */
+  @keyframes infinite-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-infinite-scroll {
+    animation: infinite-scroll 45s linear infinite;
+  }
+
+  /* Slow Rotating Ambient Ray */
+  @keyframes rotate-slow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .animate-rotate-slow {
+    animation: rotate-slow 35s linear infinite;
   }
 }

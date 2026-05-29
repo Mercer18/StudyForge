@@ -3,6 +3,7 @@ from groq import Groq
 from dotenv import load_dotenv
 import json
 import time
+from services.text_splitter import split_text_recursive
 
 load_dotenv()
 
@@ -16,12 +17,12 @@ def generate_subject_knowledge_graph(extracted_text: str, subject_title: str) ->
     Implements a map-reduce style chunking to handle massive documents without severe truncation.
     """
     
-    chunk_size = 15000
-    # Split text into chunks
-    chunks = [extracted_text[i:i+chunk_size] for i in range(0, len(extracted_text), chunk_size)]
+    # Use our recursive text splitter to ensure layout and formulas aren't sliced mid-way
+    # We use 3500 characters to stay safely below the Groq 6000 tokens-per-minute (TPM) free tier limit
+    chunks = split_text_recursive(extracted_text, max_chunk_size=3500, overlap=400)
     
-    # Cap at 10 chunks (150,000 chars) for MVP to avoid insanely long processing times or rate limits.
-    max_chunks = 10
+    # Cap at 25 chunks (~110,000 chars) to allow decent length files while remaining fast
+    max_chunks = 25
     chunks_to_process = chunks[:max_chunks]
     
     master_study_data = {
@@ -39,40 +40,196 @@ def generate_subject_knowledge_graph(extracted_text: str, subject_title: str) ->
         print(f"Processing chunk {idx + 1}/{len(chunks_to_process)}...")
         
         prompt = f"""
-        You are the StudyForge "Deep Forge" AI tutor. Analyze this specific chunk of a larger document for the subject "{subject_title}".
-        Transform this raw text into a highly structured "Knowledge Graph" JSON object.
+        You are the StudyForge "Deep Forge" AI tutor. Analyze this text chunk for the subject "{subject_title}".
+        Generate a highly structured learning "Knowledge Graph" JSON object.
         
-        CRITICAL FORMATTING RULES:
-        1. **Mathematical Formulas:** You MUST use LaTeX formatting for ANY mathematical expression, equation, or variable. Inline math must be `$math$` and block math `$$math$$`. DO NOT skip this.
-        2. **Key Terms:** ALWAYS **bold** crucial vocabulary and concepts.
-        3. **Mind Maps & Diagrams:** Whenever explaining a complex process, relationship, or architecture (like Neural Networks, pipelines, etc.), you MUST generate a Mermaid.js diagram enclosed in a markdown code block (e.g. ```mermaid ... ```) within the content string.
-        4. **OCR Typos:** The text is extracted from a PDF and may contain ligature errors (e.g., "Diusion" instead of "Diffusion"). You MUST silently correct these obvious spelling errors.
-        5. Do not hallucinate. Use ONLY the provided text chunk.
+        RULES:
+        1. **Math:** Use LaTeX formatting. Inline must be `$math$` and block `$$math$$`.
+        2. **Formatting:** **bold** crucial vocabulary. 
+        3. **Diagrams:** Use ```mermaid ... ``` inside sections when explaining complex pipelines/processes.
+        4. **Flashcard Density:** Extract 5 to 8 distinct, high-yield flashcards covering algorithms, formulas, parameters, and key concepts from the chunk.
+        5. **Flashcard Format:** 
+           - "front": direct active recall question (e.g., "What is the formula for regularization?").
+           - "back": complete, mathematically precise answer using LaTeX.
+        6. Do not hallucinate. Use ONLY the provided text chunk.
 
-        The JSON MUST have the exact following structure:
+        JSON structure:
         {{
-            "overview": "A 1 sentence summary of this specific chunk.",
+            "overview": "1 sentence summary.",
             "sections": [
                 {{
                     "title": "Section Title",
-                    "content": "A highly detailed markdown explanation. Use bullet points, bold text, LaTeX math, and Mermaid diagrams where applicable.",
-                    "key_concepts": ["concept 1", "concept 2"]
+                    "content": "Detailed markdown explanation with bullet points, bold terms, LaTeX, and Mermaid where applicable.",
+                    "key_concepts": ["concept 1"]
                 }}
             ],
             "flashcards": [
                 {{
-                    "front": "A question testing a key concept",
-                    "back": "The concise answer (can include $math$)"
+                    "front": "Active recall question?",
+                    "back": "Precise answer."
                 }}
             ]
         }}
         
-        Document Chunk:
+        Text Chunk:
         {chunk}
         
-        Output ONLY valid JSON. No markdown wrappers around the JSON block. Do not say "Here is the JSON".
+        Output strictly raw JSON.
         """
         
+        success = False
+        retries = 3
+        backoff = 4
+        
+        for attempt in range(retries):
+            try:
+                response = client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are a strict JSON-only API. You must return strictly valid, raw JSON with no trailing commas or markdown wrapping."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    model="llama-3.1-8b-instant",
+                    temperature=0.3,
+                    max_tokens=1200,
+                    response_format={"type": "json_object"}
+                )
+                
+                result_content = response.choices[0].message.content
+                chunk_data = json.loads(result_content)
+                
+                import uuid
+                
+                # Reduce step: Merge into master
+                if idx == 0:
+                    master_study_data["overview"] = chunk_data.get("overview", "")
+                
+                for sec in chunk_data.get("sections", []):
+                    sec["id"] = str(uuid.uuid4())
+                    master_study_data["sections"].append(sec)
+                    
+                for fc in chunk_data.get("flashcards", []):
+                    fc["id"] = str(uuid.uuid4())
+                    master_study_data["flashcards"].append(fc)
+                
+                success = True
+                # Respect rate limits (Groq allows ~30 RPM, but adding a delay helps TPM limits)
+                time.sleep(3)
+                break
+                
+            except Exception as e:
+                err_msg = str(e)
+                print(f"Error generating chunk {idx + 1} (Attempt {attempt + 1}/{retries}): {err_msg}")
+                if attempt < retries - 1:
+                    sleep_time = backoff * (attempt + 1)
+                    if "limit" in err_msg.lower() or "413" in err_msg or "429" in err_msg or "rate" in err_msg.lower():
+                        sleep_time = 8 * (attempt + 1)
+                        print(f"Detected rate/token limit error. Backing off for {sleep_time} seconds before retry...")
+                    else:
+                        print(f"Retrying in {sleep_time} seconds...")
+                    time.sleep(sleep_time)
+                else:
+                    chunk_errors.append(f"Chunk {idx + 1} Error after {retries} retries: {err_msg}")
+                    
+    # If entirely failed, provide fallback
+    if len(master_study_data["sections"]) == 0:
+        error_details = "\\n".join(chunk_errors)
+        return {
+            "title": subject_title,
+            "overview": "Failed to generate content.",
+            "sections": [{
+                "id": "error",
+                "title": "Parsing Error",
+                "content": f"The Deep Forge engine encountered an error while processing the chunks.\\n\\n**Debug Info:**\\n{error_details}",
+                "key_concepts": []
+            }],
+            "flashcards": [],
+            "mind_map": {
+                "title": subject_title,
+                "columns": [],
+                "cross_cutting": []
+            }
+        }
+        
+    # Generate Mind Map
+    print(f"[{subject_title}] Synthesizing multi-column Syllabus Mind Map (ForgeMap)...")
+    try:
+        master_study_data["mind_map"] = generate_mind_map(subject_title, master_study_data["sections"])
+    except Exception as mme:
+        print(f"Failed to generate mind map: {mme}")
+        master_study_data["mind_map"] = {
+            "title": subject_title,
+            "columns": [],
+            "cross_cutting": []
+        }
+
+    return master_study_data
+
+
+def generate_mind_map(subject_title: str, sections: list) -> dict:
+    """
+    Generates a structured syllabus mind map for the subject based on the generated sections.
+    """
+    sections_summary = []
+    # Limit to first 12 sections to keep prompt size very small and stay safely below token limits
+    for s in sections[:12]:
+        sections_summary.append({
+            "title": s.get("title", ""),
+            "key_concepts": s.get("key_concepts", [])[:3] # Limit to top 3 key concepts per section
+        })
+    
+    sections_json = json.dumps(sections_summary)
+    
+    prompt = f"""
+    You are the StudyForge "Deep Forge" AI designer. Analyze the following sections and key concepts synthesized for the subject "{subject_title}":
+    {sections_json}
+    
+    Design a comprehensive multi-column Syllabus Mind Map JSON structure for "{subject_title}".
+    Break down the subject into 6 to 10 high-level columns (units), and extract 4 to 6 cross-cutting concepts at the bottom.
+    
+    RULES:
+    1. Organize into at least 6 and up to 10 units (columns).
+    2. Colors: Choose only from: 'blue', 'emerald', 'purple', 'amber', 'teal', 'rose', 'indigo', 'cyan', 'pink', 'violet'.
+    3. Icons: Appropriate Lucide icon name (e.g., 'book-open', 'code', 'palette', 'layout', 'server', 'database', 'shield', 'cpu', 'terminal', 'layers', 'wrench', 'search').
+    4. Topics: Under each unit, create 3 to 5 topics. Each topic has a title and 2 to 3 very short details.
+    5. Cross-cutting: Define 4 to 6 global cross-cutting concepts with details.
+    
+    JSON structure:
+    {{
+        "title": "{subject_title}",
+        "columns": [
+            {{
+                "id": 1,
+                "title": "Unit 1 Title",
+                "color": "blue",
+                "icon": "book-open",
+                "topics": [
+                    {{
+                        "title": "Topic A",
+                        "details": ["Detail 1", "Detail 2"]
+                    }}
+                ]
+            }}
+        ],
+        "cross_cutting": [
+            {{
+                "title": "Concept X",
+                "details": ["Detail X1", "Detail X2"]
+            }}
+        ]
+    }}
+    
+    Output strictly raw JSON.
+    """
+    
+    retries = 3
+    backoff = 4
+    for attempt in range(retries):
         try:
             response = client.chat.completions.create(
                 messages=[
@@ -87,49 +244,51 @@ def generate_subject_knowledge_graph(extracted_text: str, subject_title: str) ->
                 ],
                 model="llama-3.1-8b-instant",
                 temperature=0.3,
-                max_tokens=4096,
+                max_tokens=1200,
                 response_format={"type": "json_object"}
             )
             
             result_content = response.choices[0].message.content
-            chunk_data = json.loads(result_content)
-            
-            import uuid
-            
-            # Reduce step: Merge into master
-            if idx == 0:
-                master_study_data["overview"] = chunk_data.get("overview", "")
-            
-            for sec in chunk_data.get("sections", []):
-                sec["id"] = str(uuid.uuid4())
-                master_study_data["sections"].append(sec)
-                
-            for fc in chunk_data.get("flashcards", []):
-                fc["id"] = str(uuid.uuid4())
-                master_study_data["flashcards"].append(fc)
-            
-            # Respect rate limits (Groq allows ~30 RPM, but adding a delay helps TPM limits)
-            time.sleep(3)
-            
+            mind_map_data = json.loads(result_content)
+            return mind_map_data
         except Exception as e:
-            print(f"Error generating chunk {idx + 1}: {e}")
-            chunk_errors.append(f"Chunk {idx + 1} Error: {str(e)}")
-            time.sleep(3)
-            continue # If one chunk fails, skip it and continue merging others
-            
-    # If entirely failed, provide fallback
-    if len(master_study_data["sections"]) == 0:
-        error_details = "\\n".join(chunk_errors)
-        return {
-            "title": subject_title,
-            "overview": "Failed to generate content.",
-            "sections": [{
-                "id": "error",
-                "title": "Parsing Error",
-                "content": f"The Deep Forge engine encountered an error while processing the chunks.\\n\\n**Debug Info:**\\n{error_details}",
-                "key_concepts": []
-            }],
-            "flashcards": []
-        }
-        
-    return master_study_data
+            err_msg = str(e)
+            print(f"Error generating mind map (Attempt {attempt + 1}/{retries}): {err_msg}")
+            if attempt < retries - 1:
+                sleep_time = backoff * (attempt + 1)
+                if "limit" in err_msg.lower() or "413" in err_msg or "429" in err_msg or "rate" in err_msg.lower():
+                    sleep_time = 8 * (attempt + 1)
+                    print(f"Detected rate/token limit error in mind map. Backing off for {sleep_time} seconds before retry...")
+                else:
+                    print(f"Retrying mind map generation in {sleep_time} seconds...")
+                time.sleep(sleep_time)
+            else:
+                # Return fallback mind map if all retries fail
+                print("All retries failed for mind map. Generating fallback...")
+                fallback = {
+                    "title": subject_title,
+                    "columns": [],
+                    "cross_cutting": [
+                        {
+                            "title": "General Standards",
+                            "details": ["Best Practices", "Core Principles"]
+                        }
+                    ]
+                }
+                colors = ['blue', 'emerald', 'purple', 'amber', 'teal', 'rose', 'indigo', 'cyan']
+                icons = ['book-open', 'code', 'palette', 'layout', 'server', 'database', 'shield', 'cpu']
+                for idx, sec in enumerate(sections[:8]):
+                    fallback["columns"].append({
+                        "id": idx + 1,
+                        "title": sec.get("title", f"Unit {idx+1}"),
+                        "color": colors[idx % len(colors)],
+                        "icon": icons[idx % len(icons)],
+                        "topics": [
+                            {
+                                "title": concept,
+                                "details": ["Introduction", "Applications"]
+                            } for concept in sec.get("key_concepts", [])[:4]
+                        ]
+                    })
+                return fallback
+
