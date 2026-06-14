@@ -35,3 +35,22 @@
   - `[x]` Repair JSX syntax error in `AnimatedLogo.tsx` for duplicate attribute
   - `[x]` Run full tsc compiler type-safety checks (0 errors)
   - `[x]` Run production build verification (successful)
+- `[x]` Post-remodel Interactive Sandbox & Scrollbar Fixes
+  - `[x]` Fix sandbox textarea layout: switch from absolute layout to native flex flow to prevent browser-specific layout overlapping issues
+  - `[x]` Make the playground truly interactive: dynamically generate title, overview, key concepts, study cards, and SVG mind maps based on user-typed raw texts
+  - `[x]` Implement a cross-browser `.no-scrollbar` utility in `globals.css`
+  - `[x]` Remove right-side double scrollbars from the simulator panel and terminal log window using the `.no-scrollbar` utility
+  - `[x]` Re-run production compilation check (successful build)
+- `[x]` MindMap Crash Fixes
+  - `[x]` Fix MindMap runtime crash: add undefined checks for data.cross_cutting and col.topics in mind-map.tsx to handle legacy subjects and malformed backend JSON payloads cleanly
+  - `[x]` Verify production build parses type interfaces correctly after adding safety guards (succeeded)
+- `[x]` MindMap Congestion & Spacing Fixes
+  - `[x]` Fix MindMap visual congestion: transition mind map unit cards from wide horizontal lists to a fully responsive, wrap-around grid (sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4) that fits 100% zoom levels cleanly
+  - `[x]` Resolve connective stems misalignment: replace the horizontal absolute coordinate line with vertical centering connectors pointing up to a unified "Syllabus Structure" node badge
+  - `[x]` Remove horizontal page scrolls and parent element width restrictions (`min-w-[1200px]`) to let the canvas resize fluidly across tablet, laptop, and desktop viewports
+- `[x]` Overhaul Chat Sidebar to use resizable viewport-anchored side-by-side layout and restore its original spacious premium design
+  - `[x]` Pin ChatTutor container to viewport using `fixed right-0 top-14 bottom-0 z-40` so it stretches fully without cut-offs or rounding gaps
+  - `[x]` Re-integrate dynamic `marginRight: isChatOpen ? chatWidth : 0` to `<main>` to resize it side-by-side with no overlaps
+  - `[x]` Revert chat bubbles to `text-sm`, avatars to `h-8 w-8`, input box to `h-12 rounded-xl`, and loader to spinning `Loader2`
+  - `[x]` Run full build production compile and verify 100% successful compile
+

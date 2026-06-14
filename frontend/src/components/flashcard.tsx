@@ -20,6 +20,22 @@ export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
   const [isFlipped, setIsFlipped] = useState(false)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
 
+  const handleNext = React.useCallback(() => {
+    setIsFlipped(false)
+    setTilt({ x: 0, y: 0 })
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % flashcards.length)
+    }, 150)
+  }, [flashcards.length])
+
+  const handlePrev = React.useCallback(() => {
+    setIsFlipped(false)
+    setTilt({ x: 0, y: 0 })
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + flashcards.length) % flashcards.length)
+    }, 150)
+  }, [flashcards.length])
+
   // Keyboard navigation listener (Space to flip, arrows to navigate)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,26 +60,10 @@ export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentIndex, isFlipped, flashcards])
+  }, [handleNext, handlePrev])
 
   if (!flashcards || flashcards.length === 0) {
     return <div className="text-center text-muted-foreground p-8 font-mono text-xs">No active study cards synthesized.</div>
-  }
-
-  const handleNext = () => {
-    setIsFlipped(false)
-    setTilt({ x: 0, y: 0 })
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % flashcards.length)
-    }, 150)
-  }
-
-  const handlePrev = () => {
-    setIsFlipped(false)
-    setTilt({ x: 0, y: 0 })
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev - 1 + flashcards.length) % flashcards.length)
-    }, 150)
   }
 
   // Real-time 3D Card Tilt Math based on mouse displacement
@@ -131,7 +131,7 @@ export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
                   ul: ({ children }) => <ul className="list-disc pl-4 text-left space-y-1 my-2 text-sm text-foreground/80">{children}</ul>,
                   ol: ({ children }) => <ol className="list-decimal pl-4 text-left space-y-1 my-2 text-sm text-foreground/80">{children}</ol>,
                   li: ({ children }) => <li className="text-xs sm:text-sm">{children}</li>,
-                  code: ({ className, children, ...props }) => (
+                  code: ({ children, ...props }) => (
                     <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs text-primary" {...props}>
                       {children}
                     </code>

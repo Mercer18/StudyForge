@@ -1,8 +1,8 @@
 import json
 import uuid
-from parsers.pdf_parser import extract_text_from_pdf_bytes
+from parsers.document_parser import extract_text_from_document
 from parsers.youtube_parser import extract_text_from_youtube
-from generators.groq_generator import generate_subject_knowledge_graph
+from generators.groq_generator import generate_subject_knowledge_graph, generate_mind_map
 from services.supabase_client import supabase
 from services.text_splitter import split_text_recursive
 from fastembed import TextEmbedding
@@ -74,7 +74,7 @@ def process_document_pipeline(subject_id: str, file_bytes: bytes, filename: str,
         
         # 1. Extract Text
         print(f"[{subject_id}] Extracting text from {filename}...")
-        extracted_text = extract_text_from_pdf_bytes(file_bytes)
+        extracted_text = extract_text_from_document(file_bytes, filename)
         
         if not extracted_text.strip():
             raise ValueError("No text could be extracted from the document.")
@@ -201,4 +201,67 @@ def process_youtube_pipeline(subject_id: str, youtube_url: str, subject_title: s
         supabase.table("subjects").update({
             "status": "failed",
             "description": str(e)
+        }).eq("id", subject_id).execute()
+
+def process_forge_map_pipeline(subject_id: str):
+    """
+    On-demand pipeline that recovers/forges a missing mind map:
+    1. Downloads existing study_data.json from storage.
+    2. Runs the mind map Groq model based on pre-compiled sections.
+    3. Re-uploads the complete JSON with mind_map populated.
+    4. Automatically falls back to full generation if JSON is corrupt or missing.
+    """
+    try:
+        supabase.table("subjects").update({"status": "processing"}).eq("id", subject_id).execute()
+        bucket_name = "studyforge-files"
+        storage_path = f"{subject_id}/study_data.json"
+        
+        study_data = None
+        try:
+            json_bytes = supabase.storage.from_(bucket_name).download(storage_path)
+            study_data = json.loads(json_bytes.decode('utf-8'))
+        except Exception as se:
+            print(f"[{subject_id}] Failed to download or parse study_data.json: {se}")
+            # Try parsing raw text if JSON doesn't exist
+            raw_storage_path = f"{subject_id}/raw_text.txt"
+            raw_bytes = supabase.storage.from_(bucket_name).download(raw_storage_path)
+            raw_text = raw_bytes.decode('utf-8')
+            
+            subject_res = supabase.table("subjects").select("title").eq("id", subject_id).execute()
+            title = subject_res.data[0]["title"] if subject_res.data else "Subject Workspace"
+            
+            study_data = generate_subject_knowledge_graph(raw_text, title)
+            if not study_data:
+                raise Exception("Failed to generate study workspace from raw text")
+
+        title = study_data.get("title", "Subject Workspace")
+        sections = study_data.get("sections", [])
+        
+        print(f"[{subject_id}] Forging new mind map for {title}...")
+        mind_map = generate_mind_map(title, sections)
+        
+        study_data["mind_map"] = mind_map
+        
+        # Upload updated JSON
+        updated_bytes = json.dumps(study_data).encode('utf-8')
+        supabase.storage.from_(bucket_name).upload(
+            file=updated_bytes,
+            path=storage_path,
+            file_options={"content-type": "application/json", "upsert": "true"}
+        )
+        
+        study_data_url = supabase.storage.from_(bucket_name).get_public_url(storage_path)
+        
+        supabase.table("subjects").update({
+            "status": "completed",
+            "study_data_url": study_data_url
+        }).eq("id", subject_id).execute()
+        
+        print(f"[{subject_id}] Mind map forging pipeline finished successfully!")
+        
+    except Exception as e:
+        print(f"[{subject_id}] Mind map forging failed: {e}")
+        supabase.table("subjects").update({
+            "status": "failed",
+            "description": f"Mind map forging failed: {str(e)}"
         }).eq("id", subject_id).execute()

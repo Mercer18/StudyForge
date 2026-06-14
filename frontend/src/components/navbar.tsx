@@ -1,51 +1,51 @@
 "use client"
 
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { AnimatedLogo } from './animated-logo'
+import { Logo } from './logo-mark'
 import { AuthModal } from './auth-modal'
 import { ThemeToggle } from './theme-toggle'
 
+const NAV = [
+  { label: "Method", href: "#method" },
+  { label: "Features", href: "#features" },
+  { label: "FAQ", href: "#faq" },
+]
+
 export function Navbar() {
   return (
-    <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
-      <nav className="pointer-events-auto flex items-center justify-between w-full max-w-5xl rounded-full border border-border/80 bg-background/55 backdrop-blur-xl px-4 sm:px-6 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative bg-gradient-to-r from-amber-500/[0.03] via-primary/[0.03] to-amber-500/[0.03]">
-        {/* Glowing border highlight */}
-        <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-border/50"></span>
-        
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <AnimatedLogo size={28} />
-          <span className="font-bold text-base sm:text-lg tracking-tight text-foreground font-heading">
-            Study<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-500">Forge</span>
-          </span>
+    <header className="fixed top-0 inset-x-0 z-50 border-b border-border/70 bg-background/70 backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 h-16 flex items-center justify-between">
+        <Link href="/" className="shrink-0">
+          <Logo size={26} />
         </Link>
 
-        {/* Center Navigation Pills (hidden on mobile) */}
-        <div className="hidden md:flex items-center gap-1 bg-muted/40 border border-border/40 rounded-full p-1 text-[11px] font-mono font-medium">
-          <a href="#features" className="px-3.5 py-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all">
-            FEATURES
-          </a>
-          <a href="#demo" className="px-3.5 py-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-background/80 transition-all">
-            INTERACTIVE DEMO
-          </a>
-        </div>
+        <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+          {NAV.map((n) => (
+            <a
+              key={n.href}
+              href={n.href}
+              className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {n.label}
+            </a>
+          ))}
+        </nav>
 
-        {/* Navigation / Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />
           <AuthModal initialTab="login">
-            <button className="text-[11px] font-bold font-mono text-muted-foreground hover:text-foreground transition-colors cursor-pointer px-3 py-1.5 rounded-full hover:bg-muted/50 bg-transparent border-none outline-none">
-              LOG IN
+            <button className="hidden sm:inline-block font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-transparent border-none">
+              Log in
             </button>
           </AuthModal>
           <AuthModal initialTab="signup">
-            <Button className="rounded-full px-4 h-8 text-[11px] font-bold font-mono shadow-md shadow-primary/10 bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-all">
-              FORGE FREE
-            </Button>
+            <button className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background pl-4 pr-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] font-medium hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
+              Start forging
+              <span className="inline-block transition-transform group-hover:translate-x-0.5">→</span>
+            </button>
           </AuthModal>
         </div>
-      </nav>
+      </div>
     </header>
   )
 }

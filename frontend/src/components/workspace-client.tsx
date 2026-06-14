@@ -1,8 +1,6 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -13,7 +11,7 @@ import { FlashcardView } from './flashcard'
 import { ChatTutor } from './chat-tutor'
 import { useParams } from 'next/navigation'
 import { Mermaid } from './mermaid'
-import { MindMap } from './mind-map'
+import { MindMap, type MindMapData } from './mind-map'
 import { 
   BookOpen, 
   Layers, 
@@ -26,8 +24,6 @@ import {
   Pause, 
   RotateCcw,
   Sparkles,
-  Maximize2,
-  Minimize2,
   X
 } from 'lucide-react'
 
@@ -49,7 +45,7 @@ interface StudyData {
   overview: string
   sections: Section[]
   flashcards: FlashcardData[]
-  mind_map?: any
+  mind_map?: MindMapData
 }
 
 export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null, subjectTitle: string }) {
@@ -57,14 +53,28 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
   const [activeSectionId, setActiveSectionId] = useState<string | null>(data?.sections?.[0]?.id || null)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [chatWidth, setChatWidth] = useState(384)
   
   // Focus Flow Mode Timer States
   const [isFlowActive, setIsFlowActive] = useState(false)
   const [flowTime, setFlowTime] = useState(25 * 60) // Default 25 min Pomodoro
   const [timerRunning, setTimerRunning] = useState(false)
+  const [customMinutes, setCustomMinutes] = useState(25)
+  const [totalTimeSpent, setTotalTimeSpent] = useState(0)
 
   const params = useParams()
   const subjectId = params.id as string
+
+  // Load accumulated study time from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTime = localStorage.getItem(`studyforge_time_spent_${subjectId}`)
+      const parsedTime = savedTime ? parseInt(savedTime, 10) : 0
+      setTimeout(() => {
+        setTotalTimeSpent(parsedTime)
+      }, 0)
+    }
+  }, [subjectId])
 
   // Timer runner
   useEffect(() => {
@@ -72,12 +82,20 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
     if (timerRunning && flowTime > 0) {
       interval = setInterval(() => {
         setFlowTime((prev) => prev - 1)
+        setTotalTimeSpent((prevTotal) => {
+          const nextTotal = prevTotal + 1
+          localStorage.setItem(`studyforge_time_spent_${subjectId}`, nextTotal.toString())
+          return nextTotal
+        })
       }, 1000)
-    } else if (flowTime === 0) {
-      setTimerRunning(false)
+    } else if (flowTime === 0 && timerRunning) {
+      setTimeout(() => {
+        setTimerRunning(false)
+      }, 0)
       // Play a subtle notification beep if supported by browser
       try {
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+        const WebkitAudioContext = (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+        const audioCtx = new (window.AudioContext || WebkitAudioContext)()
         const osc = audioCtx.createOscillator()
         const gain = audioCtx.createGain()
         osc.connect(gain)
@@ -86,12 +104,16 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
         gain.gain.setValueAtTime(0.1, audioCtx.currentTime)
         osc.start()
         osc.stop(audioCtx.currentTime + 0.3)
-      } catch (e) {}
+      } catch {
+        // Ignored
+      }
       alert("Flow session completed! Time for a short break.")
-      setFlowTime(25 * 60)
+      setTimeout(() => {
+        setFlowTime(customMinutes * 60)
+      }, 0)
     }
     return () => clearInterval(interval)
-  }, [timerRunning, flowTime])
+  }, [timerRunning, flowTime, customMinutes, subjectId])
 
   // Key bindings helper: Esc closes chat, Space flips flashcards (handled in flashcard view)
   useEffect(() => {
@@ -130,84 +152,86 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
       
       {/* ==================== LEFT COLLAPSIBLE SIDEBAR ==================== */}
       <aside 
-        className={`border-r border-border bg-card/25 flex flex-col h-full shrink-0 transition-all duration-300 relative select-none z-20 ${
+        className={`border-r border-border bg-card/25 flex flex-col h-full shrink-0 transition-all duration-300 relative select-none z-20 overflow-hidden ${
           isSidebarOpen ? 'w-80' : 'w-0 border-r-0'
         }`}
       >
         <div className="overflow-y-auto flex-1 flex flex-col h-full w-80">
           
           {/* AI Synopsis Container */}
-          <div className="p-6 border-b border-border bg-card/10">
-            <div className="flex items-center gap-1.5 text-primary mb-3">
-              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-              <span className="font-mono text-[9px] uppercase font-bold tracking-widest">ai abstract</span>
+          <div className="p-5 border-b border-border bg-card/5 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/[1.5%] via-transparent to-transparent pointer-events-none" />
+            <div className="flex items-center gap-1.5 text-primary mb-2.5 select-none">
+              <Sparkles className="w-4 h-4 animate-pulse" />
+              <span className="font-mono text-[10px] uppercase font-black tracking-widest">ai abstract</span>
             </div>
-            <p className="text-xs leading-6 text-muted-foreground font-sans">
+            <p className="text-xs md:text-[13px] leading-relaxed text-muted-foreground/90 font-sans">
               {data.overview}
             </p>
           </div>
 
           {/* Module Switch Tab Pills */}
-          <div className="p-5 flex-1 flex flex-col">
-            <div className="flex p-1 bg-muted/40 border border-border/80 rounded-md mb-6 shrink-0 gap-1">
+          <div className="p-5 flex-1 flex flex-col min-h-0">
+            <div className="flex p-1 bg-muted/40 border border-border/60 rounded-lg mb-6 shrink-0 gap-1 select-none">
               <button
                 onClick={() => setActiveTab('reader')}
-                className={`flex-grow flex items-center justify-center py-2 text-[10px] font-mono font-bold uppercase rounded transition-all cursor-pointer ${
+                className={`flex-grow flex items-center justify-center py-2 px-1 text-xs font-sans font-semibold rounded-md transition-all cursor-pointer ${
                   activeTab === 'reader' 
                     ? 'bg-card text-primary border border-border/70 shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/15'
                 }`}
               >
-                <BookOpen className="h-3.5 w-3.5 mr-1" />
+                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
                 Reader
               </button>
               <button
                 onClick={() => setActiveTab('mindmap')}
-                className={`flex-grow flex items-center justify-center py-2 text-[10px] font-mono font-bold uppercase rounded transition-all cursor-pointer ${
+                className={`flex-grow flex items-center justify-center py-2 px-1 text-xs font-sans font-semibold rounded-md transition-all cursor-pointer ${
                   activeTab === 'mindmap' 
                     ? 'bg-card text-primary border border-border/70 shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/15'
                 }`}
               >
-                <Workflow className="h-3.5 w-3.5 mr-1" />
+                <Workflow className="h-3.5 w-3.5 mr-1.5" />
                 ForgeMap
               </button>
               <button
                 onClick={() => setActiveTab('flashcards')}
-                className={`flex-grow flex items-center justify-center py-2 text-[10px] font-mono font-bold uppercase rounded transition-all cursor-pointer ${
+                className={`flex-grow flex items-center justify-center py-2 px-1 text-xs font-sans font-semibold rounded-md transition-all cursor-pointer ${
                   activeTab === 'flashcards' 
                     ? 'bg-card text-primary border border-border/70 shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/15'
                 }`}
               >
-                <Layers className="h-3.5 w-3.5 mr-1" />
+                <Layers className="h-3.5 w-3.5 mr-1.5" />
                 ForgeCards
               </button>
             </div>
 
             {/* Table of Contents View */}
             {activeTab === 'reader' && (
-              <div className="space-y-1 flex-1 overflow-y-auto">
-                <div className="flex items-center justify-between mb-4 px-2">
-                  <h3 className="text-[10px] font-bold font-mono text-muted-foreground uppercase tracking-widest">table of contents</h3>
+              <div className="space-y-1.5 flex-1 overflow-y-auto no-scrollbar pr-1">
+                <div className="flex items-center justify-between mb-4 px-2 select-none">
+                  <h3 className="text-[10px] font-bold font-sans text-muted-foreground/80 uppercase tracking-widest font-semibold">table of contents</h3>
                   <span className="key-badge">alt + b</span>
                 </div>
                 
-                {data.sections.map((section) => (
+                {data.sections.map((section, idx) => (
                   <button
                     key={section.id}
                     onClick={() => setActiveSectionId(section.id)}
-                    className={`w-full text-left px-3 py-2.5 rounded text-xs font-mono transition-all flex items-center gap-2 cursor-pointer border ${
+                    className={`w-full text-left transition-all flex items-center cursor-pointer border ${
                       activeSectionId === section.id 
-                        ? 'bg-primary/5 text-primary border-primary/20 font-bold' 
-                        : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                        ? 'bg-primary/[4%] text-primary border-l-2 border-l-primary font-bold pl-3 pr-2 py-2.5 rounded-r-lg rounded-l-none border-y-transparent border-r-transparent' 
+                        : 'border-transparent text-muted-foreground/85 hover:text-foreground hover:bg-muted/20 pl-3.5 pr-2 py-2.5 rounded-lg'
                     }`}
                   >
-                    {/* Active DOT indicator (Monkeytype settings style) */}
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                      activeSectionId === section.id ? 'bg-primary animate-pulse' : 'bg-transparent'
-                    }`} />
-                    <span className="truncate">{section.title}</span>
+                    <span className={`font-mono text-[10px] mr-2.5 w-4 text-right shrink-0 select-none ${
+                      activeSectionId === section.id ? 'text-primary font-bold' : 'text-muted-foreground/45'
+                    }`}>
+                      {(idx + 1).toString().padStart(2, '0')}
+                    </span>
+                    <span className="truncate text-[13px] font-sans tracking-wide">{section.title}</span>
                   </button>
                 ))}
               </div>
@@ -255,46 +279,106 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
       </button>
 
       {/* ==================== CENTER READER CONTENT AREA ==================== */}
-      <main className="flex-grow overflow-y-auto bg-background flex flex-col items-center relative">
+      <main 
+        className="flex-grow overflow-y-auto bg-background flex flex-col items-center relative"
+        style={{ marginRight: isChatOpen ? chatWidth : 0 }}
+      >
         
         {/* Floating Timer Console and Chat controls */}
         {/* Floating Timer Console and Chat controls */}
-        <div className={`w-full px-8 lg:px-12 py-4 flex items-center justify-between border-b border-border/50 shrink-0 sticky top-0 bg-background/90 backdrop-blur z-10 transition-all duration-300 ${activeTab === 'mindmap' ? 'max-w-[96%]' : 'max-w-4xl'}`}>
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsFlowActive(true)}
-              className="h-8 px-3 rounded text-[10px] font-mono uppercase font-bold text-muted-foreground hover:text-foreground hover:border-primary/40 cursor-pointer border border-border flex items-center gap-1.5 transition-all bg-card/30"
-              title="Ignite Pomodoro Focus Deck (Alt + F)"
-            >
-              <Timer className="w-3.5 h-3.5 text-primary" />
-              <span>flow timer</span>
-              <span className="key-badge">alt + f</span>
-            </button>
+        <div className={`w-full px-8 lg:px-12 py-5 border-b border-border/50 shrink-0 sticky top-0 bg-background/95 backdrop-blur z-10 transition-all duration-300 ${activeTab === 'mindmap' ? 'max-w-[96%]' : 'max-w-5xl'}`}>
+          <div className="bg-card/45 backdrop-blur-md border border-border/80 rounded-xl p-4.5 w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 shadow-sm">
+            {/* Left Section: Focus Mode & Clock Console */}
+            <div className="flex items-center gap-3.5 flex-wrap">
+              <button 
+                onClick={() => setIsFlowActive(true)}
+                className="h-9 px-4 rounded-lg text-xs md:text-sm font-mono uppercase font-bold text-muted-foreground hover:text-foreground hover:border-primary/40 cursor-pointer border border-border flex items-center gap-1.5 transition-all bg-card/30"
+                title="Ignite Full Screen Focus Deck (Alt + F)"
+              >
+                <Timer className="w-4 h-4 text-primary" />
+                <span>Deep Focus</span>
+                <span className="key-badge text-[10px]">alt + f</span>
+              </button>
+
+              {/* Running Clock Widget */}
+              <div className="flex items-center gap-3 border border-border/85 rounded-lg px-3 py-1.5 bg-background/50 text-sm font-mono select-none">
+                <span className={`w-2 h-2 rounded-full ${timerRunning ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/50'}`} />
+                <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums tracking-wide">{formatTime(flowTime)}</span>
+                <div className="flex items-center gap-1 border-l border-border/60 pl-2.5 ml-1">
+                  <button 
+                    onClick={() => setTimerRunning(!timerRunning)} 
+                    className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground cursor-pointer px-1.5 py-0.5 hover:bg-muted/40 rounded transition-all uppercase font-bold"
+                  >
+                    {timerRunning ? "pause" : "start"}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setTimerRunning(false)
+                      setFlowTime(customMinutes * 60)
+                    }}
+                    className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground cursor-pointer px-1.5 py-0.5 hover:bg-muted/40 rounded transition-all uppercase font-bold"
+                    title="Reset Focus Clock"
+                  >
+                    reset
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Duration Selector Presets */}
+              <div className="hidden lg:flex items-center gap-1.5 bg-muted/20 border border-border/40 p-0.5 rounded-lg">
+                {[5, 15, 25, 45, 60].map((mins) => (
+                  <button
+                    key={mins}
+                    onClick={() => {
+                      setTimerRunning(false)
+                      setCustomMinutes(mins)
+                      setFlowTime(mins * 60)
+                    }}
+                    className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-mono cursor-pointer border transition-all ${
+                      customMinutes === mins 
+                        ? "bg-card text-primary border-border shadow-sm font-extrabold" 
+                        : "text-muted-foreground border-transparent hover:border-border/50 hover:bg-muted/20"
+                    }`}
+                  >
+                    {mins}m
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Right Section: Total Study Time */}
+            <div className="flex flex-col items-end font-mono select-none shrink-0 pl-2 border-l border-border/30 sm:border-l-0">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest hidden sm:inline font-semibold">
+                Total Time Spent on This Microsite
+              </span>
+              <span className="text-sm sm:text-base font-extrabold text-primary tabular-nums mt-0.5 tracking-wide">
+                {Math.floor(totalTimeSpent / 60)}m {totalTimeSpent % 60}s
+              </span>
+            </div>
           </div>
-          
-          <span className="font-mono text-[9px] text-muted-foreground select-none uppercase tracking-widest hidden sm:inline">
-            studyforge workspace client v1.2
-          </span>
         </div>
 
         {/* Text Pane */}
-        <div className={`w-full flex-1 px-8 lg:px-12 py-10 pb-20 transition-all duration-300 ${activeTab === 'mindmap' ? 'max-w-[96%]' : 'max-w-4xl'}`}>
+        <div className={`w-full flex-1 px-8 lg:px-12 py-10 pb-20 transition-all duration-300 ${activeTab === 'mindmap' ? 'max-w-[96%]' : 'max-w-5xl'}`}>
           
           {activeTab === 'reader' && activeSection && (
-            <div className="animate-in fade-in duration-300 max-w-3xl mx-auto">
+            <div className="animate-in fade-in duration-300 max-w-4xl mx-auto">
               
               {/* Header Title section */}
-              <div className="mb-10 space-y-4">
-                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight font-heading leading-tight text-foreground">
+              <div className="mb-10">
+                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
+                  Section {(data.sections.findIndex((s) => s.id === activeSection.id) + 1).toString().padStart(2, '0')}
+                </span>
+                <h1 className="mt-3 text-4xl md:text-5xl font-light tracking-tight font-heading leading-[1.05] text-foreground">
                   {activeSection.title}
                 </h1>
-                
-                {/* Concept Keybadges (Monkeytype Tags) */}
+
+                {/* Concept tags */}
                 {activeSection.key_concepts && activeSection.key_concepts.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    <span className="font-mono text-[9px] text-muted-foreground uppercase py-0.5 tracking-wider mr-1">concepts:</span>
+                  <div className="flex flex-wrap gap-2.5 items-center mt-5">
+                    <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider mr-1">concepts</span>
                     {activeSection.key_concepts.map((concept, idx) => (
-                      <span key={idx} className="key-badge text-[9px] font-mono leading-none flex items-center h-5">
+                      <span key={idx} className="font-mono text-[11px] px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full">
                         {concept}
                       </span>
                     ))}
@@ -303,17 +387,17 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
               </div>
               
               {/* Renders beautiful customized markdown */}
-              <div className="prose prose-slate dark:prose-invert max-w-none text-left prose-p:leading-8 prose-p:text-sm prose-p:text-foreground/90 prose-headings:font-heading prose-headings:tracking-tight prose-strong:text-primary prose-strong:font-bold">
+              <div className="prose prose-slate dark:prose-invert max-w-none text-left prose-p:leading-relaxed prose-p:text-base md:prose-p:text-[17px] prose-p:text-foreground/90 prose-headings:font-heading prose-headings:tracking-tight prose-strong:text-primary prose-strong:font-bold prose-h2:text-2xl md:prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-5 prose-h3:text-xl md:prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-li:text-base md:prose-li:text-[17px] prose-li:my-2.5 prose-ul:my-4 prose-ol:my-4 prose-blockquote:border-l-primary prose-blockquote:bg-primary/[2%] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-xl prose-blockquote:text-muted-foreground prose-blockquote:not-italic">
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm, remarkMath]}
                   rehypePlugins={[rehypeKatex]}
                   components={{
-                    code({node, inline, className, children, ...props}: any) {
+                    code({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: React.ReactNode }) {
                       const match = /language-(\w+)/.exec(className || '')
                       if (!inline && match && match[1] === 'mermaid') {
                         return <Mermaid chart={String(children).replace(/\n$/, '')} />
                       }
-                      return <code className={`${className} font-mono bg-muted/40 p-1 rounded text-xs border border-border text-foreground`} {...props}>{children}</code>
+                      return <code className={`${className} font-mono bg-muted/40 p-1.5 px-2 rounded text-xs sm:text-sm border border-border text-foreground`} {...props}>{children}</code>
                     }
                   }}
                 >
@@ -326,15 +410,16 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
 
           {activeTab === 'mindmap' && (
             <div className="animate-in fade-in duration-300 w-full">
-              <MindMap data={data.mind_map} />
+              <MindMap data={data.mind_map || null} />
             </div>
           )}
 
           {activeTab === 'flashcards' && (
             <div className="animate-in fade-in duration-300 h-full flex flex-col items-center pt-6 max-w-2xl mx-auto">
-              <div className="text-center mb-8 font-mono">
-                <h2 className="text-2xl font-extrabold font-heading mb-1.5">Ember Forge Flashcards</h2>
-                <p className="text-xs text-muted-foreground">Synthesized questions and answers to evaluate terminology retention.</p>
+              <div className="text-center mb-8">
+                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">Recall deck</span>
+                <h2 className="mt-2 text-3xl font-light font-heading tracking-tight">Forge cards</h2>
+                <p className="mt-2 text-sm text-muted-foreground">Flip through synthesized Q&amp;A to test retention.</p>
               </div>
               <FlashcardView flashcards={data.flashcards} />
             </div>
@@ -345,10 +430,10 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
 
       {/* ==================== RIGHT FLOATING CHAT WIDGET ==================== */}
       {!isChatOpen && (
-        <Button 
+        <Button
           onClick={() => setIsChatOpen(true)}
-          className="absolute bottom-6 right-6 h-12 w-12 rounded-lg border border-primary/25 bg-primary text-primary-foreground shadow-[0_4px_25px_-5px_rgba(226,183,20,0.5)] hover:shadow-[0_4px_30px_0px_rgba(226,183,20,0.6)] hover:-translate-y-1 transition-all z-30 cursor-pointer flex items-center justify-center"
-          title="Open AI Chat Assistant"
+          className="fixed bottom-6 right-6 h-12 w-12 rounded-full border border-primary/30 bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-0.5 transition-all z-50 cursor-pointer flex items-center justify-center"
+          title="Open AI Tutor"
         >
           <MessageSquareText className="w-5 h-5" />
         </Button>
@@ -356,7 +441,12 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
 
       {/* Chat Tutor sliding panel */}
       {isChatOpen && (
-        <ChatTutor subjectId={subjectId} onClose={() => setIsChatOpen(false)} />
+        <ChatTutor 
+          subjectId={subjectId} 
+          onClose={() => setIsChatOpen(false)} 
+          width={chatWidth}
+          setWidth={setChatWidth}
+        />
       )}
 
       {/* ==================== CINEMATIC FULL SCREEN FOCUS TIMER OVERLAY ==================== */}
@@ -379,12 +469,59 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
                 <Sparkles className="w-3.5 h-3.5 animate-pulse" />
                 <span className="text-[9px] uppercase tracking-widest font-bold font-mono">deep focus ignited</span>
               </div>
-              <h3 className="text-xl font-extrabold font-heading text-foreground">{subjectTitle}</h3>
-              <p className="text-xs text-muted-foreground">Dimmed distraction deck. Study in peace.</p>
+              <h3 className="text-xl font-extrabold font-heading text-foreground break-words w-full px-2">
+                {subjectTitle.replace(/_/g, ' ')}
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">Tracks your active study session on this workspace.</p>
+            </div>
+
+            {/* Time Duration Customization Dashboard */}
+            <div className="space-y-4 pt-2 border-t border-border/30">
+              <div className="flex flex-col gap-1.5 items-center justify-center">
+                <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-mono">Select Duration</span>
+                <div className="flex items-center gap-2">
+                  {[5, 15, 25, 45, 60].map((mins) => (
+                    <button
+                      key={mins}
+                      onClick={() => {
+                        setTimerRunning(false)
+                        setCustomMinutes(mins)
+                        setFlowTime(mins * 60)
+                      }}
+                      className={`px-3 py-1 rounded text-xs font-mono cursor-pointer border transition-all ${
+                        customMinutes === mins 
+                          ? "bg-primary/20 text-primary border-primary/40 font-bold" 
+                          : "text-muted-foreground border-border/80 hover:border-primary/30 bg-card/25"
+                      }`}
+                    >
+                      {mins}m
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 justify-center text-xs">
+                <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-mono">Custom Mins:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="480"
+                  value={customMinutes}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10)
+                    if (!isNaN(val) && val > 0) {
+                      setTimerRunning(false)
+                      setCustomMinutes(val)
+                      setFlowTime(val * 60)
+                    }
+                  }}
+                  className="w-16 h-8 px-2 bg-card/60 border border-border/80 rounded font-mono text-xs text-foreground text-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                />
+              </div>
             </div>
 
             {/* Glowing Focus Clock (Monkeytype inspired metrics) */}
-            <div className="relative py-12 flex items-center justify-center">
+            <div className="relative py-8 flex items-center justify-center">
               {/* Subtle background spinning or pulse orb */}
               <div className={`absolute w-44 h-44 rounded-full border border-primary/20 blur-md transition-all ${
                 timerRunning ? 'scale-105 opacity-100 bg-primary/5' : 'scale-100 opacity-50'
@@ -415,7 +552,7 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
               <button 
                 onClick={() => {
                   setTimerRunning(false)
-                  setFlowTime(25 * 60)
+                  setFlowTime(customMinutes * 60)
                 }}
                 className="h-11 w-11 border border-border/80 hover:border-primary/40 rounded flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer bg-card/25 transition-all"
                 title="Reset Focus Clock"

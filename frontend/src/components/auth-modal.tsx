@@ -3,7 +3,6 @@
 import { useState, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { login, signup } from '@/app/auth-actions'
 import {
   Dialog,
@@ -14,7 +13,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useSearchParams } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { LogoMark } from './logo-mark'
+
+const labelCls = "block font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-2"
+const submitCls = "w-full h-11 rounded-full font-mono text-xs uppercase tracking-[0.16em] cursor-pointer"
 
 function AuthFormWrapper({
   activeTab,
@@ -26,9 +28,9 @@ function AuthFormWrapper({
   return (
     <>
       {activeTab === 'login' ? (
-        <form className="space-y-4 pt-4" autoComplete="on">
-          <div className="space-y-2">
-            <Label htmlFor="identifier">Email / Username</Label>
+        <form className="space-y-5 pt-2" autoComplete="on">
+          <div>
+            <label htmlFor="identifier" className={labelCls}>Email / Username</label>
             <Input
               id="identifier"
               name="identifier"
@@ -38,8 +40,8 @@ function AuthFormWrapper({
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="login-password">Password</Label>
+          <div>
+            <label htmlFor="login-password" className={labelCls}>Password</label>
             <Input
               id="login-password"
               name="password"
@@ -53,14 +55,14 @@ function AuthFormWrapper({
               {error}
             </p>
           )}
-          <Button type="submit" formAction={login} className="w-full">
-            Log In
+          <Button type="submit" formAction={login} className={submitCls}>
+            Log in →
           </Button>
         </form>
       ) : (
-        <form className="space-y-4 pt-4" autoComplete="off">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+        <form className="space-y-5 pt-2" autoComplete="off">
+          <div>
+            <label htmlFor="username" className={labelCls}>Username</label>
             <Input
               id="username"
               name="username"
@@ -70,8 +72,8 @@ function AuthFormWrapper({
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="signup-email">Email</Label>
+          <div>
+            <label htmlFor="signup-email" className={labelCls}>Email</label>
             <Input
               id="signup-email"
               name="email"
@@ -81,8 +83,8 @@ function AuthFormWrapper({
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="signup-password">Password</Label>
+          <div>
+            <label htmlFor="signup-password" className={labelCls}>Password</label>
             <Input
               id="signup-password"
               name="password"
@@ -96,8 +98,8 @@ function AuthFormWrapper({
               {error}
             </p>
           )}
-          <Button type="submit" formAction={signup} className="w-full">
-            Sign Up Free
+          <Button type="submit" formAction={signup} className={submitCls}>
+            Start forging — free →
           </Button>
         </form>
       )}
@@ -120,17 +122,39 @@ export function AuthModal({ children, initialTab = 'login' }: { children: React.
       <DialogTrigger>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">StudyForge</DialogTitle>
-          <DialogDescription className="text-center">
-            {activeTab === 'login' ? "Welcome back. Log in to your forge." : "Create a new account to start forging."}
+      <DialogContent className="sm:max-w-[420px]">
+        <DialogHeader className="items-center text-center">
+          <LogoMark size={42} className="mb-3" />
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+            {activeTab === 'login' ? 'Welcome back' : 'New account'}
+          </span>
+          <DialogTitle className="font-heading font-light text-3xl tracking-tight mt-1">
+            {activeTab === 'login' ? (
+              <>Back to the <span className="italic text-primary">forge</span>.</>
+            ) : (
+              <>Start <span className="italic text-primary">forging</span>.</>
+            )}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground mt-1">
+            {activeTab === 'login'
+              ? "Log in to your private library."
+              : "A free account, a private library of workspaces."}
           </DialogDescription>
         </DialogHeader>
 
-        <Suspense fallback={<div className="h-40 flex items-center justify-center font-mono text-xs text-muted-foreground animate-pulse">Loading auth vault...</div>}>
+        <Suspense fallback={<div className="h-44 flex items-center justify-center font-mono text-xs text-muted-foreground animate-pulse">Loading auth vault…</div>}>
           <SuspendedAuthForm activeTab={activeTab} />
         </Suspense>
+
+        <div className="text-center mt-5 pt-4 border-t border-border">
+          <button
+            type="button"
+            onClick={() => setActiveTab(activeTab === 'login' ? 'signup' : 'login')}
+            className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-primary transition-colors bg-transparent border-none cursor-pointer"
+          >
+            {activeTab === 'login' ? "Need an account? Sign up" : "Already forging? Log in"}
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   )

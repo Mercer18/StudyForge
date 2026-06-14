@@ -1,8 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks, HTTPException, Depends, Response
 from pydantic import BaseModel
 from typing import Optional
 from services.supabase_client import supabase
-from services.pipeline import process_document_pipeline, process_youtube_pipeline
+from services.pipeline import process_document_pipeline, process_youtube_pipeline, process_forge_map_pipeline
 from services.auth import get_current_user
 
 router = APIRouter()
@@ -12,6 +12,7 @@ class SubjectStatusResponse(BaseModel):
     status: str
     study_data_url: Optional[str] = None
     description: Optional[str] = None
+
 
 @router.post("/generate")
 async def generate_subject(
@@ -115,17 +116,22 @@ async def generate_subject_from_youtube(
 @router.get("/{subject_id}/status", response_model=SubjectStatusResponse)
 async def get_subject_status(
     subject_id: str,
+    response: Response,
     current_user = Depends(get_current_user)
 ):
     """
     Polling endpoint to check if the background pipeline is complete.
     """
-    response = supabase.table("subjects").select("*").eq("id", subject_id).execute()
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
     
-    if not response.data:
+    db_response = supabase.table("subjects").select("*").eq("id", subject_id).execute()
+    
+    if not db_response.data:
         raise HTTPException(status_code=404, detail="Subject not found")
         
-    subject = response.data[0]
+    subject = db_response.data[0]
     
     # Enforce tenant isolation / ownership check
     if subject.get("user_id") != current_user.id:
@@ -137,3 +143,29 @@ async def get_subject_status(
         study_data_url=subject.get("study_data_url"),
         description=subject.get("description")
     )
+
+
+@router.post("/{subject_id}/forge-map")
+async def forge_subject_map(
+    subject_id: str,
+    background_tasks: BackgroundTasks,
+    current_user = Depends(get_current_user)
+):
+    """
+    Endpoint to manually trigger or regenerate a subject mind map in the background.
+    """
+    response = supabase.table("subjects").select("*").eq("id", subject_id).execute()
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Subject not found")
+        
+    subject = response.data[0]
+    
+    if subject.get("user_id") != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this subject")
+        
+    background_tasks.add_task(
+        process_forge_map_pipeline,
+        subject_id=subject_id
+    )
+    
+    return {"subject_id": subject_id, "status": "processing"}

@@ -1,9 +1,11 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import * as LucideIcons from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles, HelpCircle } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
 // Define the interface for our Mind Map data structure
 interface Topic {
@@ -24,7 +26,7 @@ interface CrossCuttingConcept {
   details: string[]
 }
 
-interface MindMapData {
+export interface MindMapData {
   title: string
   columns: Column[]
   cross_cutting: CrossCuttingConcept[]
@@ -40,7 +42,8 @@ function resolveIcon(name: string) {
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
 
-  const IconComponent = (LucideIcons as any)[normalized] || (LucideIcons as any)[name] || HelpCircle
+  const iconsDict = LucideIcons as unknown as Record<string, React.ComponentType>
+  const IconComponent = iconsDict[normalized] || iconsDict[name] || HelpCircle
   return IconComponent
 }
 
@@ -147,17 +150,85 @@ const COLOR_THEMES: Record<string, {
 }
 
 export function MindMap({ data }: { data: MindMapData | null }) {
+  const params = useParams()
+  const subjectId = params?.id as string
+  const [isForging, setIsForging] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  const handleForgeNow = async () => {
+    if (!subjectId) return
+    setIsForging(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8085"
+      const res = await fetch(`${apiBase}/api/v1/subjects/${subjectId}/forge-map`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token || ''}`
+        }
+      })
+
+      if (!res.ok) {
+        throw new Error("Failed to trigger forging pipeline")
+      }
+
+      setSuccessMessage("Forging request sent! Reloading workspace...")
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
+    } catch (err) {
+      console.error(err)
+      const errMsg = err instanceof Error ? err.message : "An error occurred while forging."
+      setErrorMessage(errMsg)
+      setIsForging(false)
+    }
+  }
+
   if (!data || !data.columns || data.columns.length === 0) {
     return (
-      <div className="text-center text-muted-foreground p-12 font-mono text-xs border border-dashed border-border rounded-lg bg-card/10 max-w-md mx-auto">
-        Syllabus Map indexing in progress... Check back shortly.
+      <div className="text-center text-muted-foreground p-12 font-mono text-xs border border-dashed border-border rounded-lg bg-card/10 max-w-md mx-auto flex flex-col items-center gap-4 shadow-sm">
+        <span>Syllabus Map indexing in progress... Check back shortly.</span>
+        
+        {subjectId && (
+          <div className="w-full pt-2 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={handleForgeNow}
+              disabled={isForging}
+              className="px-4 py-2.5 bg-primary text-primary-foreground font-sans font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-primary/95 transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center gap-1.5 cursor-pointer border-none outline-none"
+            >
+              {isForging ? (
+                <>
+                  <svg className="animate-spin h-3.5 w-3.5 text-current" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Forging Map...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                  <span>Forge Now</span>
+                </>
+              )}
+            </button>
+            {successMessage && <p className="text-[10px] text-green-500 font-sans font-bold mt-2 animate-pulse">{successMessage}</p>}
+            {errorMessage && <p className="text-[10px] text-red-500 font-sans font-bold mt-2">{errorMessage}</p>}
+          </div>
+        )}
       </div>
     )
   }
 
   return (
-    <div className="w-full select-none font-sans overflow-x-auto py-4 px-2">
-      <div className="min-w-[1200px] flex flex-col items-center">
+    <div className="w-full select-none font-sans py-4 px-2">
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center">
         
         {/* ================= SUBJECT MAIN NODE ================= */}
         <div className="relative flex flex-col items-center">
@@ -171,32 +242,31 @@ export function MindMap({ data }: { data: MindMapData | null }) {
               <span className="font-mono text-[9px] uppercase font-bold tracking-[0.25em]">interactive syllabus</span>
             </div>
             
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight font-heading text-foreground uppercase">
-              {data.title}
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight font-heading text-foreground uppercase break-words w-full px-2">
+              {data.title.replace(/_/g, ' ')}
             </h1>
           </div>
           
           {/* Central Stem Line */}
-          <div className="w-0.5 h-8 bg-border" />
-        </div>
+          <div className="w-0.5 h-4 bg-border/60" />
+          
+          <span className="key-badge text-[9px] uppercase tracking-wider bg-primary/10 text-primary border-primary/20 select-none">
+            Syllabus Structure
+          </span>
 
-        {/* ================= CONNECTIVE STEM HORIZONTAL BAR ================= */}
-        <div className="relative w-full h-0.5 bg-border flex items-center justify-between px-16">
-          {data.columns.map((col, idx) => (
-            <div key={idx} className="relative flex flex-col items-center">
-              <div className="w-0.5 h-6 bg-border -mt-3" />
-            </div>
-          ))}
+          <div className="w-0.5 h-4 bg-border/60" />
         </div>
 
         {/* ================= MULTI-COLUMN UNITS GRID ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-10 gap-5 w-full mt-4 items-start px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full mt-2 items-start px-2">
           {data.columns.map((col) => {
             const theme = COLOR_THEMES[col.color] || COLOR_THEMES.blue
             const Icon = resolveIcon(col.icon)
             
             return (
-              <div key={col.id} className="flex flex-col gap-4 animate-in fade-in duration-300">
+              <div key={col.id} className="flex flex-col animate-in fade-in duration-300">
+                {/* Connecting stem pointing up to root */}
+                <div className="w-0.5 h-4 bg-border/30 mx-auto" />
                 
                 {/* --- Unit Header Card --- */}
                 <div className={`p-4 rounded-xl border ${theme.border} ${theme.bg} ${theme.glow} flex flex-col gap-3 relative overflow-hidden group transition-all duration-300`}>
@@ -220,7 +290,7 @@ export function MindMap({ data }: { data: MindMapData | null }) {
 
                 {/* --- Topic Cards Container --- */}
                 <div className="flex flex-col gap-3.5">
-                  {col.topics.map((topic, tIdx) => (
+                  {(col.topics || []).map((topic, tIdx) => (
                     <div key={tIdx} className="flex flex-col">
                       <Card className="border border-border/80 bg-card/45 p-3 rounded-lg shadow-sm hover:border-primary/25 hover:shadow-md hover:bg-card/75 transition-all duration-300 group relative">
                         {/* Sub-node point connector */}
@@ -244,7 +314,7 @@ export function MindMap({ data }: { data: MindMapData | null }) {
                         </CardContent>
                       </Card>
                       
-                      {tIdx < col.topics.length - 1 && (
+                      {tIdx < (col.topics || []).length - 1 && (
                         <div className="w-0.5 h-3.5 bg-border/30 mx-auto" />
                       )}
                     </div>
@@ -256,48 +326,52 @@ export function MindMap({ data }: { data: MindMapData | null }) {
           })}
         </div>
 
-        {/* Connective Stem to bottom drawer */}
-        <div className="w-0.5 h-8 bg-border/40 mt-10" />
+        {data.cross_cutting && data.cross_cutting.length > 0 && (
+          <>
+            {/* Connective Stem to bottom drawer */}
+            <div className="w-0.5 h-8 bg-border/40 mt-10" />
 
-        {/* ================= CROSS-CUTTING CONCEPTS TRAY ================= */}
-        <div className="w-full max-w-6xl border border-border bg-card/35 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center shadow-lg relative overflow-hidden backdrop-blur-md">
-          {/* Subtle side stripe */}
-          <div className="absolute left-0 top-0 w-[4px] h-full bg-primary" />
-          
-          <div className="flex flex-col shrink-0 gap-1.5 text-center md:text-left select-none md:border-r md:border-border/60 md:pr-8 py-2 max-w-xs">
-            <span className="font-mono text-[9px] uppercase font-bold tracking-[0.25em] text-primary">universal tools</span>
-            <h3 className="font-heading font-black text-lg tracking-tight uppercase text-foreground leading-tight">
-              Cross-Cutting Concepts
-            </h3>
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
-              Foundational paradigms, security rules, compliance, and deployment matrices across the curriculum.
-            </p>
-          </div>
+            {/* ================= CROSS-CUTTING CONCEPTS TRAY ================= */}
+            <div className="w-full max-w-6xl border border-border bg-card/35 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center shadow-lg relative overflow-hidden backdrop-blur-md">
+              {/* Subtle side stripe */}
+              <div className="absolute left-0 top-0 w-[4px] h-full bg-primary" />
+              
+              <div className="flex flex-col shrink-0 gap-1.5 text-center md:text-left select-none md:border-r md:border-border/60 md:pr-8 py-2 max-w-xs">
+                <span className="font-mono text-[9px] uppercase font-bold tracking-[0.25em] text-primary">universal tools</span>
+                <h3 className="font-heading font-black text-lg tracking-tight uppercase text-foreground leading-tight">
+                  Cross-Cutting Concepts
+                </h3>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  Foundational paradigms, security rules, compliance, and deployment matrices across the curriculum.
+                </p>
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 flex-1 w-full">
-            {data.cross_cutting.map((concept, idx) => (
-              <Card key={idx} className="border border-border/70 bg-card/50 p-3.5 rounded-xl hover:border-primary/20 hover:bg-card/85 shadow-sm transition-all duration-300">
-                <CardContent className="p-0 flex flex-col gap-1.5">
-                  <h4 className="text-xs font-bold font-mono text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    {concept.title}
-                  </h4>
-                  
-                  {concept.details && concept.details.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {concept.details.map((detail, dIdx) => (
-                        <span key={dIdx} className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-border/80 bg-muted/30 text-muted-foreground/90 select-none">
-                          {detail}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 flex-1 w-full">
+                {data.cross_cutting.map((concept, idx) => (
+                  <Card key={idx} className="border border-border/70 bg-card/50 p-3.5 rounded-xl hover:border-primary/20 hover:bg-card/85 shadow-sm transition-all duration-300">
+                    <CardContent className="p-0 flex flex-col gap-1.5">
+                      <h4 className="text-xs font-bold font-mono text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        {concept.title}
+                      </h4>
+                      
+                      {concept.details && concept.details.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {concept.details.map((detail, dIdx) => (
+                            <span key={dIdx} className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-border/80 bg-muted/30 text-muted-foreground/90 select-none">
+                              {detail}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-        </div>
+            </div>
+          </>
+        )}
 
       </div>
     </div>

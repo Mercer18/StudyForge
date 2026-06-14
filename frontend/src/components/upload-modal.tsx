@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState, useEffect } from "react"
 import { useDropzone } from "react-dropzone"
-import { UploadCloud, File, X, Loader2, Link2, FileText, Sparkles, Terminal } from "lucide-react"
+import { UploadCloud, File, X, Link2, FileText, Sparkles, Terminal } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -23,10 +23,12 @@ export function UploadModal() {
   const [file, setFile] = useState<File | null>(null)
   const [youtubeUrl, setYoutubeUrl] = useState("")
   const [videoTitle, setVideoTitle] = useState("")
+  const [fileTitle, setFileTitle] = useState("")
   const [activeTab, setActiveTab] = useState<"file" | "youtube">("file")
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [activeStage, setActiveStage] = useState("Initializing workspace parser...")
+  const [errorMessage, setErrorMessage] = useState("")
 
   // Simulated active terminal stages during background polling
   useEffect(() => {
@@ -75,6 +77,7 @@ export function UploadModal() {
 
     setIsUploading(true)
     setProgress(10)
+    setErrorMessage("")
 
     try {
       const supabase = createClient()
@@ -91,7 +94,7 @@ export function UploadModal() {
       if (activeTab === "file" && file) {
         const formData = new FormData()
         formData.append("file", file)
-        formData.append("title", file.name.replace(/\.[^/.]+$/, ""))
+        formData.append("title", fileTitle || file.name.replace(/\.[^/.]+$/, ""))
 
         setProgress(25)
 
@@ -126,13 +129,15 @@ export function UploadModal() {
 
       const pollInterval = setInterval(async () => {
         try {
-          const statusRes = await fetch(`${apiBase}/api/v1/subjects/${subject_id}/status`, {
+          const statusRes = await fetch(`${apiBase}/api/v1/subjects/${subject_id}/status?t=${Date.now()}`, {
             headers: {
               "Authorization": `Bearer ${token}`
-            }
+            },
+            cache: "no-store"
           })
           if (statusRes.ok) {
             const data = await statusRes.json()
+
             
             if (data.status === "processing") {
               setProgress((prev) => (prev < 92 ? prev + 4 : prev))
@@ -148,33 +153,36 @@ export function UploadModal() {
               }, 1000)
             } else if (data.status === "failed") {
               clearInterval(pollInterval)
-              throw new Error("Generation failed: " + data.description)
+              setIsUploading(false)
+              setErrorMessage("Generation failed: " + data.description)
             }
           }
         } catch (err) {
           clearInterval(pollInterval)
           console.error(err)
           setIsUploading(false)
-          alert("Error checking status")
+          setErrorMessage("Error communicating with server")
         }
       }, 3000)
 
     } catch (error) {
       console.error(error)
       setIsUploading(false)
-      alert("An error occurred during upload")
+      const errMsg = error instanceof Error ? error.message : "An error occurred during upload"
+      setErrorMessage(errMsg)
     }
   }
 
   const removeFile = (e: React.MouseEvent) => {
     e.stopPropagation()
     setFile(null)
+    setFileTitle("")
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={`${buttonVariants()} font-mono text-xs uppercase tracking-wider h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm cursor-pointer rounded`}>
-        + forge new subject
+      <DialogTrigger className={`${buttonVariants()} font-mono text-[11px] uppercase tracking-[0.16em] h-10 px-5 bg-primary hover:opacity-90 text-primary-foreground cursor-pointer rounded-full`}>
+        + Forge new subject
       </DialogTrigger>
       
       <DialogContent className="sm:max-w-md border border-border bg-card/95 backdrop-blur-md rounded-xl p-6 transition-all duration-300">
@@ -248,11 +256,23 @@ export function UploadModal() {
                         </div>
                       </div>
                       <Button variant="ghost" size="icon" onClick={removeFile} className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer">
-                        <X className="h-3.5 h-3.5" />
+                        <X className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   )}
                 </div>
+
+                {file && (
+                  <div className="space-y-1.5 animate-in fade-in duration-200 font-mono">
+                    <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">custom workspace name (optional)</label>
+                    <Input 
+                      placeholder="E.g. Computer Networks Chapter 1" 
+                      value={fileTitle}
+                      onChange={(e) => setFileTitle(e.target.value)}
+                      className="h-10 bg-card/60 border-border focus-visible:ring-1 focus-visible:ring-primary font-mono text-xs rounded"
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -277,6 +297,13 @@ export function UploadModal() {
                     className="h-10 bg-card/60 border-border focus-visible:ring-1 focus-visible:ring-primary font-mono text-xs rounded"
                   />
                 </div>
+              </div>
+            )}
+            
+            {/* Error Message Display */}
+            {errorMessage && (
+              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-mono rounded animate-in fade-in">
+                {errorMessage}
               </div>
             )}
 

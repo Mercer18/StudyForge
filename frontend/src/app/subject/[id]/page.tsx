@@ -2,10 +2,10 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { WorkspaceClient } from '@/components/workspace-client'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { AnimatedLogo } from '@/components/animated-logo'
+import { LogoMark } from '@/components/logo-mark'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,14 +24,25 @@ export default async function SubjectPage({
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    redirect('/login')
+    redirect('/')
   }
 
   // Use Admin client to bypass RLS bug for fetching
   const adminSupabase = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        persistSession: false,
+      },
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' })
+        }
+      }
+    }
   )
+
 
   // Fetch subject
   const { data: subject, error: subjectError } = await adminSupabase
@@ -42,16 +53,17 @@ export default async function SubjectPage({
 
   if (subjectError || !subject) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold mb-4">Subject Not Found</h1>
-        <p className="text-red-500 mb-4 font-mono text-sm">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-6">
+        <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary mb-3">404</span>
+        <h1 className="font-heading font-light text-4xl tracking-tight mb-3">Subject not found.</h1>
+        <p className="text-red-500 mb-2 font-mono text-xs max-w-lg break-all">
           DEBUG: {subjectError ? JSON.stringify(subjectError) : "No subject returned"}
         </p>
-        <p className="text-muted-foreground mb-4 font-mono text-sm">
+        <p className="text-muted-foreground mb-6 font-mono text-xs">
           USER ID: {user.id} | SUBJECT ID: {id}
         </p>
-        <Link href="/dashboard">
-          <Button>Back to Dashboard</Button>
+        <Link href="/dashboard" className="rounded-full bg-primary text-primary-foreground px-6 h-10 inline-flex items-center font-mono text-[11px] uppercase tracking-[0.16em] hover:opacity-90 transition-opacity">
+          Back to library
         </Link>
       </div>
     )
@@ -65,29 +77,41 @@ export default async function SubjectPage({
   // If still processing
   if (subject.status !== 'completed' || !subject.study_data_url) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-[#050409] text-white p-6 relative overflow-hidden">
-        {/* Glow backdrop layer */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.06)_0%,transparent_60%)] pointer-events-none" />
-        
-        <div className="relative flex flex-col items-center text-center space-y-6 max-w-sm z-10 animate-in fade-in duration-700">
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-110 animate-pulse pointer-events-none" />
-            <AnimatedLogo size={120} className="relative z-10" />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-6 relative overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "radial-gradient(circle at 50% 45%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 60%)" }}
+        />
+
+        <div className="relative z-10 flex flex-col items-center text-center space-y-7 max-w-sm animate-in fade-in duration-700">
+          {/* Forge-ring loader around the seal */}
+          <div className="relative h-28 w-28">
+            <div className="absolute inset-0 rounded-full bg-primary/15 blur-2xl animate-pulse" />
+            <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full text-primary" fill="none" aria-hidden="true">
+              <circle cx="50" cy="50" r="46" stroke="currentColor" strokeOpacity="0.18" strokeWidth="1" />
+              <circle cx="50" cy="50" r="46" stroke="currentColor" strokeWidth="2.5" strokeDasharray="48 230" strokeLinecap="round" style={{ transformOrigin: "50px 50px", animation: "hero-spin 1.5s linear infinite" }} />
+              <circle cx="50" cy="50" r="33" stroke="currentColor" strokeOpacity="0.15" strokeWidth="1" strokeDasharray="2 9" style={{ transformOrigin: "50px 50px", animation: "hero-spin-rev 8s linear infinite" }} />
+            </svg>
+            <div className="absolute inset-0 grid place-items-center">
+              <LogoMark size={38} />
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <h1 className="text-2xl font-extrabold tracking-tight font-heading bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">
-              Forging Your Workspace...
+
+          <div className="space-y-2.5">
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">Forging</span>
+            <h1 className="font-heading font-light text-3xl tracking-tight">
+              Pressing your <span className="italic text-primary">workspace</span>…
             </h1>
-            <p className="text-xs text-gray-400 font-mono leading-relaxed max-w-[280px] mx-auto">
-              Our neural engines are mapping, indexing, and synthesizing your vectors into structured knowledge modules.
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-[290px] mx-auto">
+              Extracting, chunking, and synthesizing your document into structured knowledge. This usually takes a minute.
             </p>
           </div>
-          
-          <Link href="/dashboard" className="pt-2">
-            <Button variant="outline" className="border-white/10 hover:border-amber-500/35 hover:bg-white/5 font-mono text-[10px] uppercase tracking-wider rounded-full h-9 px-6 transition-all">
-              Back to Dashboard
-            </Button>
+
+          <Link
+            href="/dashboard"
+            className="rounded-full border border-border px-6 h-9 inline-flex items-center font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            Back to library
           </Link>
         </div>
       </div>
@@ -106,11 +130,12 @@ export default async function SubjectPage({
   } catch (err) {
     console.error('Failed to load study data:', err)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold mb-4 text-red-500">Error Loading Workspace Data</h1>
-        <p className="text-muted-foreground mb-4">We could not load the AI-generated JSON file.</p>
-        <Link href="/dashboard">
-          <Button>Back to Dashboard</Button>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-6">
+        <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary mb-3">Error</span>
+        <h1 className="font-heading font-light text-4xl tracking-tight mb-3">Couldn&apos;t load the workspace.</h1>
+        <p className="text-muted-foreground mb-6 text-sm">The AI-generated study file failed to load.</p>
+        <Link href="/dashboard" className="rounded-full bg-primary text-primary-foreground px-6 h-10 inline-flex items-center font-mono text-[11px] uppercase tracking-[0.16em] hover:opacity-90 transition-opacity">
+          Back to library
         </Link>
       </div>
     )
@@ -119,11 +144,18 @@ export default async function SubjectPage({
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Top Navbar */}
-      <header className="h-14 border-b flex items-center px-4 bg-background/95 backdrop-blur z-10 sticky top-0">
-        <Link href="/dashboard" className="mr-4 text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <h1 className="font-semibold truncate max-w-md">{subject.title}</h1>
+      <header className="h-16 border-b border-border flex items-center justify-between px-5 sm:px-8 bg-background/70 backdrop-blur-xl z-50 sticky top-0">
+        <div className="flex items-center min-w-0 gap-4">
+          <Link href="/dashboard" className="shrink-0 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Library</span>
+          </Link>
+          <span className="h-5 w-px bg-border shrink-0" />
+          <h1 className="font-heading text-lg tracking-tight truncate max-w-md" title={subject.title.replace(/_/g, ' ')}>
+            {subject.title.replace(/_/g, ' ')}
+          </h1>
+        </div>
+        <ThemeToggle />
       </header>
 
       {/* Main Workspace Client (Sidebar + Content) */}

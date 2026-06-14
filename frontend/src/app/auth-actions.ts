@@ -37,7 +37,13 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
-    redirect('/?error=Invalid credentials. Please try again.')
+    const m = (error.message || '').toLowerCase()
+    const friendly = m.includes('confirm')
+      ? 'Please confirm your email first — check your inbox and spam folder.'
+      : m.includes('rate')
+        ? 'Too many attempts. Please wait a moment and try again.'
+        : 'Invalid credentials. Please try again.'
+    redirect('/?error=' + encodeURIComponent(friendly))
   }
 
   revalidatePath('/', 'layout')

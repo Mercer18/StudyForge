@@ -81,3 +81,65 @@ We completed a round of UI refinements to transition the landing page into a cle
 - **Main Container Scroll Chains (`overflow-x-hidden`):** Changed the main page wrapper's styling in `page.tsx` from `overflow-hidden` to `overflow-x-hidden` to prevent browser mouse wheel scrolling from trapping or getting "stuck" when navigating page anchors on desktop viewports.
 - **Character Count Counter Overlap Fix (`pb-10`):** Added bottom padding (`pb-10`) to the interactive sandbox `textarea` in `page.tsx`. This ensures that typed text has a safe container scroll boundary and never collides or overlaps with the absolutely positioned `chars: XXX` key-badge at the bottom-right.
 - **Syntax Repair in `AnimatedLogo.tsx`:** Cleaned up a duplicate JSX `filter` attribute on the SVG voxel element to bring full TypeScript compile parity back to green!
+
+---
+
+## 🚀 Post-Remodel Interactive Sandbox & Scrollbar Fixes
+
+We completed a round of targeted UX/UI fixes on the interactive playground sandbox and scrollable layouts based on your direct feedback:
+
+### 1. Truly Interactive Sandbox Engine
+- Previously, pasting custom text in the landing page playground raw material box was static: triggering the forge would compile the simulation but fall back to displaying the hardcoded *Quantum Physics* study notes.
+- **Dynamic Parser Integration:** We developed a client-side parser `generateDynamicPreset(text)` inside `page.tsx` that triggers on typing custom texts.
+- **Dynamic Micro-site Compilation:** When the user types or pastes text and hits "Forge Workspace", it now dynamically extracts a customized title, summarizes the overview, finds key concepts from their text, drafts custom flippable flashcards, and assembles a customized SVG Mind Map mind map in real-time.
+
+### 2. Double Scrollbar Exclusions (`no-scrollbar`)
+- **CSS Utility:** Added a robust browser-compliant `.no-scrollbar` class in `globals.css` that disables scrollbars in Webkit (Chrome, Safari, Opera), Firefox, Edge, and IE while keeping mouse-wheel and swipe scroll chains fully functional.
+- **Clean Sidebar Panels:** Applied `.no-scrollbar` to the Completed Workspace views panel and the Terminal Console log panel. This completely hides the internal scrollbars, resolving the "scrolls in the right side" clutter of double-scrolling elements next to the page body scrollbar.
+- **Flexbox Textarea Flow:** Converted the playground's textarea container to standard Flexbox flow. This prevents Safari and Firefox from collapsing the text container, ensuring robust cross-browser rendering.
+
+---
+
+## 🛠️ MindMap Runtime Crash Fixes
+
+We resolved a critical runtime issue preventing forged subject mind maps from rendering correctly inside the Workspace Client:
+
+- **The Issue:** Next.js threw a `Runtime TypeError: Cannot read properties of undefined (reading 'map')` in the `<MindMap>` component at `src/components/mind-map.tsx:278`. This was triggered because legacy subject items stored in the database, or outputs from the backend LLM pipeline where certain keys were skipped, were missing the `cross_cutting` or `topics` arrays.
+- **The Fix:**
+  - Added robust defense guards: mapped topics using `(col.topics || [])` to gracefully fallback to empty structures.
+  - Wrapped the bottom drawer unit tray in `data.cross_cutting && data.cross_cutting.length > 0 && (...)`. This safely hides the Cross-Cutting Concepts module if the concept mapping is empty or missing, preventing app crashes while leaving all existing mind map columns fully loaded.
+  - Verified compilation via TypeScript compiler production build to ensure safety.
+
+---
+
+## 📐 MindMap Visual Congestion & Grid Wrapping Refactor
+
+We restructured the visual layout of the syllabus mind map inside the workspace client to eliminate overcrowding, misalignment, and horizontal scroll chains at standard screen resolutions (100% zoom):
+
+### 1. Wrap-Around Responsive Grid Columns
+- **The Issue:** Stacking all unit columns side-by-side in a single infinite horizontal row required a minimum container width of `1200px`. On standard viewport widths, it overflowed, requiring the user to zoom out to `67%` to view the curriculum structure.
+- **The Refactor:** 
+  - Removed the `min-w-[1200px]` constraint and parent `overflow-x-auto` wrapper inside [mind-map.tsx](file:///x:/CODING/PROJECTS/webdev/StudyForge/frontend/src/components/mind-map.tsx).
+  - Transitioned the columns container to a fully fluid, responsive CSS grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full`.
+  - Columns now wrap naturally to form structured cards (e.g. two rows of 4 cards on standard desktop displays) that fit 100% zoom levels cleanly without horizontal scrolling.
+
+### 2. Centered Stem Connectors (Misalignment Fix)
+- **The Issue:** The old horizontal connective bar distributed vertical tick marks using `flex justify-between`. When the number of units didn't match the grid columns perfectly, or cell widths varied, the ticks completely misaligned with unit headers.
+- **The Refactor:**
+  - Removed the horizontal connector bar completely.
+  - Replaced it with a centered vertical flow: **Subject Node** -> **Curriculum Badge** -> **Grid of Unit Cards**.
+  - Added a clean vertical connecting stem (`w-0.5 h-4 bg-border/30 mx-auto`) at the top-center of each Unit column, pointing upwards to align all items symmetrically within their grid paths.
+
+---
+
+## ✍️ Subject Title Heading Layout & Wrap Refactoring
+
+We fixed a text overflow issue where long subject titles (especially those with snake_case underscores or file extension notations) would bleed outside their decorative card boundaries:
+
+- **The Issue:** The main subject node card has a restricted `max-w-xl` width. When subject titles contain continuous alphanumeric strings with underscores (e.g. `MULTI_AGENT_DRONE_ROUTING_PROBLEM`), browsers treat the text as a single word and do not wrap it, causing it to bleed horizontally outside the outline borders.
+- **The Refactor:**
+  - **Human-Friendly Spacing:** Replaced all underscores with spaces on display in [mind-map.tsx](file:///x:/CODING/PROJECTS/webdev/StudyForge/frontend/src/components/mind-map.tsx) (`{data.title.replace(/_/g, ' ')}`) and the Pomodoro overlay in [workspace-client.tsx](file:///x:/CODING/PROJECTS/webdev/StudyForge/frontend/src/components/workspace-client.tsx) (`{subjectTitle.replace(/_/g, ' ')}`) for a highly polished, presentation-grade aesthetic.
+  - **Responsive Characters Break:** Applied `break-words` and `w-full` class utilities to the heading selectors. Even if titles are extremely long or contain no spaces, the letters will split to the next line instead of breaking containment boundaries.
+
+
+

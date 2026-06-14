@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Bot, User, X, Loader2, Sparkles, Terminal } from 'lucide-react'
+import { Send, Bot, User, X, Loader2 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import ReactMarkdown from 'react-markdown'
@@ -20,9 +20,19 @@ const HELPER_PROMPTS = [
   { label: "✨ analogy", prompt: "Explain the core technical concepts of this section using a simple real-world analogy." }
 ]
 
-export function ChatTutor({ subjectId, onClose }: { subjectId: string, onClose: () => void }) {
+export function ChatTutor({ 
+  subjectId, 
+  onClose,
+  width,
+  setWidth
+}: { 
+  subjectId: string, 
+  onClose: () => void,
+  width: number,
+  setWidth: (w: number) => void
+}) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Tutor initialized. Ask any clarifying questions or click the shortcut chips below to evaluate facts.' }
+    { role: 'assistant', content: 'Hello! I am your StudyForge Tutor. Ask me any clarifying questions about the document or click the shortcut chips below to evaluate facts.' }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -81,22 +91,52 @@ export function ChatTutor({ subjectId, onClose }: { subjectId: string, onClose: 
     handleSend(promptText)
   }
 
+  const startResizing = (mouseDownEvent: React.MouseEvent) => {
+    mouseDownEvent.preventDefault()
+    const startX = mouseDownEvent.clientX
+    const startWidth = width
+
+    const doDrag = (mouseMoveEvent: MouseEvent) => {
+      const deltaX = mouseMoveEvent.clientX - startX
+      const newWidth = Math.max(280, Math.min(600, startWidth - deltaX))
+      setWidth(newWidth)
+    }
+
+    const stopDrag = () => {
+      document.removeEventListener('mousemove', doDrag)
+      document.removeEventListener('mouseup', stopDrag)
+    }
+
+    document.addEventListener('mousemove', doDrag)
+    document.addEventListener('mouseup', stopDrag)
+  }
+
   return (
-    <div className="flex flex-col h-full bg-card/95 backdrop-blur-md border-l border-border w-80 md:w-96 absolute right-0 top-0 bottom-0 z-40 transition-all duration-300 font-sans shadow-xl">
+    <div 
+      className="flex flex-col bg-card/95 backdrop-blur-md border-l border-border fixed right-0 top-14 bottom-0 z-40 font-sans shadow-2xl animate-in slide-in-from-right duration-300"
+      style={{ width }}
+    >
+      {/* Drag Resizer Handle */}
+      <div
+        onMouseDown={startResizing}
+        className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-primary/45 active:bg-primary transition-colors z-50 flex items-center justify-center group select-none"
+      >
+        <div className="w-0.5 h-8 bg-border/60 group-hover:bg-primary/60 rounded" />
+      </div>
       
       {/* Header Deck */}
       <div className="p-4 border-b border-border flex items-center justify-between bg-muted/20 select-none">
-        <div className="flex items-center gap-1.5 text-primary">
-          <Bot className="w-4 h-4 text-primary shrink-0" />
-          <h3 className="font-mono text-[10px] uppercase font-bold tracking-widest leading-none">AI Study Tutor</h3>
+        <div className="flex items-center gap-2">
+          <Bot className="w-5 h-5 text-primary" />
+          <h3 className="font-heading font-bold tracking-wider text-sm uppercase">StudyForge Tutor</h3>
         </div>
         <div className="flex items-center gap-2">
           <span className="key-badge">esc</span>
           <button 
             onClick={onClose} 
-            className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 cursor-pointer flex items-center justify-center transition-all border border-transparent hover:border-border"
+            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 cursor-pointer flex items-center justify-center transition-all border border-transparent hover:border-border"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -105,27 +145,27 @@ export function ChatTutor({ subjectId, onClose }: { subjectId: string, onClose: 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`flex max-w-[90%] gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex max-w-[85%] gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
               
               {/* Minimalist Avatar */}
-              <div className={`flex-shrink-0 h-7 w-7 rounded border flex items-center justify-center select-none ${
+              <div className={`flex-shrink-0 h-8 w-8 rounded-full border flex items-center justify-center select-none ${
                 msg.role === 'user' 
-                  ? 'bg-primary/10 border-primary/20 text-primary' 
-                  : 'bg-muted border-border text-muted-foreground'
+                  ? 'bg-primary text-primary-foreground border-primary/20 shadow-sm' 
+                  : 'bg-muted border-border text-primary shadow-sm'
               }`}>
-                {msg.role === 'user' ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
 
               {/* Message Bubble */}
-              <div className={`p-3 rounded-lg text-xs leading-6 font-sans ${
+              <div className={`p-3.5 rounded-2xl text-sm leading-relaxed font-sans shadow-sm ${
                 msg.role === 'user' 
-                  ? 'bg-muted/40 text-foreground border border-border rounded-tr-none' 
-                  : 'bg-primary/[2%] text-foreground/95 border border-primary/10 rounded-tl-none'
+                  ? 'bg-primary/10 text-foreground border border-primary/20 rounded-tr-sm' 
+                  : 'bg-muted/50 text-foreground border border-border rounded-tl-sm'
               }`}>
                 {msg.role === 'user' ? (
-                  <p className="font-mono">{msg.content}</p>
+                  msg.content
                 ) : (
-                  <div className="prose prose-sm dark:prose-invert max-w-none text-left prose-p:leading-6 prose-p:text-xs prose-pre:bg-muted/40 prose-pre:border prose-pre:border-border prose-ul:pl-4 prose-li:my-1 prose-strong:text-primary prose-strong:font-bold">
+                  <div className="prose prose-sm dark:prose-invert max-w-none text-left prose-p:leading-relaxed prose-p:text-sm prose-pre:bg-muted/50 prose-pre:border prose-pre:border-border prose-ul:pl-4 prose-li:my-1 prose-strong:text-primary prose-strong:font-bold">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                   </div>
                 )}
@@ -135,17 +175,16 @@ export function ChatTutor({ subjectId, onClose }: { subjectId: string, onClose: 
           </div>
         ))}
 
-        {/* Loading Terminal State */}
+        {/* Loading State */}
         {isLoading && (
           <div className="flex w-full justify-start animate-pulse select-none">
-            <div className="flex max-w-[90%] gap-2.5 flex-row">
-              <div className="flex-shrink-0 h-7 w-7 rounded border border-border bg-muted flex items-center justify-center">
-                <Bot className="w-3.5 h-3.5 text-primary" />
+            <div className="flex max-w-[85%] gap-3 flex-row">
+              <div className="flex-shrink-0 h-8 w-8 rounded-full border border-border bg-muted flex items-center justify-center text-primary">
+                <Bot className="w-4 h-4" />
               </div>
-              <div className="p-3 rounded-lg bg-card border border-border rounded-tl-none flex items-center gap-2 font-mono text-[10px] text-muted-foreground">
-                <Terminal className="w-3 h-3 text-primary animate-spin" />
-                <span>{`>`} synthesizing answer</span>
-                <span className="typing-caret w-1 h-3 bg-primary inline-block" />
+              <div className="p-3.5 rounded-2xl bg-muted/50 border border-border rounded-tl-sm flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                <span>Forging answer...</span>
               </div>
             </div>
           </div>
@@ -157,13 +196,13 @@ export function ChatTutor({ subjectId, onClose }: { subjectId: string, onClose: 
       <div className="p-4 border-t border-border bg-muted/10">
         
         {/* Helper prompt chips (Monkeytype DNA) */}
-        <div className="flex flex-wrap gap-1.5 mb-3.5 select-none">
+        <div className="flex flex-wrap gap-1.5 mb-3 select-none">
           {HELPER_PROMPTS.map((helper, idx) => (
             <button
               key={idx}
               onClick={() => triggerHelper(helper.prompt)}
               disabled={isLoading}
-              className="text-[9px] font-mono font-bold uppercase py-1 px-2 rounded border border-border bg-card/60 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-[10px] font-mono font-bold uppercase py-1.5 px-2.5 rounded-lg border border-border bg-card/60 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {helper.label}
             </button>
@@ -175,17 +214,17 @@ export function ChatTutor({ subjectId, onClose }: { subjectId: string, onClose: 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Query details..."
-            className="pr-10 bg-card border-border focus-visible:ring-1 focus-visible:ring-primary h-10 rounded font-mono text-xs"
+            placeholder="Ask about this document..."
+            className="pr-12 bg-card border-border focus-visible:ring-1 focus-visible:ring-primary h-12 rounded-xl text-sm"
             disabled={isLoading}
           />
           <Button 
             onClick={() => handleSend()} 
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="absolute right-1.5 h-7 w-7 rounded bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm transition-all cursor-pointer"
+            className="absolute right-1.5 h-9 w-9 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all cursor-pointer flex items-center justify-center"
           >
-            <Send className="w-3.5 h-3.5" />
+            <Send className="w-4 h-4" />
           </Button>
         </div>
 
