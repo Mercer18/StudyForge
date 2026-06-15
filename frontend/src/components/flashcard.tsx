@@ -108,9 +108,15 @@ export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
           <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-between p-8 text-center rounded-lg border border-border bg-card/60 backdrop-blur-md shadow-md transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] group-hover:border-primary/30 overflow-visible">
             <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">FRONT • STUDY CONCEPT</span>
             
-            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-heading leading-snug max-w-md mx-auto my-auto text-foreground">
-              {currentCard.front}
-            </h3>
+            <div className="text-xl sm:text-2xl font-extrabold tracking-tight font-heading leading-snug max-w-md mx-auto my-auto text-foreground">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
+                components={{ p: ({ children }) => <>{children}</> }}
+              >
+                {currentCard.front}
+              </ReactMarkdown>
+            </div>
             
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors group-hover:text-primary mt-auto">
               <RotateCw className="w-3.5 h-3.5" />
@@ -125,7 +131,7 @@ export function FlashcardView({ flashcards }: { flashcards: FlashcardData[] }) {
             <div className="w-full max-w-md mx-auto my-auto text-foreground/90 overflow-y-auto max-h-[170px] pr-1 scrollbar-thin">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeKatex]}
+                rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
                 components={{
                   p: ({ children }) => <p className="mb-2 last:mb-0 text-center leading-relaxed font-sans text-sm sm:text-base">{children}</p>,
                   ul: ({ children }) => <ul className="list-disc pl-4 text-left space-y-1 my-2 text-sm text-foreground/80">{children}</ul>,

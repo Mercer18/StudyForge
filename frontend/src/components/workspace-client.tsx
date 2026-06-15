@@ -390,7 +390,7 @@ export function WorkspaceClient({ data, subjectTitle }: { data: StudyData | null
               <div className="prose prose-slate dark:prose-invert max-w-none text-left prose-p:leading-relaxed prose-p:text-base md:prose-p:text-[17px] prose-p:text-foreground/90 prose-headings:font-heading prose-headings:tracking-tight prose-strong:text-primary prose-strong:font-bold prose-h2:text-2xl md:prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-5 prose-h3:text-xl md:prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-li:text-base md:prose-li:text-[17px] prose-li:my-2.5 prose-ul:my-4 prose-ol:my-4 prose-blockquote:border-l-primary prose-blockquote:bg-primary/[2%] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-xl prose-blockquote:text-muted-foreground prose-blockquote:not-italic">
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm, remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
+                  rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
                   components={{
                     code({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: React.ReactNode }) {
                       const match = /language-(\w+)/.exec(className || '')

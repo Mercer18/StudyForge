@@ -6,6 +6,7 @@ from services.supabase_client import supabase
 from groq import Groq
 from services.auth import get_current_user
 from services.pipeline import get_embedding_model
+from services.llm_client import complete
 
 router = APIRouter()
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
@@ -109,15 +110,9 @@ RULES:
             if msg.role in ["user", "assistant"]:
                 api_messages.append({"role": msg.role, "content": msg.content})
                 
-        # 6. Call Groq
-        chat_completion = groq_client.chat.completions.create(
-            messages=api_messages,
-            model="llama-3.1-8b-instant",
-            temperature=0.3, # Low temperature for more factual responses
-            max_tokens=1000
-        )
-        
-        reply = chat_completion.choices[0].message.content
+        # 6. LLM cascade (Gemini -> Groq). Chat returns prose, not JSON.
+        convo = "\n\n".join(f"{m['role'].upper()}: {m['content']}" for m in api_messages[1:])
+        reply = complete(system_prompt, convo, json_mode=False, temperature=0.3, max_tokens=1000)
         
         return {"reply": reply}
         

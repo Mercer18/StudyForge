@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import json
 import time
 from services.text_splitter import split_text_recursive
+from services.llm_client import complete
 
 load_dotenv()
 
@@ -39,18 +40,20 @@ def generate_subject_knowledge_graph(extracted_text: str, subject_title: str) ->
     for idx, chunk in enumerate(chunks_to_process):
         print(f"Processing chunk {idx + 1}/{len(chunks_to_process)}...")
         
-        prompt = f"""
+        prompt = rf"""
         You are the StudyForge "Deep Forge" AI tutor. Analyze this text chunk for the subject "{subject_title}".
         Generate a highly structured learning "Knowledge Graph" JSON object.
         
         RULES:
-        1. **Math:** Use LaTeX formatting. Inline must be `$math$` and block `$$math$$`.
-        2. **Formatting:** **bold** crucial vocabulary. 
+        1. **Math (CRITICAL):** Put ONLY real mathematical expressions inside `$...$` (inline) or `$$...$$` (block) — NEVER wrap a full sentence in math delimiters. Inside these JSON string values, every LaTeX backslash MUST be DOUBLED so the JSON stays valid. Use proper commands: `\\frac`, `\\sum`, `\\sqrt`, `\\int`, `\\alpha`, `\\nabla`, and `\\text{{...}}` for words inside math.
+           CORRECT: "Gradient descent: $$x_{{t+1}} = x_t - \\eta \\nabla f(x_t)$$ where $\\eta$ is the learning rate."
+           WRONG: "$$Hill Climbing: choose a random solution x_0 in S$$"  (prose in math mode + single backslashes).
+        2. **Formatting:** Use **double asterisks** to bold crucial vocabulary (never inside math).
         3. **Diagrams:** Use ```mermaid ... ``` inside sections when explaining complex pipelines/processes.
-        4. **Flashcard Density:** Extract 5 to 8 distinct, high-yield flashcards covering algorithms, formulas, parameters, and key concepts from the chunk.
-        5. **Flashcard Format:** 
-           - "front": direct active recall question (e.g., "What is the formula for regularization?").
-           - "back": complete, mathematically precise answer using LaTeX.
+        4. **Flashcard Density:** Extract 5 to 8 distinct, high-yield flashcards covering algorithms, formulas, parameters, and key concepts.
+        5. **Flashcard Format:**
+           - "front": a direct active-recall question (e.g., "What is the formula for L2 regularization?").
+           - "back": the precise answer — put any formula in `$$...$$` with double-escaped backslashes, and keep explanations as plain prose OUTSIDE the math.
         6. Do not hallucinate. Use ONLY the provided text chunk.
 
         JSON structure:
@@ -83,24 +86,13 @@ def generate_subject_knowledge_graph(extracted_text: str, subject_title: str) ->
         
         for attempt in range(retries):
             try:
-                response = client.chat.completions.create(
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are a strict JSON-only API. You must return strictly valid, raw JSON with no trailing commas or markdown wrapping."
-                        },
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
-                    ],
-                    model="llama-3.1-8b-instant",
+                result_content = complete(
+                    "You are a strict JSON-only API. Return strictly valid, raw JSON with no trailing commas or markdown wrapping. Any LaTeX in string values MUST use double backslashes (e.g. \\\\frac, \\\\sum, \\\\text) so the JSON stays valid.",
+                    prompt,
+                    json_mode=True,
                     temperature=0.3,
-                    max_tokens=1200,
-                    response_format={"type": "json_object"}
+                    max_tokens=4096,
                 )
-                
-                result_content = response.choices[0].message.content
                 chunk_data = json.loads(result_content)
                 
                 import uuid
@@ -118,8 +110,8 @@ def generate_subject_knowledge_graph(extracted_text: str, subject_title: str) ->
                     master_study_data["flashcards"].append(fc)
                 
                 success = True
-                # Respect rate limits (Groq allows ~30 RPM, but adding a delay helps TPM limits)
-                time.sleep(3)
+                # Small politeness delay; the LLM cascade absorbs bursts/429s via failover.
+                time.sleep(1)
                 break
                 
             except Exception as e:
@@ -231,24 +223,13 @@ def generate_mind_map(subject_title: str, sections: list) -> dict:
     backoff = 4
     for attempt in range(retries):
         try:
-            response = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a strict JSON-only API. You must return strictly valid, raw JSON with no trailing commas or markdown wrapping."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                model="llama-3.1-8b-instant",
+            result_content = complete(
+                "You are a strict JSON-only API. Return strictly valid, raw JSON with no trailing commas or markdown wrapping.",
+                prompt,
+                json_mode=True,
                 temperature=0.3,
-                max_tokens=1200,
-                response_format={"type": "json_object"}
+                max_tokens=2048,
             )
-            
-            result_content = response.choices[0].message.content
             mind_map_data = json.loads(result_content)
             return mind_map_data
         except Exception as e:

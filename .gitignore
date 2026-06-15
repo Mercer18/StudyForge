@@ -22,8 +22,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -63,3 +61,15 @@ lerna-debug.log*
 Thumbs.db
 
 study forge website/
+
+# Local dev scratch / utilities (kept off the repo)
+/study materials/
+/sample_docs/
+/official.md
+/page_diff.txt
+/page_diff_utf8.txt
+/download_test_docs.py
+/backend/scratch_check.py
+/backend/_llm_test.py
+/backend/forge_files.py
+/.claude/

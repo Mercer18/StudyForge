@@ -37,7 +37,35 @@ User rejected the v1 dark-blue/glass direction entirely ("reimagine everything �
 - **Left intentionally:** mind-map's per-branch categorical colors (data-viz that aids comprehension) and upload-modal's `slate-950` "terminal" progress view (terminals read dark in both themes).
 - Verified (:3000): `/` 200, `/dashboard` + `/subject/*` 307 (auth redirect — full module graphs compiled), no console errors.
 
-> Remaining: `verify-email` page polish; deeper mind-map/flashcard visual treatment if desired; backend hardening (RLS / regenerate `schema.sql`) still open.
+**Update (same day) — login fix + verify-email + checkpoint:**
+- **Login diagnosis:** `signInWithPassword` failures were all collapsed to "Invalid credentials". Most likely real cause = **unconfirmed email** (signup requires verification; dev SMTP often doesn't deliver, so accounts stay unconfirmed). Fixed `auth-actions.ts` `login()` to surface the real reason (unconfirmed-email + rate-limit get distinct messages). Actual unblock is Supabase-side: confirm the user, or disable "Confirm email" for dev.
+- **verify-email** page editorialized (Fraunces + ember + mono kicker; dropped the orange-600 orb, bounce, and `Button`).
+- **Checkpoint commit** `807cfa5` on `main` ("Knowledge Press editorial redesign") — 32 files; scratch/diff/sample artifacts + `.claude/` intentionally excluded. Not pushed.
+
+> Internal theming now covers every auth-gated screen (dashboard, workspace reader/cards/mindmap/chat, subject loader, auth modal, verify-email) — user just can't *see* it yet because login is blocked.
+> Remaining: actual login unblock is a Supabase setting (needs user / authorized admin call); optional deeper mind-map + flashcard visual treatment; backend hardening (RLS / regenerate `schema.sql`).
+
+**Update (same day) — servers durable, formula rendering, batch forge:**
+- **Backend durability:** the session-tied background uvicorn kept getting reaped → "Failed to fetch" on forge. Relaunched as a **detached OS process** (`Start-Process`, survives session reaping). `start_backend.bat` already exists for the user to run it independently of Claude.
+- **User-delete FK:** diagnosed "Database error deleting user" as missing `ON DELETE CASCADE` on `profiles→auth.users` (+ downstream subjects/focus_sessions); gave the user the ALTER SQL (live-DB change is theirs).
+- **Formula rendering (root cause):** the Deep-Forge prompt emitted single-backslash LaTeX inside JSON → `json_validate_failed` or `\t`/`\f` mangling → "raw"-looking formulas. Fixed `groq_generator.py` to require **double-escaped backslashes**, real LaTeX commands, and NO prose inside `$…$`. Made every render site lenient + math-enabled: reader, flashcard **front+back**, and **chat tutor** (added `remarkMath`+`rehypeKatex`+katex CSS) — all with `{ throwOnError:false, strict:false }`. Old forges still hold pre-fix data; re-forge to see clean math.
+- **Batch forge:** added `backend/forge_files.py` — logs in as the user (username→email via service role, then password grant) and forges the 6 PDFs in `study materials/` as **AI, NLP, NLP Notes, ML, DL, AI Core**, sequentially (respects Groq free-tier rate limit). Running in background. (Token-expiry bug later fixed — refreshes the access token per file.)
+
+**Update (same day) — Gemini + Groq LLM cascade:**
+- Added `backend/services/llm_client.py` — `complete(system, user, json_mode)` runs a provider cascade **Gemini 2.5-flash → Groq llama-3.3-70b → Groq llama-3.1-8b**, with auto-failover on error / 429 / invalid-JSON, and skips any provider whose key isn't in `.env`. Gemini via REST + `responseMimeType: application/json` + `thinkingBudget: 0`.
+- Routed `groq_generator.py` (knowledge graph + mind map) and `routes/chat.py` through the cascade (replaced the direct Groq 8B calls).
+- `GEMINI_API_KEY` stored in `backend/.env` (gitignored). Note: this project's free tier has `gemini-2.0-flash` **quota-blocked** (429) but `gemini-2.5-flash` works → set as primary.
+- Verified end-to-end: `[llm] gemini:gemini-2.5-flash OK` returning clean LaTeX (`$S_n = \\frac{n(n+1)}{2}$`, proper escaping, formula-only). Re-forging all 6 study materials on the cascade.
+
+**Update (same day) — forge speed + Unicode fix + password-reset flow (deploy-prep phase 1-2):**
+- **Trim:** per-chunk politeness sleep in `groq_generator.py` cut 3s → 1s (cascade absorbs bursts/429s).
+- **Unicode crash fix:** a `≤` char crashed AI Core's forge via Windows cp1252. Relaunched backend with `PYTHONUTF8=1` and added `set PYTHONUTF8=1` to `start_backend.bat`. Re-forge result: **5/6 clean (AI, NLP, NLP Notes, ML, DL)**; AI Core re-forging after the fix. (Old pre-fix duplicates remain in the library — newest = clean.)
+- **Forgot-password / reset flow built** (emails deliver once Brevo SMTP is configured post-deploy):
+  - `app/auth/callback/route.ts` — exchanges PKCE `code` for a session, forwards to `?next`.
+  - `app/reset-password/page.tsx` — editorial new-password form (recovery session / expired-link / success states).
+  - `auth-modal.tsx` — new `forgot` mode + "Forgot?" link → `resetPasswordForEmail(redirectTo=/auth/callback?next=/reset-password)`.
+  - Verified: `/`, `/reset-password` → 200; `/auth/callback` → 307; no console errors.
+- `forge_files.py` now takes a CLI filter (`python forge_files.py "AI Core"`) + refreshes its token per file.
 
 ---
 

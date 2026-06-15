@@ -6,6 +6,9 @@ import { Button } from './ui/button'
 import { Input } from './ui/input'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { createClient } from '@/utils/supabase/client'
 
 interface Message {
@@ -166,7 +169,7 @@ export function ChatTutor({
                   msg.content
                 ) : (
                   <div className="prose prose-sm dark:prose-invert max-w-none text-left prose-p:leading-relaxed prose-p:text-sm prose-pre:bg-muted/50 prose-pre:border prose-pre:border-border prose-ul:pl-4 prose-li:my-1 prose-strong:text-primary prose-strong:font-bold">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}>{msg.content}</ReactMarkdown>
                   </div>
                 )}
               </div>
